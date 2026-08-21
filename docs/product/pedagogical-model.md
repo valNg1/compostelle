@@ -2,30 +2,51 @@
 
 ## La boucle centrale
 
-L'expérience LONTANO repose sur une boucle unique :
+L'expérience LONTANO repose sur une boucle unique, **générique** (indépendante d'un
+média particulier) :
 
 ```
-READ → UNDERSTAND → RECALL → MEMORY → JOURNEY
+DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 ```
 
-### READ
-Lire des contenus intéressants et adaptés au **niveau réel** de l'apprenant.
+### DISCOVER
+Entrer en contact avec quelque chose d'intéressant dans la langue cible. La
+découverte peut prendre différentes formes :
+
+- lire ;
+- écouter ;
+- explorer ;
+- *(plus tard)* regarder ou interagir.
+
+> La lecture est **une** modalité de DISCOVER, pas la définition du produit.
 
 ### UNDERSTAND
-Recevoir une aide contextuelle **sans casser la lecture** :
+Recevoir l'aide nécessaire pour comprendre **sans casser l'expérience** :
 
 - vocabulaire ;
 - expressions ;
 - traduction à la demande ;
-- grammaire contextualisée.
+- grammaire contextualisée ;
+- explications adaptées au contexte.
 
 ### RECALL
-Objectiver l'acquisition avec des quiz :
+Vérifier et renforcer ce qui vient d'être découvert :
 
 - compréhension ;
 - vocabulaire ;
+- expressions ;
 - grammaire ;
 - rappel différé.
+
+### USE
+Faire **produire ou réutiliser activement** la langue. Exemples futurs possibles
+(non spécifiés à ce stade) :
+
+- reformulation ;
+- réponse courte ;
+- choix contextualisé ;
+- mini-dialogue ;
+- production guidée.
 
 ### MEMORY
 Construire progressivement une **mémoire pédagogique personnelle**. Chaque élément
@@ -36,8 +57,8 @@ NEW → LEARNING → ACQUIRED → TO REVIEW
 ```
 
 ### JOURNEY
-Faire vivre l'apprentissage comme un **chemin** plutôt que comme une succession de
-leçons.
+Faire vivre l'apprentissage comme un **chemin continu et personnalisé**, plutôt que
+comme une succession de leçons ou d'exercices isolés.
 
 ## Personnalisation
 
@@ -54,9 +75,9 @@ l'utilisateur :
 - oublie ;
 - doit revoir.
 
-> **Invariant structurant** — Le niveau *déclaré* doit toujours rester
-> conceptuellement **distinct** du futur niveau *estimé* par LONTANO, et stocké
-> séparément.
+> **Invariant structurant** — Le niveau *déclaré* (`declaredLevel`) doit toujours
+> rester conceptuellement **distinct** du futur niveau *estimé* (`estimatedLevel`)
+> par LONTANO, et stocké séparément.
 
 Conséquence : deux utilisateurs ayant déclaré le même niveau (p. ex. B1) doivent
 progressivement recevoir des **expériences différentes**.
@@ -64,4 +85,5 @@ progressivement recevoir des **expériences différentes**.
 ## Voir aussi
 
 - Vision produit : [`vision.md`](vision.md)
+- Décision de repositionnement : [D-06](../decisions/README.md)
 - User Stories : [`../user-stories/README.md`](../user-stories/README.md)

@@ -22,3 +22,11 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 | ID | Titre | Étape boucle | Statut | Fiche |
 |----|-------|--------------|--------|-------|
 | US-01 | Create my language journey | JOURNEY (entrée) | `Done` (validée PO) | [US-01](../user-stories/US-01-create-language-journey.md) |
+
+## Prochaine User Story
+
+La proposition précédente « Choose my next reading » est **abandonnée**. Suite au
+repositionnement produit ([D-06](../decisions/README.md) — LONTANO multimodal, non
+« reading-only »), la prochaine US doit être **redéfinie** par le PO et ChatGPT à
+partir du nouveau modèle produit **avant** tout développement. Aucune US-02 n'est
+donc créée à ce stade.

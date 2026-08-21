@@ -23,7 +23,7 @@ Chaque fiche doit pouvoir documenter les champs de **traçabilité** suivants :
 
 - **ID** : US-XX
 - **Statut** : Draft | Validated | Ready | In progress | Done
-- **Étape de la boucle pédagogique** : READ | UNDERSTAND | RECALL | MEMORY | JOURNEY
+- **Étape de la boucle pédagogique** : DISCOVER | UNDERSTAND | RECALL | USE | MEMORY | JOURNEY
 
 ## User story
 As a <rôle>, I want <objectif>, so that <bénéfice>.
@@ -32,7 +32,7 @@ As a <rôle>, I want <objectif>, so that <bénéfice>.
 Pourquoi cette story compte pour l'apprenant.
 
 ## Lien avec la boucle pédagogique
-Comment elle s'inscrit dans READ → UNDERSTAND → RECALL → MEMORY → JOURNEY.
+Comment elle s'inscrit dans DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY.
 
 ## Règles fonctionnelles
 - ...

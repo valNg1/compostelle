@@ -1,16 +1,21 @@
 # LONTANO
 
-**Learn a language by reading what you actually want to read.**
+**LONTANO helps you learn a language through things worth discovering.**
+*(formulation de travail — pas une tagline définitive)*
 
-LONTANO est une application d'apprentissage des langues par la **lecture assistée et
-personnalisée**. Son principe fondateur est la **TRANSMISSION** : donner accès à une
-langue par ce qu'elle permet de lire, comprendre, découvrir, mémoriser et explorer
-d'une culture.
+LONTANO est une application d'apprentissage des langues fondée sur
+**CONTENTS + TRANSMISSION + PERSONALISATION** : apprendre une langue à travers des
+contenus qui ont une valeur propre (histoire, culture, fiction, voyage, actualité,
+sport, vie quotidienne…). La pédagogie soutient la découverte, et non l'inverse.
+
+**Ce n'est pas une application de lecture.** La lecture est une modalité importante —
+et la première du MVP — mais le produit est pensé comme **multimodal** (lire,
+écouter, explorer, interagir…). Voir la décision [D-06](docs/decisions/README.md).
 
 Boucle pédagogique :
 
 ```
-READ → UNDERSTAND → RECALL → MEMORY → JOURNEY
+DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 ```
 
 ---
@@ -23,8 +28,14 @@ lancé, focalisé sur une **première tranche verticale de US-01**.
 Périmètre volontairement resserré à ce stade :
 
 - première langue : **Italian** ;
+- **une seule modalité concrète (lecture)** suffit pour le MVP — les autres
+  modalités ne sont pas développées ;
 - pas de backend, pas de moteur IA, pas de US-02+ ;
 - persistance **locale** (navigateur) pour US-01.
+
+> US-01 « Create my language journey » est **DONE**. La prochaine US sera
+> **redéfinie** par le PO et ChatGPT à partir du modèle produit multimodal (D-06)
+> avant tout développement.
 
 Le repository documente **ce qui existe réellement**, jamais une architecture
 imaginée pour plus tard.
@@ -87,5 +98,5 @@ src/
 
 Tout arbitrage fonctionnel se juge à cette aune :
 
-> Est-ce que cette expérience donne envie à l'utilisateur de revenir lire demain,
-> tout en lui permettant réellement d'apprendre ?
+> Est-ce que LONTANO donne envie de revenir apprendre demain, parce que l'expérience
+> est intéressante, personnalisée et réellement utile ?

@@ -20,8 +20,9 @@ première session.
 ## Lien avec la boucle pédagogique
 
 US-01 initialise le **JOURNEY**. Les choix faits ici (langue, niveau déclaré,
-centres d'intérêt) alimentent en amont l'étape **READ** : ils déterminent les
-contenus proposés et leur niveau de départ.
+centres d'intérêt) alimentent en amont l'étape **DISCOVER** (dont la lecture est la
+première modalité du MVP) : ils déterminent les contenus proposés et leur niveau de
+départ.
 
 ## Règles fonctionnelles
 
