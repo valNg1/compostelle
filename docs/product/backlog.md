@@ -22,11 +22,12 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 | ID | Titre | Étape boucle | Statut | Fiche |
 |----|-------|--------------|--------|-------|
 | US-01 | Create my language journey | JOURNEY (entrée) | `Done` (validée PO) | [US-01](../user-stories/US-01-create-language-journey.md) |
+| US-02 | Discover something interesting | DISCOVER | `In progress` (tranche livrée en session autonome, à valider PO) | [US-02](../user-stories/US-02-discover-something-interesting.md) |
 
-## Prochaine User Story
+## Note US-02
 
-La proposition précédente « Choose my next reading » est **abandonnée**. Suite au
-repositionnement produit ([D-06](../decisions/README.md) — LONTANO multimodal, non
-« reading-only »), la prochaine US doit être **redéfinie** par le PO et ChatGPT à
-partir du nouveau modèle produit **avant** tout développement. Aucune US-02 n'est
-donc créée à ce stade.
+La proposition antérieure « Choose my next reading » avait été abandonnée après le
+repositionnement multimodal ([D-06](../decisions/README.md)). US-02 a été **redéfinie**
+comme **« Discover something interesting »** (étape DISCOVER), cohérente avec le
+modèle produit multimodal, et livrée en tranche verticale pendant une session
+autonome (PO absent). **Reste à valider par le PO.**

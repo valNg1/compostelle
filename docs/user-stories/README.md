@@ -10,6 +10,7 @@ ailleurs).
 | ID | Titre | Statut |
 |----|-------|--------|
 | [US-01](US-01-create-language-journey.md) | Create my language journey | `Done` |
+| [US-02](US-02-discover-something-interesting.md) | Discover something interesting | `In progress` |
 
 La vue backlog complète est dans [`../product/backlog.md`](../product/backlog.md).
 La légende des statuts y est également définie.
