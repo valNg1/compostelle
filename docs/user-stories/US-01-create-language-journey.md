@@ -1,7 +1,7 @@
 # US-01 — Create my language journey
 
 - **ID** : US-01
-- **Statut** : In progress — première tranche verticale implémentée
+- **Statut** : Done — validée par le PO
 - **Étape de la boucle pédagogique** : JOURNEY (point d'entrée de la boucle)
 
 ## User story
@@ -93,14 +93,10 @@ Voir [`../product/pedagogical-model.md`](../product/pedagogical-model.md#personn
 - Journal de décisions : [D-03](../decisions/README.md) (stack),
   [D-04](../decisions/README.md) (règle « ≥ 1 intérêt »).
 
-## Points ouverts
-
-- **Règle « au moins un intérêt »** : introduite par l'implémentation pour donner une
-  direction au parcours (satisfaite par « Surprise me »). À confirmer par le PO —
-  alternative possible : intérêts entièrement optionnels.
-
 ## Statut & historique
 
 - **Validated** — US-01 intégrée au référentiel (Product Discovery).
 - **In progress** — première tranche verticale implémentée (onboarding → validation →
   résumé → persistance après rechargement), sous GO MVP du PO.
+- **Done** — validée par le PO le 2026-08-21 ; règle D-04 (« ≥ 1 intérêt, Surprise me
+  valide ») **confirmée**, plus aucun point ouvert.
