@@ -22,19 +22,18 @@ Source de vérité des parcours (ADR-0002). Configuration :
 2. Copier `.env.example` → `.env` et renseigner `VITE_SUPABASE_URL` /
    `VITE_SUPABASE_ANON_KEY` (**jamais commité** ; `.env` est gitignoré).
 
-Sans ces variables, l'app tourne en **cache-only** (localStorage) — aucun secret
-requis en dev/CI. Détails : [`supabase/README.md`](../../supabase/README.md).
-
-> **OPEN-01 (sécurité)** : la politique RLS MVP est permissive (anon) et doit être
-> durcie avant tout lancement public.
+L'identité est gérée par **Supabase Auth (magic-link)** ; la **RLS est owner-only**
+(`user_id = auth.uid()`), aucun accès inter-usagers. Sans ces variables, l'app tourne
+en **cache-only** (localStorage) — aucun secret requis en dev/CI. Détails :
+[`supabase/README.md`](../../supabase/README.md).
 
 ## Déploiement
 
-**Aucun déploiement à ce jour.** L'application fonctionne en local avec une
-persistance navigateur ; il n'y a ni environnement hébergé, ni backend, ni base de
-données à exploiter. Aucune configuration DNS/hébergement n'est donc créée à ce
-stade — seul le domaine officiel est enregistré ci-dessus.
+Cible : **`https://compostel.org`** (Vite SPA sur Vercel + Supabase). Le repo
+contient `vercel.json` (build + rewrites SPA) prêt à l'emploi. **Le provisionnement
+Supabase, la configuration des variables d'env sur l'hébergeur et le DNS de
+`compostel.org` nécessitent une action PO** (comptes/accès) : procédure exacte pas à
+pas dans **[`DEPLOYMENT.md`](DEPLOYMENT.md)** (OPEN-03).
 
-La documentation d'exploitation (environnements, hébergement, supervision, runbooks,
-sauvegardes) sera renseignée ici lorsqu'un premier déploiement sera décidé, avec
-`compostel.org` comme domaine cible.
+Tant que ces actions PO ne sont pas faites, **aucun environnement de production n'est
+en ligne** — la validation MVP (test d'acceptation runtime) reste en attente.

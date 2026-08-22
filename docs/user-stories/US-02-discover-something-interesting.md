@@ -146,14 +146,22 @@ La sélection est une **fonction pure** : elle ne mute jamais le `Journey`, ni
 
 ## Fondation MVP (prérequis ajoutés par le PO)
 
-- **Persistance durable** (D-10 / ADR-0002) : source de vérité Postgres via un port
-  `JourneyRepository` + adaptateur Supabase + `JourneyService` (durable autoritaire,
-  `localStorage` = cache/résilience/migration). Restauration prouvée **indépendamment
-  de `localStorage`** (tests service/repository). Sans `.env`, cache-only.
-- **Multilingue it + es** (D-11 / ADR-0003) : la langue est une donnée
-  (`journey.language`, `content.language`) ; `selectDiscoveryFeed` isole par langue ;
-  **mêmes composants** pour toutes les langues ; catalogue espagnol de preuve
-  (`catalog.es.ts`). Choix de langue à l'onboarding.
+- **Persistance durable user-scoped multi-langue** (D-10/D-14 / ADR-0002) : Postgres
+  source de vérité via `JourneyRepository` + adaptateur Supabase + `JourneyService`.
+  Schéma `unique(user_id, language_code)` — un utilisateur garde **plusieurs parcours
+  durables** (un par langue) ; changer de langue n'en détruit aucun. Restauration
+  prouvée **indépendamment de `localStorage`** (tests service/repository). Sans `.env`,
+  cache-only.
+- **Identité durable** (D-13 / ADR-0004) : Supabase Auth **email magic-link** ;
+  propriété = `auth.uid()`. **RLS owner-only** : aucun accès inter-usagers.
+- **Multilingue it + es** (D-11 / ADR-0003) : la langue est une donnée ;
+  `selectDiscoveryFeed` isole par langue ; **mêmes composants** ; catalogue espagnol
+  de preuve. UX : choix/ajout/bascule de langue (barre de langues) préservant tous les
+  parcours.
+- **Validation** : le test d'acceptation runtime (login → it+es durables → sign-out +
+  vidage localStorage → reconnexion → restauration) exige un Supabase live +
+  déploiement — **action PO** (OPEN-03, [DEPLOYMENT.md](../operations/DEPLOYMENT.md)).
+  Non validé tant que ce test réel n'est pas passé (D-12).
 
 ## Statut & historique
 

@@ -18,9 +18,11 @@ DOM) :
 | [`src/domain/discovery.test.ts`](../../src/domain/discovery.test.ts) | Sélection du feed (intérêts, multi-intérêts, `Surprise me`, fallback, vide, déterminisme, non-mutation) **+ isolation par langue** (`Surprise me`/fallback ne traversent jamais la langue). |
 | [`src/domain/discovery.catalog.test.ts`](../../src/domain/discovery.catalog.test.ts) | Garde-fous d'intégration sur le vrai catalogue, it **et** es. |
 | [`src/domain/content.test.ts`](../../src/domain/content.test.ts) | `getContentById`, intégrité du catalogue, langues valides (it + es présents). |
-| [`src/persistence/inMemoryJourneyRepository.test.ts`](../../src/persistence/inMemoryJourneyRepository.test.ts) | CRUD durable, isolation par `learnerId`, copie défensive. |
-| [`src/persistence/supabaseJourneyRepository.test.ts`](../../src/persistence/supabaseJourneyRepository.test.ts) | Mappers purs `toRow`/`fromRow` (domaine ↔ PostgreSQL), round-trip. |
-| [`src/application/journeyService.test.ts`](../../src/application/journeyService.test.ts) | Durable autoritaire, restauration **sans localStorage**, repli cache si durable injoignable, seed durable depuis cache/legacy, clear. |
+| [`src/persistence/inMemoryJourneyRepository.test.ts`](../../src/persistence/inMemoryJourneyRepository.test.ts) | CRUD durable **user-scoped multi-langue** : it + es coexistent, maj es ne mute pas it, load it→it / es→es, **isolation inter-usagers**, clear par langue, copie défensive. |
+| [`src/persistence/supabaseJourneyRepository.test.ts`](../../src/persistence/supabaseJourneyRepository.test.ts) | Mappers purs `toRow`/`fromRow` (domaine ↔ PostgreSQL, colonnes `user_id`/`language_code`), round-trip. |
+| [`src/persistence/localJourneyCache.test.ts`](../../src/persistence/localJourneyCache.test.ts) | Cache multi-langue (un parcours par langue), langue courante, **migration legacy** (parcours unique → v2, sans perte). |
+| [`src/persistence/createJourneyService.test.ts`](../../src/persistence/createJourneyService.test.ts) | Fallback cache-only sans Supabase (pas d'auth, pas de durable). |
+| [`src/application/journeyService.test.ts`](../../src/application/journeyService.test.ts) | Durable autoritaire scopé par `userId`, **restauration des 2 langues sans localStorage**, isolation inter-usagers, repli cache, seed durable, clear par langue. |
 
 ## Convention critères d'acceptation
 

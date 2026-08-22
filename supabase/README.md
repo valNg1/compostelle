@@ -11,32 +11,38 @@ Durable source of truth for learner journeys (US-02 MVP foundation). See
    ```bash
    supabase db push
    ```
-3. Copy the project URL and anon key into a local `.env` (see `../.env.example`):
+3. Enable **Email (magic link)** auth (Authentication → Providers → Email) and add
+   your dev/prod URLs to the redirect allow-list.
+4. Copy the project URL and anon key into a local `.env` (see `../.env.example`):
    ```
    VITE_SUPABASE_URL=https://<project>.supabase.co
    VITE_SUPABASE_ANON_KEY=<anon-key>
    ```
    Never commit `.env`.
 
-When these are unset the app runs cache-only (localStorage), so no secret is
-required for local development or CI.
+Full step-by-step (incl. production + `compostel.org`):
+[`../docs/operations/DEPLOYMENT.md`](../docs/operations/DEPLOYMENT.md). When these are
+unset the app runs cache-only (localStorage), so no secret is required for dev/CI.
 
 ## Data model
 
-`public.journeys` — one row per anonymous learner:
+`public.journeys` — **one row per (user, language)**; a user keeps separate journeys:
 
 | column | type | notes |
 |--------|------|-------|
-| `learner_id` | `text` (PK) | opaque per-device id; no auth (MVP) |
-| `language` | `text` | `it` / `es` |
+| `id` | `uuid` (PK) | `gen_random_uuid()` |
+| `user_id` | `uuid` not null | owner → `auth.users(id)`; **not** the PK |
+| `language_code` | `text` | `it` / `es` |
 | `declared_level` | `text` | learner hypothesis |
 | `estimated_level` | `text` null | stays null — no fake estimation |
 | `interests` | `text[]` | selected interests |
-| `created_at` | `timestamptz` | journey creation |
-| `updated_at` | `timestamptz` | maintained by trigger |
+| `created_at` / `updated_at` | `timestamptz` | `updated_at` by trigger |
 
-## Security note (OPEN-01)
+`UNIQUE(user_id, language_code)` — one journey per language per user.
 
-RLS is enabled but the MVP policy is **permissive** (anon full access) to prove
-durable data + two languages without building auth. This must be hardened before
-launch (scope rows to their owner once auth or a signed learner claim exists).
+## Security model
+
+RLS is **owner-only**: every SELECT/INSERT/UPDATE/DELETE requires
+`user_id = auth.uid()`. No anonymous access; **no user can read another user's
+journey**. The anon key is public and safe in the client precisely because of this
+RLS. Never expose the `service_role` key in the frontend.

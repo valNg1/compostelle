@@ -14,6 +14,8 @@ Convention de nommage : `NNNN-titre-court.md` (p. ex. `0001-choix-du-stockage.md
   Supabase / PostgreSQL *(Accepted)*.
 - [ADR-0003](0003-language-agnostic-domain.md) — Modèle de domaine
   langue-agnostique (it + es) *(Accepted)*.
+- [ADR-0004](0004-auth-magic-link.md) — Authentification email magic-link
+  (propriété `auth.uid()`) *(Accepted)*.
 
 ## Gabarit
 

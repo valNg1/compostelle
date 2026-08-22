@@ -32,19 +32,22 @@ src/
 │  ├─ catalog.it.ts  Contenus italiens
 │  ├─ catalog.es.ts  Contenus espagnols (preuve)
 │  └─ catalog.ts     Catalogue combiné
-├─ application/   Orchestration, découplée du stockage
-│  ├─ journeyRepository.ts  PORT (interface) — aucune dépendance Supabase
+├─ application/   Ports + orchestration, découplés du stockage
+│  ├─ journeyRepository.ts  PORT — user-scoped multi-langue, aucune dép. Supabase
+│  ├─ authService.ts        PORT — identité (magic-link), aucune dép. Supabase
 │  └─ journeyService.ts     Durable autoritaire + cache + migration
-├─ persistence/   Adaptateurs de stockage
+├─ persistence/   Adaptateurs de stockage / auth
 │  ├─ supabaseJourneyRepository.ts  Adaptateur PostgreSQL (+ mappers purs)
+│  ├─ supabaseAuth.ts               Adaptateur Supabase Auth (magic-link)
 │  ├─ supabaseClient.ts             Client env-driven (nullable)
 │  ├─ inMemoryJourneyRepository.ts  Implémentation mémoire (tests/stand-in)
-│  ├─ localJourneyCache.ts          Cache localStorage + learnerId
+│  ├─ localJourneyCache.ts          Cache localStorage multi-langue + id local
 │  ├─ journeyStorage.ts             localStorage (cache/migration legacy)
-│  └─ createJourneyService.ts       Composition root
+│  └─ createJourneyService.ts       Composition root (auth + service)
 └─ ui/            Composants React ; ne portent aucune règle métier
+   ├─ AuthScreen.tsx    Connexion email magic-link (mode durable)
    ├─ Onboarding.tsx    Choix langue + niveau + intérêts
-   ├─ Discover.tsx      Conteneur feed↔content
+   ├─ Discover.tsx      Conteneur feed↔content + barre de langues
    ├─ DiscoveryFeed.tsx Feed (mêmes composants pour toutes les langues)
    └─ ContentView.tsx   Vue de contenu minimale
 ```
@@ -74,8 +77,12 @@ UI → JourneyService (application) → JourneyRepository (port)
 - Le **domaine ne dépend jamais de Supabase** ; il ne connaît que `LanguageJourney`.
 - **Postgres est la source de vérité** ; `localStorage` est un cache/résilience et la
   source de migration de l'ancienne clé.
-- Le parcours est keyé par un `learnerId` anonyme (pas d'auth au stade MVP).
-- Schéma : [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql).
+- Modèle **user-scoped multi-langue** : `unique(user_id, language_code)`, une ligne
+  par (utilisateur, langue) — changer de langue ne détruit aucun parcours.
+- **Identité = Supabase Auth magic-link** ; propriété `auth.uid()` ; **RLS owner-only**
+  (aucun accès inter-usagers). En cache-only : id local anonyme, mono-appareil.
+- Schéma + RLS : [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql).
+- Déploiement/provisionning : [`../operations/DEPLOYMENT.md`](../operations/DEPLOYMENT.md).
 - Sans `.env` Supabase, l'app dégrade proprement en **cache-only**.
 
 ## Langue-agnostique
