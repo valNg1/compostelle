@@ -26,16 +26,29 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 |----|-------|--------------|--------|-------|
 | US-01 | Create my language journey | JOURNEY (entrée) | `Done` (validée PO) | [US-01](../user-stories/US-01-create-language-journey.md) |
 | US-02 | Discover something interesting | DISCOVER | `Implemented · Production deployed · Awaiting PO validation` | [US-02](../user-stories/US-02-discover-something-interesting.md) |
+| US-03 | Understand what I discover | UNDERSTAND | `Implemented · Awaiting PO validation` | [US-03](../user-stories/US-03-understand-what-i-discover.md) |
+| US-04 | Recall what I learned | RECALL | `Implemented · Awaiting PO validation` | [US-04](../user-stories/US-04-recall-what-i-learned.md) |
+| US-05 | Use the language | USE | `Implemented · Awaiting PO validation` | [US-05](../user-stories/US-05-use-the-language.md) |
+| US-06 | Build my memory | MEMORY | `Implemented · Awaiting PO validation` | [US-06](../user-stories/US-06-build-my-memory.md) |
+| US-07 | Continue my journey | JOURNEY | `Implemented · Awaiting PO validation` | [US-07](../user-stories/US-07-continue-my-journey.md) |
 | US-UX-01 | Establish the COMPOSTELLE experience | Transversale | `Implemented · Awaiting PO validation` | [US-UX-01](../user-stories/US-UX-01-establish-the-compostelle-experience.md) |
 
-## Prochaine vertical slice (proposée)
+## La boucle pédagogique est jouable
 
-**US-03 n'est pas encore spécifiée dans Git.** Après US-02 (DISCOVER), l'étape
-suivante de la boucle est **UNDERSTAND**. Proposition à valider par le PO :
-**US-03 — Understand what I'm reading** (aide contextuelle légère : vocabulaire /
-traduction à la demande dans la vue Content, sans casser la lecture ; pas de quiz, pas
-de MEMORY). Statut : `PROPOSED / awaiting PO validation` — non démarrée (nécessite une
-décision produit sur la forme de l'aide). Voir [OPEN-05](../decisions/README.md).
+`DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY` est implémentée de bout en
+bout, jouable en italien et en espagnol sur la même architecture (US-02..07). MEMORY
+est durable (Supabase, migration `0002`). Reste à valider en Production par le PO
+(recette dans les fiches US et [DEPLOYMENT.md](../operations/DEPLOYMENT.md)).
+
+## Évolutions proposées (non démarrées)
+
+- **Personnalisation par l'historique** : la sélection de contenu pourrait tenir
+  compte de la mémoire (éviter la répétition, prioriser le *to review*). Simple,
+  proposé — `PROPOSED`.
+- **Enrichissement éditorial** : rendre plus de contenus jouables (annotations/recall/
+  use) au-delà des 3 it + 3 es actuels — `PROPOSED`.
+- **Évaluation USE plus intelligente** (si un moteur fiable est branché) — l'archi est
+  prête (self-check déterministe aujourd'hui) — `PROPOSED`.
 
 ## Note US-02
 

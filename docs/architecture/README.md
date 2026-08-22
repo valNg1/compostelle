@@ -25,32 +25,41 @@ Aucune dépendance backend, aucun moteur IA à ce stade. Voir
 src/
 ├─ domain/        Modèle métier PUR, sans dépendance UI ni I/O
 │  ├─ language.ts   Modèle de langue (it | es), langue-agnostique
-│  ├─ journey.ts    Parcours : types, validation, création (porte la langue)
-│  ├─ content.ts    Contenu : types (porte la langue), getContentById
-│  └─ discovery.ts  Sélection déterministe du feed, isolée par langue
+│  ├─ journey.ts    Parcours : types, validation, niveau, levelBadge
+│  ├─ content.ts    Contenu : types (langue + payload pédagogique), getContentById
+│  ├─ discovery.ts  Sélection déterministe du feed, isolée par langue
+│  ├─ learning.ts   Boucle : Annotation/RecallItem/UsePrompt, segments annotés
+│  └─ memory.ts     MEMORY : états + transitions déterministes (nextState)
 ├─ content/       Données de contenu (même schéma pour toutes les langues)
 │  ├─ catalog.it.ts  Contenus italiens
 │  ├─ catalog.es.ts  Contenus espagnols (preuve)
 │  └─ catalog.ts     Catalogue combiné
 ├─ application/   Ports + orchestration, découplés du stockage
 │  ├─ journeyRepository.ts  PORT — user-scoped multi-langue, aucune dép. Supabase
+│  ├─ memoryRepository.ts   PORT — mémoire user + langue, aucune dép. Supabase
 │  ├─ authService.ts        PORT — identité (email+password), aucune dép. Supabase
 │  ├─ signIn.ts             Logique de connexion testable (attemptSignIn)
-│  └─ journeyService.ts     Durable autoritaire + cache + migration
+│  ├─ journeyService.ts     Durable autoritaire + cache + migration
+│  └─ memoryService.ts      Applique les signaux (nextState), durable + cache
 ├─ persistence/   Adaptateurs de stockage / auth
-│  ├─ supabaseJourneyRepository.ts  Adaptateur PostgreSQL (+ mappers purs)
+│  ├─ supabaseJourneyRepository.ts  Adaptateur PostgreSQL journeys (mappers purs)
+│  ├─ supabaseMemoryRepository.ts   Adaptateur PostgreSQL memory_items (mappers purs)
 │  ├─ supabaseAuth.ts               Adaptateur Supabase Auth (email+password)
 │  ├─ supabaseClient.ts             Client env-driven (nullable)
-│  ├─ inMemoryJourneyRepository.ts  Implémentation mémoire (tests/stand-in)
-│  ├─ localJourneyCache.ts          Cache localStorage multi-langue + id local
+│  ├─ inMemoryJourneyRepository.ts  Journeys en mémoire (tests/stand-in)
+│  ├─ inMemoryMemoryRepository.ts   Mémoire en mémoire (tests/stand-in)
+│  ├─ localJourneyCache.ts          Cache journeys (localStorage, user-scoped)
+│  ├─ localMemoryCache.ts           Cache mémoire (localStorage, user+langue)
 │  ├─ journeyStorage.ts             localStorage (cache/migration legacy)
-│  └─ createJourneyService.ts       Composition root (auth + service)
+│  └─ createJourneyService.ts       Composition root (auth + journey + memory)
 └─ ui/            Composants React ; ne portent aucune règle métier
-   ├─ AuthScreen.tsx    Connexion email + password (mode durable)
-   ├─ Onboarding.tsx    Choix langue + niveau + intérêts
-   ├─ Discover.tsx      Conteneur feed↔content + barre de langues
-   ├─ DiscoveryFeed.tsx Feed (mêmes composants pour toutes les langues)
-   └─ ContentView.tsx   Vue de contenu minimale
+   ├─ AuthScreen.tsx      Connexion email + password (mode durable)
+   ├─ Onboarding.tsx      Choix langue + niveau + intérêts
+   ├─ Discover.tsx        Feed + barre de langues + progression + session
+   ├─ DiscoveryFeed.tsx   Feed (mêmes composants pour toutes les langues)
+   ├─ ContentView.tsx     Lecture simple (contenu sans payload)
+   ├─ AnnotatedText.tsx   Lecture avec expressions tappables (UNDERSTAND)
+   └─ LearningSession.tsx Boucle READ→UNDERSTAND→RECALL→USE→MEMORY→JOURNEY
 ```
 
 Principe : **les règles métier vivent dans `domain/`** (pures, testables sans DOM).

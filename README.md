@@ -27,10 +27,13 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 
 ## Phase actuelle : MVP DELIVERY
 
+- **Boucle pédagogique jouable de bout en bout** :
+  `DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY` (US-02..07), en italien et
+  en espagnol sur la même architecture. `Implemented · Awaiting PO validation`.
 - **US-01 « Create my language journey »** : `Done` (validée PO).
-- **US-02 « Discover something interesting »** : `Implemented — awaiting MVP
-  foundation validation`.
-- **Modalité** : la lecture (première du MVP). Pas d'autre modalité, pas de moteur IA.
+- **MEMORY durable** : progression d'apprentissage persistée par utilisateur et par
+  langue (Supabase `memory_items`, RLS owner-only, migration `0002`).
+- **Pédagogie déterministe** : aucune dépendance LLM externe obligatoire (D-16).
 - **Langues cibles** : **Italian (`it`) + Spanish (`es`)** via la **même** structure
   applicative (D-11 / [ADR-0003](docs/decisions/adr/0003-language-agnostic-domain.md)).
 - **Persistance durable** : Supabase / PostgreSQL, source de vérité derrière une

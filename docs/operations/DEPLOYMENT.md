@@ -7,10 +7,13 @@ has prepared everything up to those steps; the actions below need the PO.
 ## A. Provision Supabase (PO action)
 
 1. Go to <https://supabase.com> → **New project** (choose a region, set a DB password).
-2. In the project, open **SQL Editor** → paste and run
-   [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql).
-   This creates the `journeys` table (user-scoped, one row per language) and the
-   owner-only RLS policies.
+2. In the project, open **SQL Editor** → paste and run **each migration in order**:
+   - [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql)
+     — `journeys` table (user-scoped, one row per language) + owner-only RLS.
+   - [`supabase/migrations/0002_create_memory_items.sql`](../../supabase/migrations/0002_create_memory_items.sql)
+     — `memory_items` table (learning memory, one row per user/language/expression)
+     + owner-only RLS. Depends on 0001.
+   Re-running a migration on an existing project is safe (idempotent guards).
 3. Open **Authentication → Providers → Email** and enable **Email** with
    **email + password** (turn OFF "Confirm email" for the MVP demo account, or
    confirm it manually). Then create the demo account under **Authentication →
@@ -47,9 +50,17 @@ Once live at `https://compostel.org`:
    journey → **+ Add a language** → create a **Spanish** journey → both visible in the
    language bar. Confirm two rows in Supabase `journeys` for your `auth.uid()`.
 2. **Sign out**, then **clear the browser localStorage** (or use a clean browser).
-3. **Session B**: sign in with the **same email + password** → both **Italian** and
-   **Spanish** journeys are restored from Supabase → switch between them → correct
-   content per language.
-4. Check: no console errors; login/logout work; no cross-user access.
+3. **Learning loop (Italian)**: open a highlighted story → tap an expression to
+   **understand** it → **Continue** → answer the **recall** items → **use** the
+   language (type a sentence, Check) → **Session complete** shows explored/remembered/
+   to review → **Continue your journey**. The DISCOVER screen now shows a progress
+   line (learning / acquired / to review).
+4. **Learning loop (Spanish)**: switch to Spanish and play a Spanish story — same
+   loop, Spanish content, separate memory.
+5. **Session B**: sign out, **clear localStorage** (or clean browser), sign in with
+   the **same email + password** → both journeys **and the memory/progress** are
+   restored from Supabase → switch languages → correct content per language.
+6. Check: no console errors; login/logout work; no cross-user access; `memory_items`
+   rows exist for your `auth.uid()`.
 
 Record: deployed commit SHA, production URL, and the results above.

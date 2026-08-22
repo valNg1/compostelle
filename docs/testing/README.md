@@ -24,6 +24,12 @@ DOM) :
 | [`src/persistence/createJourneyService.test.ts`](../../src/persistence/createJourneyService.test.ts) | Fallback cache-only sans Supabase (pas d'auth, pas de durable). |
 | [`src/application/signIn.test.ts`](../../src/application/signIn.test.ts) | Connexion email+password : succès (email trimé), mauvais identifiants → erreur propre (ne lève jamais), garde entrées vides. |
 | [`src/application/journeyService.test.ts`](../../src/application/journeyService.test.ts) | Durable autoritaire scopé par `userId`, **restauration des 2 langues sans localStorage**, isolation inter-usagers, repli cache, seed durable, clear par langue. |
+| [`src/persistence/durableRestore.test.ts`](../../src/persistence/durableRestore.test.ts) | Restauration durable (scénario PO IT=B2/ES=A2), durable > cache stale, **cache scopée par user** (pas de fuite). |
+| [`src/domain/learning.test.ts`](../../src/domain/learning.test.ts) | `isPlayable`, self-check USE, découpage annoté (UNDERSTAND). |
+| [`src/domain/memory.test.ts`](../../src/domain/memory.test.ts) | Transitions déterministes `nextState`, `summarize`. |
+| [`src/content/catalog.learning.test.ts`](../../src/content/catalog.learning.test.ts) | Contenu jouable ≥ 2 par langue, recall bien formés, annotations/use valides. |
+| [`src/application/memoryService.test.ts`](../../src/application/memoryService.test.ts) | MEMORY durable : transitions, isolation user + langue, restauration navigateur neuf, cache-only. |
+| [`src/persistence/supabaseMemoryRepository.test.ts`](../../src/persistence/supabaseMemoryRepository.test.ts) | Mappers purs mémoire (domaine ↔ PostgreSQL). |
 
 ## Convention critères d'acceptation
 
