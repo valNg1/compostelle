@@ -23,7 +23,7 @@ Deux niveaux de traçabilité des décisions :
 | D-10 | 2026-08-22 | **Persistance durable via Supabase/PostgreSQL** derrière une interface repository ; `localStorage` rétrogradé en cache/résilience/migration, plus source de vérité. | Prérequis MVP posé par le PO. Voir [ADR-0002](adr/0002-durable-persistence-supabase.md). |
 | D-11 | 2026-08-22 | **Domaine langue-agnostique (it + es)** : la langue est une donnée du parcours et du contenu ; `selectDiscoveryFeed` isole par langue ; mêmes composants pour toutes les langues. | Prérequis MVP posé par le PO. Voir [ADR-0003](adr/0003-language-agnostic-domain.md). |
 | D-12 | 2026-08-22 | **Le MVP n'est pas validé** tant que COMPOSTELLE n'a pas prouvé (a) des données apprenant **durables** et (b) **au moins deux langues cibles** avec la **même structure applicative**, (c) avec identité stable et données possédées par utilisateur. US-02 reste `Implemented — awaiting MVP foundation validation` jusqu'au test d'acceptation runtime sur le vrai Supabase. | Verrou de validation explicite du PO. |
-| D-13 | 2026-08-22 | **Identité via Supabase Auth email magic-link** ; propriété durable = `auth.uid()` ; pas d'identité maison. | Un UUID localStorage n'est pas durable. Voir [ADR-0004](adr/0004-auth-magic-link.md). |
+| D-13 | 2026-08-22 | **Identité via Supabase Auth** ; propriété durable = `auth.uid()` ; pas d'identité maison. *(Méthode : email + password — révisé le 2026-08-22, remplace le magic-link initial, à la demande du PO.)* | Un UUID localStorage n'est pas durable. Voir [ADR-0004](adr/0004-auth-email-password.md). |
 | D-14 | 2026-08-22 | **Modèle journeys user-scoped multi-langue** : `unique(user_id, language_code)`, `user_id` n'est pas la PK ; changer de langue ne détruit aucun parcours. **RLS owner-only** (`user_id = auth.uid()`) remplace la politique permissive (supersede OPEN-01). | Un apprenant garde des parcours durables séparés par langue ; aucun accès inter-usagers. Voir [ADR-0002](adr/0002-durable-persistence-supabase.md). |
 
 ## Points ouverts (décisions PO / OPEN)
@@ -34,6 +34,6 @@ bloquent pas les preuves déjà livrées mais conditionnent la validation finale
 | # | Question | Statut | Impact | Bloquant ? |
 |---|----------|--------|--------|------------|
 | OPEN-01 | Politique RLS Supabase | **Résolu** (D-14) : RLS owner-only `user_id = auth.uid()`, plus de politique permissive | Sécurité des données | — |
-| OPEN-02 | Identité apprenant | **Résolu** (D-13) : Supabase Auth magic-link, propriété `auth.uid()` | Récupération durable cross-session | — |
+| OPEN-02 | Identité apprenant | **Résolu** (D-13) : Supabase Auth email + password, propriété `auth.uid()` | Récupération durable cross-session | — |
 | OPEN-03 | **Projet Supabase live + déploiement prod** | **Ouvert — action PO** : provisionner Supabase, configurer email/redirects, déployer sur Vercel, pointer `compostel.org`. Voir [DEPLOYMENT.md](../operations/DEPLOYMENT.md) | Active le durable en runtime + prod ; requis pour le test d'acceptation | **Oui** (validation MVP) |
 | OPEN-04 | Sélecteur de langue à l'onboarding | Ouvert (mineur) : UX du choix/ajout de langue à confirmer | Parcours d'entrée | Non |

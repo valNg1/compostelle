@@ -1,9 +1,9 @@
 /**
- * COMPOSTELLE — Supabase email magic-link auth adapter.
+ * COMPOSTELLE — Supabase email + password auth adapter.
  *
- * Implements the AuthService port with Supabase Auth (passwordless OTP / magic
- * link). Only the client type is imported; behaviour requires a configured
- * client at runtime.
+ * Implements the AuthService port with Supabase Auth (email + password). Only the
+ * client type is imported; behaviour requires a configured client at runtime.
+ * Ownership stays `auth.uid()`; RLS is unchanged.
  */
 
 import type { SupabaseClient, User } from "@supabase/supabase-js";
@@ -22,14 +22,10 @@ export class SupabaseAuthService implements AuthService {
     return toAuthUser(data.user);
   }
 
-  async signInWithEmail(email: string): Promise<void> {
-    const { error } = await this.client.auth.signInWithOtp({
+  async signInWithPassword(email: string, password: string): Promise<void> {
+    const { error } = await this.client.auth.signInWithPassword({
       email,
-      options: {
-        // Return to the app after clicking the link.
-        emailRedirectTo:
-          typeof window !== "undefined" ? window.location.origin : undefined,
-      },
+      password,
     });
     if (error) throw error;
   }

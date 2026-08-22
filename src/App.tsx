@@ -21,9 +21,9 @@ function upsertByLanguage(
 
 /**
  * App flow (US-01 + US-02, MVP foundation):
- *  - durable mode (Supabase configured): require magic-link sign-in; the owner is
- *    auth.uid(). A user keeps SEPARATE journeys per language and switches between
- *    them without destroying any.
+ *  - durable mode (Supabase configured): require email + password sign-in; the
+ *    owner is auth.uid(). A user keeps SEPARATE journeys per language and switches
+ *    between them without destroying any.
  *  - cache-only mode (no Supabase): anonymous local user id, single device.
  */
 export function App() {

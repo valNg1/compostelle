@@ -12,9 +12,12 @@ has prepared everything up to those steps; the actions below need the PO.
    This creates the `journeys` table (user-scoped, one row per language) and the
    owner-only RLS policies.
 3. Open **Authentication → Providers → Email** and enable **Email** with
-   **magic link** (passwordless). No password provider needed.
-4. Open **Authentication → URL Configuration** and add the site URLs to the redirect
-   allow-list: `http://localhost:5173` (dev) and `https://compostel.org` (prod).
+   **email + password** (turn OFF "Confirm email" for the MVP demo account, or
+   confirm it manually). Then create the demo account under **Authentication →
+   Users → Add user** (email + password). *Credentials live only in Supabase — never
+   in Git.*
+4. Open **Authentication → URL Configuration** and set the Site URL /
+   redirect allow-list to include `http://localhost:5173` and `https://compostel.org`.
 5. Open **Project Settings → API** and copy:
    - **Project URL** → `VITE_SUPABASE_URL`
    - **anon public** key → `VITE_SUPABASE_ANON_KEY`
@@ -40,13 +43,13 @@ has prepared everything up to those steps; the actions below need the PO.
 
 Once live at `https://compostel.org`:
 
-1. **Session A**: sign in with your email (magic link) → create an **Italian** journey
-   → **+ Add a language** → create a **Spanish** journey → both visible in the
+1. **Session A**: sign in with the demo **email + password** → create an **Italian**
+   journey → **+ Add a language** → create a **Spanish** journey → both visible in the
    language bar. Confirm two rows in Supabase `journeys` for your `auth.uid()`.
 2. **Sign out**, then **clear the browser localStorage** (or use a clean browser).
-3. **Session B**: sign in with the **same email** → both **Italian** and **Spanish**
-   journeys are restored from Supabase → switch between them → correct content per
-   language.
+3. **Session B**: sign in with the **same email + password** → both **Italian** and
+   **Spanish** journeys are restored from Supabase → switch between them → correct
+   content per language.
 4. Check: no console errors; login/logout work; no cross-user access.
 
 Record: deployed commit SHA, production URL, and the results above.

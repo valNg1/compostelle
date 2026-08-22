@@ -22,7 +22,7 @@ Source de vérité des parcours (ADR-0002). Configuration :
 2. Copier `.env.example` → `.env` et renseigner `VITE_SUPABASE_URL` /
    `VITE_SUPABASE_ANON_KEY` (**jamais commité** ; `.env` est gitignoré).
 
-L'identité est gérée par **Supabase Auth (magic-link)** ; la **RLS est owner-only**
+L'identité est gérée par **Supabase Auth (email + password)** ; la **RLS est owner-only**
 (`user_id = auth.uid()`), aucun accès inter-usagers. Sans ces variables, l'app tourne
 en **cache-only** (localStorage) — aucun secret requis en dev/CI. Détails :
 [`supabase/README.md`](../../supabase/README.md).

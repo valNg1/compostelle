@@ -26,7 +26,7 @@ UI → application (JourneyService) → JourneyRepository (port)
   `journeys(id uuid pk, user_id uuid not null → auth.users, language_code text, …,
   unique(user_id, language_code))`. **Une ligne par (utilisateur, langue)** ;
   `user_id` n'est **pas** la clé primaire.
-- **Propriété = `auth.uid()`** (identité via magic-link, [ADR-0004](0004-auth-magic-link.md)).
+- **Propriété = `auth.uid()`** (identité via email + password, [ADR-0004](0004-auth-email-password.md)).
 - **RLS owner-only** (select/insert/update/delete) : `user_id = auth.uid()`. **Aucun
   accès anonyme, aucune lecture inter-usagers.** (Remplace la politique permissive MVP
   initiale.)

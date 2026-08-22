@@ -38,9 +38,9 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
   language_code)`) — un apprenant garde des parcours séparés par langue (D-14 /
   [ADR-0002](docs/decisions/adr/0002-durable-persistence-supabase.md)). `localStorage`
   = cache/résilience/migration. Sans `.env`, l'app tourne en cache-only.
-- **Identité** : Supabase Auth **email magic-link** ; propriété des données =
+- **Identité** : Supabase Auth **email + password** ; propriété des données =
   `auth.uid()` ; **RLS owner-only** (D-13 /
-  [ADR-0004](docs/decisions/adr/0004-auth-magic-link.md)).
+  [ADR-0004](docs/decisions/adr/0004-auth-email-password.md)).
 
 > **Le MVP n'est pas validé** tant que le **test d'acceptation runtime** ne passe pas
 > sur un vrai Supabase (D-12) : login → parcours it + es durables → déconnexion +

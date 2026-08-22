@@ -22,6 +22,7 @@ DOM) :
 | [`src/persistence/supabaseJourneyRepository.test.ts`](../../src/persistence/supabaseJourneyRepository.test.ts) | Mappers purs `toRow`/`fromRow` (domaine ↔ PostgreSQL, colonnes `user_id`/`language_code`), round-trip. |
 | [`src/persistence/localJourneyCache.test.ts`](../../src/persistence/localJourneyCache.test.ts) | Cache multi-langue (un parcours par langue), langue courante, **migration legacy** (parcours unique → v2, sans perte). |
 | [`src/persistence/createJourneyService.test.ts`](../../src/persistence/createJourneyService.test.ts) | Fallback cache-only sans Supabase (pas d'auth, pas de durable). |
+| [`src/application/signIn.test.ts`](../../src/application/signIn.test.ts) | Connexion email+password : succès (email trimé), mauvais identifiants → erreur propre (ne lève jamais), garde entrées vides. |
 | [`src/application/journeyService.test.ts`](../../src/application/journeyService.test.ts) | Durable autoritaire scopé par `userId`, **restauration des 2 langues sans localStorage**, isolation inter-usagers, repli cache, seed durable, clear par langue. |
 
 ## Convention critères d'acceptation

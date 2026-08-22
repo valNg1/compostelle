@@ -34,18 +34,19 @@ src/
 │  └─ catalog.ts     Catalogue combiné
 ├─ application/   Ports + orchestration, découplés du stockage
 │  ├─ journeyRepository.ts  PORT — user-scoped multi-langue, aucune dép. Supabase
-│  ├─ authService.ts        PORT — identité (magic-link), aucune dép. Supabase
+│  ├─ authService.ts        PORT — identité (email+password), aucune dép. Supabase
+│  ├─ signIn.ts             Logique de connexion testable (attemptSignIn)
 │  └─ journeyService.ts     Durable autoritaire + cache + migration
 ├─ persistence/   Adaptateurs de stockage / auth
 │  ├─ supabaseJourneyRepository.ts  Adaptateur PostgreSQL (+ mappers purs)
-│  ├─ supabaseAuth.ts               Adaptateur Supabase Auth (magic-link)
+│  ├─ supabaseAuth.ts               Adaptateur Supabase Auth (email+password)
 │  ├─ supabaseClient.ts             Client env-driven (nullable)
 │  ├─ inMemoryJourneyRepository.ts  Implémentation mémoire (tests/stand-in)
 │  ├─ localJourneyCache.ts          Cache localStorage multi-langue + id local
 │  ├─ journeyStorage.ts             localStorage (cache/migration legacy)
 │  └─ createJourneyService.ts       Composition root (auth + service)
 └─ ui/            Composants React ; ne portent aucune règle métier
-   ├─ AuthScreen.tsx    Connexion email magic-link (mode durable)
+   ├─ AuthScreen.tsx    Connexion email + password (mode durable)
    ├─ Onboarding.tsx    Choix langue + niveau + intérêts
    ├─ Discover.tsx      Conteneur feed↔content + barre de langues
    ├─ DiscoveryFeed.tsx Feed (mêmes composants pour toutes les langues)
@@ -79,7 +80,7 @@ UI → JourneyService (application) → JourneyRepository (port)
   source de migration de l'ancienne clé.
 - Modèle **user-scoped multi-langue** : `unique(user_id, language_code)`, une ligne
   par (utilisateur, langue) — changer de langue ne détruit aucun parcours.
-- **Identité = Supabase Auth magic-link** ; propriété `auth.uid()` ; **RLS owner-only**
+- **Identité = Supabase Auth email + password** ; propriété `auth.uid()` ; **RLS owner-only**
   (aucun accès inter-usagers). En cache-only : id local anonyme, mono-appareil.
 - Schéma + RLS : [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql).
 - Déploiement/provisionning : [`../operations/DEPLOYMENT.md`](../operations/DEPLOYMENT.md).

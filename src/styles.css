@@ -322,7 +322,7 @@ body {
   border-color: transparent;
 }
 
-/* --- Auth form (magic link) --- */
+/* --- Auth form (email + password) --- */
 .text-input {
   appearance: none;
   width: 100%;

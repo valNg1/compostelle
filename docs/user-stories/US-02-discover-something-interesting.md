@@ -152,7 +152,7 @@ La sélection est une **fonction pure** : elle ne mute jamais le `Journey`, ni
   durables** (un par langue) ; changer de langue n'en détruit aucun. Restauration
   prouvée **indépendamment de `localStorage`** (tests service/repository). Sans `.env`,
   cache-only.
-- **Identité durable** (D-13 / ADR-0004) : Supabase Auth **email magic-link** ;
+- **Identité durable** (D-13 / ADR-0004) : Supabase Auth **email + password** ;
   propriété = `auth.uid()`. **RLS owner-only** : aucun accès inter-usagers.
 - **Multilingue it + es** (D-11 / ADR-0003) : la langue est une donnée ;
   `selectDiscoveryFeed` isole par langue ; **mêmes composants** ; catalogue espagnol

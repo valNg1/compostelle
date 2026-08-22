@@ -11,8 +11,9 @@ Durable source of truth for learner journeys (US-02 MVP foundation). See
    ```bash
    supabase db push
    ```
-3. Enable **Email (magic link)** auth (Authentication → Providers → Email) and add
-   your dev/prod URLs to the redirect allow-list.
+3. Enable **Email + password** auth (Authentication → Providers → Email), add your
+   dev/prod URLs to the redirect allow-list, and create the demo account under
+   Authentication → Users (credentials stay in Supabase, never in Git).
 4. Copy the project URL and anon key into a local `.env` (see `../.env.example`):
    ```
    VITE_SUPABASE_URL=https://<project>.supabase.co

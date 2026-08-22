@@ -1,31 +1,36 @@
 import { useState } from "react";
 import type { AuthService } from "../application/authService";
+import { attemptSignIn } from "../application/signIn";
 
 interface AuthScreenProps {
   auth: AuthService;
 }
 
 /**
- * Minimal passwordless sign-in (email magic link). Shown only when durable
- * persistence (Supabase) is configured and no user is signed in.
+ * Email + password sign-in. Shown only when durable persistence (Supabase) is
+ * configured and no user is signed in. On success, the auth-change subscription
+ * in App loads the user's journeys.
  */
 export function AuthScreen({ auth }: AuthScreenProps) {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle",
-  );
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
-    setStatus("sending");
-    try {
-      await auth.signInWithEmail(email.trim());
-      setStatus("sent");
-    } catch {
-      setStatus("error");
+    if (loading) return;
+    setLoading(true);
+    setError(null);
+    const result = await attemptSignIn(auth, email, password);
+    if (!result.ok) {
+      setError(result.message);
+      setLoading(false);
     }
+    // On success, App's onAuthChange takes over and unmounts this screen.
   }
+
+  const canSubmit = email.trim().length > 0 && password.length > 0 && !loading;
 
   return (
     <section className="onboarding" aria-labelledby="auth-title">
@@ -36,45 +41,46 @@ export function AuthScreen({ auth }: AuthScreenProps) {
           <br />
           things worth discovering.
         </h1>
-        <p className="onboarding__language">
-          We'll email you a secure sign-in link — no password.
-        </p>
       </header>
 
-      {status === "sent" ? (
-        <p className="discover__empty" role="status">
-          Check your inbox for a sign-in link at <strong>{email}</strong>.
-        </p>
-      ) : (
-        <form className="field" onSubmit={submit}>
-          <label className="field__label" htmlFor="auth-email">
-            Your email
-          </label>
-          <input
-            id="auth-email"
-            className="text-input"
-            type="email"
-            inputMode="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <button
-            type="submit"
-            className="cta"
-            disabled={status === "sending" || email.trim().length === 0}
-          >
-            {status === "sending" ? "Sending…" : "Email me a link"}
-          </button>
-          {status === "error" && (
-            <p className="form-error" role="alert">
-              Something went wrong. Please try again.
-            </p>
-          )}
-        </form>
-      )}
+      <form className="field" onSubmit={submit} noValidate>
+        <label className="field__label" htmlFor="auth-email">
+          Email
+        </label>
+        <input
+          id="auth-email"
+          className="text-input"
+          type="email"
+          inputMode="email"
+          autoComplete="email"
+          placeholder="you@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <label className="field__label" htmlFor="auth-password">
+          Password
+        </label>
+        <input
+          id="auth-password"
+          className="text-input"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Your password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <button type="submit" className="cta" disabled={!canSubmit}>
+          {loading ? "Signing in…" : "Sign in"}
+        </button>
+
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+      </form>
     </section>
   );
 }
