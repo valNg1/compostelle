@@ -24,6 +24,23 @@ export const IT_CATALOG: ContentItem[] = [
     estimatedMinutes: 3,
     modality: "read",
     body: "Il tram numero 14 faceva l'ultima corsa a mezzanotte e dieci. Elena saliva sempre a quell'ora, quando le carrozze erano vuote e i finestrini restituivano solo il suo riflesso. Quella notte, però, in fondo alla vettura c'era un uomo con un cappotto grigio. Non lo aveva visto salire. A ogni fermata le porte si aprivano, nessuno scendeva, nessuno saliva, e l'uomo restava immobile. Quando Elena si voltò all'ultima fermata, il sedile era vuoto. Sul vetro appannato, però, qualcuno aveva scritto una sola parola: «Domani».",
+    annotations: [
+      { id: "a1", expression: "l'ultima corsa", meaning: "l'ultimo viaggio della giornata", translation: "the last run (of the day)" },
+      { id: "a2", expression: "in fondo alla vettura", meaning: "nella parte posteriore del tram", translation: "at the back of the car" },
+      { id: "a3", expression: "restava immobile", meaning: "non si muoveva affatto", translation: "stayed completely still" },
+      { id: "a4", expression: "il vetro appannato", meaning: "il vetro coperto di vapore", translation: "the fogged-up glass" },
+    ],
+    recall: [
+      { id: "r1", kind: "meaning", prompt: "Che cosa significa «l'ultima corsa»?", options: ["L'ultimo viaggio della giornata", "Una gara di velocità", "Il primo tram del mattino"], answerIndex: 0, annotationId: "a1" },
+      { id: "r2", kind: "gap", prompt: "L'uomo non si muoveva: restava ______.", options: ["immobile", "in piedi", "vicino"], answerIndex: 0, annotationId: "a3" },
+      { id: "r3", kind: "comprehension", prompt: "Che cosa era scritto sul vetro appannato?", options: ["«Domani»", "«Fermati»", "«Elena»"], answerIndex: 0, annotationId: "a4" },
+    ],
+    use: {
+      prompt: "Usa l'espressione in una frase.",
+      gapSentence: "Ogni notte prendo ______ del tram per tornare a casa.",
+      sampleAnswer: "l'ultima corsa",
+      keyExpressions: ["l'ultima corsa", "ultima corsa"],
+    },
   },
   {
     id: "portone-verde",
@@ -46,6 +63,23 @@ export const IT_CATALOG: ContentItem[] = [
     estimatedMinutes: 4,
     modality: "read",
     body: "Nell'anno 79 d.C. il Vesuvio eruttò e in poche ore seppellì Pompei sotto uno spesso strato di cenere e lapilli. La città romana, vivace e popolosa, scomparve dalla superficie. Paradossalmente, proprio la cenere che la distrusse la conservò: case, botteghe, affreschi e oggetti quotidiani rimasero protetti per secoli. Gli scavi sistematici iniziarono nel Settecento e continuano ancora oggi. Camminare tra le sue strade significa vedere come vivevano davvero i Romani: le insegne dei negozi, i graffiti sui muri, le stanze dipinte. Pompei non è un monumento isolato, ma un'intera città fermata nel tempo.",
+    annotations: [
+      { id: "a1", expression: "seppellì", meaning: "coprì completamente, nascose sotto terra", translation: "buried" },
+      { id: "a2", expression: "cenere e lapilli", meaning: "materiali espulsi dal vulcano", translation: "ash and volcanic stones" },
+      { id: "a3", expression: "gli scavi", meaning: "il lavoro di riportare alla luce ciò che è sepolto", translation: "the excavations" },
+      { id: "a4", expression: "fermata nel tempo", meaning: "rimasta uguale, come bloccata", translation: "frozen in time" },
+    ],
+    recall: [
+      { id: "r1", kind: "meaning", prompt: "Che cosa significa «seppellì»?", options: ["Coprì e nascose sotto terra", "Ricostruì", "Illuminò"], answerIndex: 0, annotationId: "a1" },
+      { id: "r2", kind: "gap", prompt: "Il Vesuvio coprì la città di ______ e lapilli.", options: ["cenere", "acqua", "sabbia"], answerIndex: 0, annotationId: "a2" },
+      { id: "r3", kind: "comprehension", prompt: "Perché Pompei è «fermata nel tempo»?", options: ["È rimasta come allora, protetta dalla cenere", "È stata ricostruita da poco", "Non è mai stata abitata"], answerIndex: 0, annotationId: "a4" },
+    ],
+    use: {
+      prompt: "Completa con un'espressione del testo.",
+      gapSentence: "Visitare Pompei è come vedere una città ______.",
+      sampleAnswer: "fermata nel tempo",
+      keyExpressions: ["fermata nel tempo"],
+    },
   },
   {
     id: "biblioteca-alessandria",
@@ -156,6 +190,23 @@ export const IT_CATALOG: ContentItem[] = [
     estimatedMinutes: 3,
     modality: "read",
     body: "L'aperitivo è il momento che separa la fine del lavoro dalla cena. Nel tardo pomeriggio ci si siede al bar, si ordina qualcosa da bere e, spesso, arrivano piccoli stuzzichini: olive, patatine, tramezzini. Più che il cibo, conta il tempo: quello lento della conversazione, senza fretta. In alcune città l'aperitivo è diventato quasi un piccolo pasto, con buffet ricchi; in altre resta essenziale, poche cose ben fatte. In tutti i casi è un rito sociale prima che gastronomico: un modo per ritrovarsi, chiacchierare e lasciare che la giornata rallenti prima di sera.",
+    annotations: [
+      { id: "a1", expression: "gli stuzzichini", meaning: "piccole cose da mangiare", translation: "little snacks / nibbles" },
+      { id: "a2", expression: "senza fretta", meaning: "con calma, senza correre", translation: "without hurrying" },
+      { id: "a3", expression: "un rito sociale", meaning: "un'abitudine condivisa che unisce le persone", translation: "a social ritual" },
+      { id: "a4", expression: "ritrovarsi", meaning: "incontrarsi di nuovo, stare insieme", translation: "to get together" },
+    ],
+    recall: [
+      { id: "r1", kind: "meaning", prompt: "Che cosa sono «gli stuzzichini»?", options: ["Piccole cose da mangiare", "Bevande calde", "Grandi piatti"], answerIndex: 0, annotationId: "a1" },
+      { id: "r2", kind: "gap", prompt: "Durante l'aperitivo si conversa con calma, ______.", options: ["senza fretta", "di corsa", "in silenzio"], answerIndex: 0, annotationId: "a2" },
+      { id: "r3", kind: "comprehension", prompt: "L'aperitivo è soprattutto…", options: ["un rito sociale", "un pasto obbligatorio", "una gara"], answerIndex: 0, annotationId: "a3" },
+    ],
+    use: {
+      prompt: "Scrivi una frase con questa espressione.",
+      gapSentence: "Il sabato mi piace bere qualcosa con gli amici, ______.",
+      sampleAnswer: "senza fretta",
+      keyExpressions: ["senza fretta"],
+    },
   },
   {
     id: "mercato",

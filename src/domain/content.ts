@@ -12,6 +12,7 @@
  * preference, not a category.
  */
 import type { Language } from "./language";
+import type { Annotation, RecallItem, UsePrompt } from "./learning";
 
 export type Category =
   | "thriller"
@@ -64,6 +65,14 @@ export interface ContentItem {
   body: string;
   estimatedMinutes: number;
   modality: Modality;
+  /**
+   * Optional pedagogical payload enabling the full learning loop (UNDERSTAND →
+   * RECALL → USE). Content without it is still readable (DISCOVER → READ).
+   * Same shape for every language.
+   */
+  annotations?: Annotation[];
+  recall?: RecallItem[];
+  use?: UsePrompt;
 }
 
 /** Find a content item by id, or `null` if it does not exist. */

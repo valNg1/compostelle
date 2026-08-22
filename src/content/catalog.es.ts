@@ -19,6 +19,23 @@ export const ES_CATALOG: ContentItem[] = [
     estimatedMinutes: 4,
     modality: "read",
     body: "La Alhambra es un conjunto de palacios y fortalezas situado en Granada, en el sur de España. Fue construida sobre todo durante el dominio de la dinastía nazarí, entre los siglos XIII y XIV. Sus salas destacan por los detallados trabajos en yeso, la madera tallada y los patios con agua, como el famoso Patio de los Leones. Tras la conquista cristiana de 1492, el lugar siguió habitándose y transformándose. Hoy es uno de los monumentos más visitados de España, y caminar por sus jardines permite imaginar la vida cortesana de hace más de seis siglos.",
+    annotations: [
+      { id: "a1", expression: "fortalezas", meaning: "construcciones para defenderse", translation: "fortresses" },
+      { id: "a2", expression: "trabajos en yeso", meaning: "decoración fina hecha con yeso", translation: "plasterwork" },
+      { id: "a3", expression: "los patios con agua", meaning: "espacios abiertos con fuentes o estanques", translation: "courtyards with water" },
+      { id: "a4", expression: "la vida cortesana", meaning: "la vida en la corte, de los reyes y nobles", translation: "court life" },
+    ],
+    recall: [
+      { id: "r1", kind: "meaning", prompt: "¿Qué son «las fortalezas»?", options: ["Construcciones para defenderse", "Jardines pequeños", "Salas de música"], answerIndex: 0, annotationId: "a1" },
+      { id: "r2", kind: "gap", prompt: "Las salas destacan por los detallados ______ en yeso.", options: ["trabajos", "árboles", "caminos"], answerIndex: 0, annotationId: "a2" },
+      { id: "r3", kind: "comprehension", prompt: "Al caminar por la Alhambra se puede imaginar…", options: ["la vida cortesana de hace siglos", "una fábrica moderna", "un puerto de mar"], answerIndex: 0, annotationId: "a4" },
+    ],
+    use: {
+      prompt: "Escribe una frase con esta expresión.",
+      gapSentence: "En el palacio es fácil imaginar ______ de otros tiempos.",
+      sampleAnswer: "la vida cortesana",
+      keyExpressions: ["la vida cortesana", "vida cortesana"],
+    },
   },
   {
     id: "es-camino",
@@ -29,6 +46,23 @@ export const ES_CATALOG: ContentItem[] = [
     estimatedMinutes: 4,
     modality: "read",
     body: "El Camino de Santiago es una red de rutas que, desde hace siglos, conduce a peregrinos hasta la ciudad de Santiago de Compostela, en el noroeste de España. Aunque nació como una peregrinación religiosa en la Edad Media, hoy lo recorren personas de todo el mundo por motivos muy distintos: espirituales, deportivos o simplemente por el deseo de caminar y desconectar. Existen muchas rutas, pero la más conocida es el Camino Francés. A lo largo del recorrido, los caminantes comparten albergues, comidas y conversaciones, y muchos dicen que lo importante no es llegar, sino el propio camino.",
+    annotations: [
+      { id: "a1", expression: "peregrinos", meaning: "personas que hacen un viaje a pie hacia un lugar", translation: "pilgrims" },
+      { id: "a2", expression: "desconectar", meaning: "descansar de las preocupaciones y la rutina", translation: "to switch off / unwind" },
+      { id: "a3", expression: "los albergues", meaning: "lugares sencillos donde dormir en el camino", translation: "hostels / refuges" },
+      { id: "a4", expression: "no es llegar, sino el propio camino", meaning: "lo importante es el viaje, no el destino", translation: "it's not the arriving, but the journey itself" },
+    ],
+    recall: [
+      { id: "r1", kind: "meaning", prompt: "¿Quiénes son «los peregrinos»?", options: ["Personas que hacen un viaje a pie", "Vendedores del mercado", "Guías turísticos"], answerIndex: 0, annotationId: "a1" },
+      { id: "r2", kind: "gap", prompt: "Muchos caminan para descansar y ______.", options: ["desconectar", "trabajar", "conducir"], answerIndex: 0, annotationId: "a2" },
+      { id: "r3", kind: "comprehension", prompt: "Según el texto, lo importante del Camino es…", options: ["el propio camino, no llegar", "llegar lo más rápido posible", "el precio del viaje"], answerIndex: 0, annotationId: "a4" },
+    ],
+    use: {
+      prompt: "Escribe una frase con esta idea.",
+      gapSentence: "En un viaje, a veces lo importante ______.",
+      sampleAnswer: "no es llegar, sino el propio camino",
+      keyExpressions: ["no es llegar", "el propio camino", "el camino"],
+    },
   },
   {
     id: "es-siesta",
@@ -49,5 +83,22 @@ export const ES_CATALOG: ContentItem[] = [
     estimatedMinutes: 3,
     modality: "read",
     body: "En España, la comida no termina cuando se acaba el último plato. Empieza entonces la sobremesa: ese rato en que la gente permanece sentada a la mesa, hablando, riendo y alargando el café. Puede durar unos minutos o extenderse durante horas, sobre todo los fines de semana o en las reuniones familiares. No se trata de comer más, sino de estar juntos sin prisa. Para muchos, la sobremesa es uno de los momentos más valiosos del día, un espacio para la conversación tranquila que otras culturas, con horarios más rígidos, apenas conocen.",
+    annotations: [
+      { id: "a1", expression: "la sobremesa", meaning: "el rato de charla después de comer, aún en la mesa", translation: "the after-meal chat at the table" },
+      { id: "a2", expression: "alargando el café", meaning: "tomando el café despacio, sin terminar", translation: "lingering over the coffee" },
+      { id: "a3", expression: "sin prisa", meaning: "con calma, sin correr", translation: "without hurrying" },
+      { id: "a4", expression: "estar juntos", meaning: "pasar tiempo en compañía", translation: "being together" },
+    ],
+    recall: [
+      { id: "r1", kind: "meaning", prompt: "¿Qué es «la sobremesa»?", options: ["El rato de charla después de comer", "El primer plato", "La cuenta del restaurante"], answerIndex: 0, annotationId: "a1" },
+      { id: "r2", kind: "gap", prompt: "No se trata de comer más, sino de estar juntos ______.", options: ["sin prisa", "de pie", "en silencio"], answerIndex: 0, annotationId: "a3" },
+      { id: "r3", kind: "comprehension", prompt: "La sobremesa sirve sobre todo para…", options: ["conversar con calma", "pagar rápido", "cocinar"], answerIndex: 0, annotationId: "a1" },
+    ],
+    use: {
+      prompt: "Escribe una frase con esta expresión.",
+      gapSentence: "Los domingos comemos y después charlamos ______.",
+      sampleAnswer: "sin prisa",
+      keyExpressions: ["sin prisa"],
+    },
   },
 ];
