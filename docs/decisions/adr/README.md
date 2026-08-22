@@ -10,6 +10,10 @@ Convention de nommage : `NNNN-titre-court.md` (p. ex. `0001-choix-du-stockage.md
 
 - [ADR-0001](0001-frontend-foundation-and-local-persistence.md) — Socle frontend et
   persistance locale pour la 1ʳᵉ tranche *(Accepted)*.
+- [ADR-0002](0002-durable-persistence-supabase.md) — Persistance durable avec
+  Supabase / PostgreSQL *(Accepted)*.
+- [ADR-0003](0003-language-agnostic-domain.md) — Modèle de domaine
+  langue-agnostique (it + es) *(Accepted)*.
 
 ## Gabarit
 

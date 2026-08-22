@@ -40,6 +40,25 @@ Pour repartir d'un état vierge : vider le `localStorage` du site, ou utiliser
 | D1 | Mettre une valeur invalide dans `localStorage` (`compostelle.journey.v1` = `"{cassé"`), recharger | L'app **récupère proprement** : retour à l'onboarding, pas de page blanche. |
 | D2 | Vider le `localStorage`, recharger | Onboarding affiché normalement. |
 
+### Flow E — Multilingue (fondation MVP)
+| # | Étape | Résultat attendu |
+|---|-------|------------------|
+| E1 | Onboarding → choisir **Spanish** + un niveau + un intérêt → « Start discovering » | Feed « Today in **Spanish** » ; **tout** le contenu en espagnol (mêmes composants). |
+| E2 | Ouvrir un contenu espagnol | Corpus en espagnol, vue identique à l'italien. |
+| E3 | `Surprise me` en espagnol | Exploration reste **en espagnol** (jamais de contenu italien). |
+| E4 | Repartir (Start a new journey) → choisir **Italian** | Feed « Today in Italian », contenu italien — **aucune** duplication d'UI. |
+
+### Flow F — Persistance durable (si Supabase configuré)
+| # | Étape | Résultat attendu |
+|---|-------|------------------|
+| F1 | `.env` renseigné, créer un parcours | Ligne écrite dans `public.journeys` (clé `learner_id`). |
+| F2 | Vider `localStorage` (garder le même `learner_id`) et recharger | Parcours **restauré depuis Postgres** (durable autoritaire). |
+| F3 | Sans `.env` | App en cache-only ; comportement local inchangé (Flows A–E). |
+
+> F1/F2 exigent un projet Supabase provisionné (OPEN-03). En l'absence de projet, la
+> restauration durable indépendante de `localStorage` est prouvée par les tests
+> `journeyService` / `inMemoryJourneyRepository`.
+
 ## Vérifications transverses
 - Aucune erreur dans la console.
 - Aucune navigation bloquante, aucune page blanche.
@@ -47,8 +66,14 @@ Pour repartir d'un état vierge : vider le `localStorage` du site, ou utiliser
 - Navigation clavier possible (Tab), focus visible, contenus ouvrables au clavier.
 - Responsive : smartphone étroit, standard, tablette, desktop.
 
-## Résultat de la dernière passe (2026-08-22)
-- Tests automatisés : **44/44 verts** (dont garde-fous d'intégration catalogue).
+## Résultat de la dernière passe (2026-08-22, fondation MVP)
+- Tests automatisés : **72/72 verts** (domaine, discovery multilingue, repository
+  durable, service, mappers Supabase).
+- **Flow E** vérifié : parcours espagnol → « Today in Spanish » → contenu 100 %
+  espagnol (Alhambra, Camino, Siesta, Sobremesa), `Surprise me` reste en espagnol ;
+  bascule vers l'italien → contenu italien, **mêmes composants**.
+- **Flow F** : durable prouvé par tests (restauration sans localStorage) ; connexion
+  Supabase live en attente (OPEN-03).
 - **Flow A** vérifié : onboarding (A2 + Thriller) → « Start discovering » → feed
   personnalisé (featured Thriller + alternative Thriller, aucun CEFR) → ouverture du
   contenu (corpus italien) → retour au feed.

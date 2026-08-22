@@ -15,8 +15,12 @@ DOM) :
 |---------|--------|
 | [`src/domain/journey.test.ts`](../../src/domain/journey.test.ts) | Validation (niveau requis, ≥ 1 intérêt), gestion de `UNKNOWN`, sélection multiple, séparation `declaredLevel` / `estimatedLevel`. |
 | [`src/persistence/journeyStorage.test.ts`](../../src/persistence/journeyStorage.test.ts) | Round-trip sauvegarde/rechargement, séparation des deux niveaux persistés, données corrompues/invalides, stockage en erreur, effacement. |
-| [`src/domain/discovery.test.ts`](../../src/domain/discovery.test.ts) | Sélection du feed (intérêts, multi-intérêts, `Surprise me`, fallback, catalogue vide, déterminisme, non-mutation du Journey). |
-| [`src/domain/content.test.ts`](../../src/domain/content.test.ts) | `getContentById` (existant / inexistant), intégrité du catalogue. |
+| [`src/domain/discovery.test.ts`](../../src/domain/discovery.test.ts) | Sélection du feed (intérêts, multi-intérêts, `Surprise me`, fallback, vide, déterminisme, non-mutation) **+ isolation par langue** (`Surprise me`/fallback ne traversent jamais la langue). |
+| [`src/domain/discovery.catalog.test.ts`](../../src/domain/discovery.catalog.test.ts) | Garde-fous d'intégration sur le vrai catalogue, it **et** es. |
+| [`src/domain/content.test.ts`](../../src/domain/content.test.ts) | `getContentById`, intégrité du catalogue, langues valides (it + es présents). |
+| [`src/persistence/inMemoryJourneyRepository.test.ts`](../../src/persistence/inMemoryJourneyRepository.test.ts) | CRUD durable, isolation par `learnerId`, copie défensive. |
+| [`src/persistence/supabaseJourneyRepository.test.ts`](../../src/persistence/supabaseJourneyRepository.test.ts) | Mappers purs `toRow`/`fromRow` (domaine ↔ PostgreSQL), round-trip. |
+| [`src/application/journeyService.test.ts`](../../src/application/journeyService.test.ts) | Durable autoritaire, restauration **sans localStorage**, repli cache si durable injoignable, seed durable depuis cache/legacy, clear. |
 
 ## Convention critères d'acceptation
 

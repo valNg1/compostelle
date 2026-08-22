@@ -13,6 +13,21 @@ Le domaine public officiel est **`https://compostel.org`** (décision
 en est la forme courte. C'est la cible sous laquelle l'application devra être servie
 lors du premier déploiement.
 
+## Persistance durable (Supabase / PostgreSQL)
+
+Source de vérité des parcours (ADR-0002). Configuration :
+
+1. Créer un projet Supabase et appliquer
+   [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql).
+2. Copier `.env.example` → `.env` et renseigner `VITE_SUPABASE_URL` /
+   `VITE_SUPABASE_ANON_KEY` (**jamais commité** ; `.env` est gitignoré).
+
+Sans ces variables, l'app tourne en **cache-only** (localStorage) — aucun secret
+requis en dev/CI. Détails : [`supabase/README.md`](../../supabase/README.md).
+
+> **OPEN-01 (sécurité)** : la politique RLS MVP est permissive (anon) et doit être
+> durcie avant tout lancement public.
+
 ## Déploiement
 
 **Aucun déploiement à ce jour.** L'application fonctionne en local avec une

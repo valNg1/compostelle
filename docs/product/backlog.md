@@ -12,17 +12,20 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 | `Validated` | Validée par le Product Owner |
 | `Ready` | Prête à être développée (après GO applicatif du PO) |
 | `In progress` | En cours de développement |
-| `Done` | Livrée |
+| `Done` | Livrée et validée par le PO |
+| `Implemented — awaiting MVP foundation validation` | Implémentée et testée, en attente de validation de la fondation MVP |
 
-> Le PO a donné le GO MVP : le développement est lancé, focalisé sur US-01. Les US
-> suivantes restent à démarrer uniquement après validation du checkpoint US-01.
+> **Le MVP n'est pas validé** tant que COMPOSTELLE n'a pas prouvé **des données
+> apprenant durables** ET **au moins deux langues cibles** (it + es) avec la **même
+> structure applicative** (voir D-12). Ces preuves sont livrées ; restent la connexion
+> Supabase live et le durcissement RLS (OPEN-01/02/03).
 
 ## Stories
 
 | ID | Titre | Étape boucle | Statut | Fiche |
 |----|-------|--------------|--------|-------|
 | US-01 | Create my language journey | JOURNEY (entrée) | `Done` (validée PO) | [US-01](../user-stories/US-01-create-language-journey.md) |
-| US-02 | Discover something interesting | DISCOVER | `Done` (livrée, à valider PO) | [US-02](../user-stories/US-02-discover-something-interesting.md) |
+| US-02 | Discover something interesting | DISCOVER | `Implemented — awaiting MVP foundation validation` | [US-02](../user-stories/US-02-discover-something-interesting.md) |
 
 ## Note US-02
 

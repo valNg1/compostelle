@@ -29,7 +29,12 @@ départ.
 À la création du parcours, l'utilisateur effectue trois choix :
 
 ### 1. Language
-- Italian
+- Italian (`it`)
+- Spanish (`es`)
+
+*(Initialement « Italian only » ; étendu à it + es avec la fondation MVP — D-11 /
+[ADR-0003](../decisions/adr/0003-language-agnostic-domain.md). La langue choisie est
+portée par le parcours et pilote tout le reste de l'expérience.)*
 
 ### 2. Starting level
 - A1
@@ -80,7 +85,9 @@ Voir [`../product/pedagogical-model.md`](../product/pedagogical-model.md#personn
 
 - Modèle métier pur : [`src/domain/journey.ts`](../../src/domain/journey.ts)
   (types `DeclaredLevel` / `EstimatedLevel`, `validateDraft`, `createJourney`).
-- Persistance locale injectable : [`src/persistence/journeyStorage.ts`](../../src/persistence/journeyStorage.ts).
+- Persistance : locale à l'origine (`journeyStorage.ts`), désormais **durable**
+  (Postgres via `JourneyService` + `JourneyRepository`) avec le localStorage comme
+  cache — voir [ADR-0002](../decisions/adr/0002-durable-persistence-supabase.md).
 - UI : [`src/ui/Onboarding.tsx`](../../src/ui/Onboarding.tsx). *(L'écran résumé
   post-onboarding a été retiré avec US-02 : la destination après création du parcours
   est désormais l'écran Discover.)*

@@ -1,8 +1,15 @@
 # US-02 — Discover something interesting
 
 - **ID** : US-02
-- **Statut** : Done — expérience livrée et utilisable (flow Journey → Discover → Content). À valider par le PO.
+- **Statut** : Implemented — awaiting MVP foundation validation
 - **Étape de la boucle pédagogique** : DISCOVER (principalement)
+
+> L'UI de découverte est acceptée techniquement. Deux prérequis MVP posés par le PO
+> ont été ajoutés et livrés : **persistance durable** (Supabase/PostgreSQL, D-10 /
+> [ADR-0002](../decisions/adr/0002-durable-persistence-supabase.md)) et **preuve
+> multilingue it + es** avec la même structure applicative (D-11 /
+> [ADR-0003](../decisions/adr/0003-language-agnostic-domain.md)). US-02 ne repasse
+> `Done` qu'après validation de la fondation MVP par le PO (D-12).
 
 ## User story
 
@@ -102,13 +109,26 @@ La sélection est une **fonction pure** : elle ne mute jamais le `Journey`, ni
   **déterministe**.
 - [x] Given un Journey absent/corrompu, Then l'application retombe proprement sur
   l'onboarding (US-01 non régressée).
+- [x] Given un parcours italien, Then le feed ne contient que du contenu italien ;
+  given un parcours espagnol, que du contenu espagnol (mêmes composants).
+- [x] Given `Surprise me`, Then l'exploration ne traverse **jamais** la langue cible.
+- [x] Given une persistance durable configurée, Then le parcours est restaurable
+  **indépendamment** de `localStorage` (prouvé par les tests repository/service).
 
 ## Implementation notes
 
 - Modèle métier : [`src/domain/content.ts`](../../src/domain/content.ts) (types +
   `getContentById`), [`src/domain/discovery.ts`](../../src/domain/discovery.ts)
   (`selectDiscoveryFeed`).
-- Catalogue (données) : [`src/content/catalog.ts`](../../src/content/catalog.ts).
+- Langue : [`src/domain/language.ts`](../../src/domain/language.ts) (it | es).
+- Catalogue : [`catalog.it.ts`](../../src/content/catalog.it.ts) +
+  [`catalog.es.ts`](../../src/content/catalog.es.ts) →
+  [`catalog.ts`](../../src/content/catalog.ts).
+- Persistance durable : port [`journeyRepository.ts`](../../src/application/journeyRepository.ts),
+  service [`journeyService.ts`](../../src/application/journeyService.ts), adaptateurs
+  [`supabaseJourneyRepository.ts`](../../src/persistence/supabaseJourneyRepository.ts) /
+  [`inMemoryJourneyRepository.ts`](../../src/persistence/inMemoryJourneyRepository.ts),
+  schéma [`supabase/migrations/0001_create_journeys.sql`](../../supabase/migrations/0001_create_journeys.sql).
 - UI : [`src/ui/Discover.tsx`](../../src/ui/Discover.tsx) (conteneur feed↔content),
   [`src/ui/DiscoveryFeed.tsx`](../../src/ui/DiscoveryFeed.tsx),
   [`src/ui/ContentView.tsx`](../../src/ui/ContentView.tsx).
@@ -124,8 +144,20 @@ La sélection est une **fonction pure** : elle ne mute jamais le `Journey`, ni
 - Meta d'affichage : indication légère de modalité + durée (« Read · N min »),
   **aucun CEFR affiché**.
 
+## Fondation MVP (prérequis ajoutés par le PO)
+
+- **Persistance durable** (D-10 / ADR-0002) : source de vérité Postgres via un port
+  `JourneyRepository` + adaptateur Supabase + `JourneyService` (durable autoritaire,
+  `localStorage` = cache/résilience/migration). Restauration prouvée **indépendamment
+  de `localStorage`** (tests service/repository). Sans `.env`, cache-only.
+- **Multilingue it + es** (D-11 / ADR-0003) : la langue est une donnée
+  (`journey.language`, `content.language`) ; `selectDiscoveryFeed` isole par langue ;
+  **mêmes composants** pour toutes les langues ; catalogue espagnol de preuve
+  (`catalog.es.ts`). Choix de langue à l'onboarding.
+
 ## Statut & historique
 
 - **In progress** — domaine + catalogue + tests livrés (session autonome).
-- **Done** — UI câblée (Journey → Discover → Content), flow complet utilisable et
-  vérifié manuellement (Flows A–D). **À valider par le PO** au retour.
+- **Done (UI)** — UI câblée (Journey → Discover → Content), flow vérifié (Flows A–D).
+- **Implemented — awaiting MVP foundation validation** — ajout des prérequis MVP
+  (durable + multilingue it/es). Preuves livrées ; en attente de validation PO (D-12).
