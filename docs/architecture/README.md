@@ -22,12 +22,18 @@ Aucune dépendance backend, aucun moteur IA à ce stade. Voir
 ```
 src/
 ├─ domain/        Modèle métier PUR, sans dépendance UI ni I/O
-│  └─ journey.ts  Types, validation, création du parcours
+│  ├─ journey.ts    US-01 : types, validation, création du parcours
+│  ├─ content.ts    US-02 : types de contenu, getContentById
+│  └─ discovery.ts  US-02 : sélection déterministe du feed
+├─ content/       Données (catalogue local de contenus)
+│  └─ catalog.ts
 ├─ persistence/   Persistance locale, injectable (Storage-like)
 │  └─ journeyStorage.ts
 └─ ui/            Composants React ; ne portent aucune règle métier
-   ├─ Onboarding.tsx
-   └─ JourneySummary.tsx
+   ├─ Onboarding.tsx    US-01
+   ├─ Discover.tsx      US-02 : conteneur feed↔content
+   ├─ DiscoveryFeed.tsx US-02
+   └─ ContentView.tsx   US-02
 ```
 
 Principe : **les règles métier vivent dans `domain/`** et sont testables sans DOM.

@@ -2,18 +2,19 @@ import { useEffect, useState } from "react";
 import type { LanguageJourney } from "./domain/journey";
 import { loadJourney, clearJourney } from "./persistence/journeyStorage";
 import { Onboarding } from "./ui/Onboarding";
-import { JourneySummary } from "./ui/JourneySummary";
+import { Discover } from "./ui/Discover";
 
 /**
- * US-01 vertical slice. Two states:
- *  - no journey yet  -> onboarding
- *  - journey exists  -> summary (also what the learner sees after a reload)
+ * App flow (US-01 + US-02):
+ *  - no journey yet -> onboarding (US-01)
+ *  - journey exists -> Discover (US-02), also the destination after a reload.
+ * A corrupted/absent persisted journey resolves to `null` and thus onboarding.
  */
 export function App() {
   const [journey, setJourney] = useState<LanguageJourney | null>(null);
   const [loaded, setLoaded] = useState(false);
 
-  // Restore any previously created journey on first render.
+  // Restore any previously created journey on first render (migrates legacy keys).
   useEffect(() => {
     setJourney(loadJourney());
     setLoaded(true);
@@ -24,7 +25,7 @@ export function App() {
   return (
     <main className="app">
       {journey ? (
-        <JourneySummary
+        <Discover
           journey={journey}
           onReset={() => {
             clearJourney();

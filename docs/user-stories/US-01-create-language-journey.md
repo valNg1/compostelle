@@ -81,8 +81,9 @@ Voir [`../product/pedagogical-model.md`](../product/pedagogical-model.md#personn
 - Modèle métier pur : [`src/domain/journey.ts`](../../src/domain/journey.ts)
   (types `DeclaredLevel` / `EstimatedLevel`, `validateDraft`, `createJourney`).
 - Persistance locale injectable : [`src/persistence/journeyStorage.ts`](../../src/persistence/journeyStorage.ts).
-- UI : [`src/ui/Onboarding.tsx`](../../src/ui/Onboarding.tsx) et
-  [`src/ui/JourneySummary.tsx`](../../src/ui/JourneySummary.tsx).
+- UI : [`src/ui/Onboarding.tsx`](../../src/ui/Onboarding.tsx). *(L'écran résumé
+  post-onboarding a été retiré avec US-02 : la destination après création du parcours
+  est désormais l'écran Discover.)*
 - Tests : [`src/domain/journey.test.ts`](../../src/domain/journey.test.ts),
   [`src/persistence/journeyStorage.test.ts`](../../src/persistence/journeyStorage.test.ts).
 - Cahier de recette : [`../testing/recette-US-01.md`](../testing/recette-US-01.md).

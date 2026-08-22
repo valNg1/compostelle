@@ -47,6 +47,16 @@ Pour repartir d'un état vierge : vider le `localStorage` du site, ou utiliser
 - Navigation clavier possible (Tab), focus visible, contenus ouvrables au clavier.
 - Responsive : smartphone étroit, standard, tablette, desktop.
 
-## Résultat de la dernière passe
-- Tests automatisés : (à compléter) verts.
-- Flows A–D : (à compléter) vérifiés.
+## Résultat de la dernière passe (2026-08-22)
+- Tests automatisés : **44/44 verts** (dont garde-fous d'intégration catalogue).
+- **Flow A** vérifié : onboarding (A2 + Thriller) → « Start discovering » → feed
+  personnalisé (featured Thriller + alternative Thriller, aucun CEFR) → ouverture du
+  contenu (corpus italien) → retour au feed.
+- **Flow B** vérifié : rechargement → Discover directement (parcours persisté sous
+  `compostelle.journey.v1`).
+- **Flow C** vérifié : intérêts `sport` + `Surprise me` → feed = Sport, Sport,
+  Thriller, Thriller (catégorie extérieure surfacée, déterministe).
+- **Flow D** vérifié : `compostelle.journey.v1` corrompu → retour propre à
+  l'onboarding, pas de page blanche.
+- Responsive mobile (375px) et desktop OK ; focus clavier visible sur les cartes
+  (boutons sémantiques). Aucune erreur console.

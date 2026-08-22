@@ -22,7 +22,7 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 | ID | Titre | Étape boucle | Statut | Fiche |
 |----|-------|--------------|--------|-------|
 | US-01 | Create my language journey | JOURNEY (entrée) | `Done` (validée PO) | [US-01](../user-stories/US-01-create-language-journey.md) |
-| US-02 | Discover something interesting | DISCOVER | `In progress` (tranche livrée en session autonome, à valider PO) | [US-02](../user-stories/US-02-discover-something-interesting.md) |
+| US-02 | Discover something interesting | DISCOVER | `Done` (livrée, à valider PO) | [US-02](../user-stories/US-02-discover-something-interesting.md) |
 
 ## Note US-02
 

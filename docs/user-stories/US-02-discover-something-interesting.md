@@ -1,7 +1,7 @@
 # US-02 — Discover something interesting
 
 - **ID** : US-02
-- **Statut** : In progress — première tranche verticale (implémentée dans cette session autonome)
+- **Statut** : Done — expérience livrée et utilisable (flow Journey → Discover → Content). À valider par le PO.
 - **Étape de la boucle pédagogique** : DISCOVER (principalement)
 
 ## User story
@@ -84,23 +84,23 @@ La sélection est une **fonction pure** : elle ne mute jamais le `Journey`, ni
 
 ## Critères d'acceptation
 
-- [ ] Given un apprenant avec l'intérêt Thriller, When il arrive sur DISCOVER, Then
+- [x] Given un apprenant avec l'intérêt Thriller, When il arrive sur DISCOVER, Then
   il voit au moins une proposition de catégorie Thriller.
-- [ ] Given plusieurs intérêts, When le feed est calculé, Then les contenus des
+- [x] Given plusieurs intérêts, When le feed est calculé, Then les contenus des
   différentes catégories choisies sont pris en compte.
-- [ ] Given `Surprise me`, When le feed est calculé, Then une catégorie **hors**
+- [x] Given `Surprise me`, When le feed est calculé, Then une catégorie **hors**
   intérêts explicites peut apparaître.
-- [ ] Given aucun contenu correspondant aux intérêts, Then un fallback propre propose
+- [x] Given aucun contenu correspondant aux intérêts, Then un fallback propre propose
   tout de même quelque chose (jamais un feed vide artificiel).
-- [ ] Given un catalogue vide, Then le feed est vide et l'UI affiche un état vide
+- [x] Given un catalogue vide, Then le feed est vide et l'UI affiche un état vide
   propre (pas de crash).
-- [ ] Given un contenu choisi par ID, Then sa vue de découverte s'ouvre.
-- [ ] Given un ID inexistant, Then l'application gère proprement (pas de page blanche).
-- [ ] Given le calcul du feed, Then le `Journey` (dont `declaredLevel` /
+- [x] Given un contenu choisi par ID, Then sa vue de découverte s'ouvre.
+- [x] Given un ID inexistant, Then l'application gère proprement (pas de page blanche).
+- [x] Given le calcul du feed, Then le `Journey` (dont `declaredLevel` /
   `estimatedLevel`) est inchangé.
-- [ ] Given des entrées identiques, Then le résultat de la sélection est
+- [x] Given des entrées identiques, Then le résultat de la sélection est
   **déterministe**.
-- [ ] Given un Journey absent/corrompu, Then l'application retombe proprement sur
+- [x] Given un Journey absent/corrompu, Then l'application retombe proprement sur
   l'onboarding (US-01 non régressée).
 
 ## Implementation notes
@@ -109,15 +109,23 @@ La sélection est une **fonction pure** : elle ne mute jamais le `Journey`, ni
   `getContentById`), [`src/domain/discovery.ts`](../../src/domain/discovery.ts)
   (`selectDiscoveryFeed`).
 - Catalogue (données) : [`src/content/catalog.ts`](../../src/content/catalog.ts).
-- UI : [`src/ui/DiscoveryFeed.tsx`](../../src/ui/DiscoveryFeed.tsx),
+- UI : [`src/ui/Discover.tsx`](../../src/ui/Discover.tsx) (conteneur feed↔content),
+  [`src/ui/DiscoveryFeed.tsx`](../../src/ui/DiscoveryFeed.tsx),
   [`src/ui/ContentView.tsx`](../../src/ui/ContentView.tsx).
+- Câblage : [`src/App.tsx`](../../src/App.tsx) route un parcours existant vers
+  **Discover** (l'écran résumé US-01 a été retiré, superseded par Discover).
 - Tests : [`src/domain/discovery.test.ts`](../../src/domain/discovery.test.ts),
-  [`src/domain/content.test.ts`](../../src/domain/content.test.ts).
+  [`src/domain/content.test.ts`](../../src/domain/content.test.ts),
+  [`src/domain/discovery.catalog.test.ts`](../../src/domain/discovery.catalog.test.ts)
+  (garde-fous d'intégration sur le vrai catalogue).
 - Cahier de recette : [`../testing/recette-US-02.md`](../testing/recette-US-02.md).
 - Choix éditorial : `title`/`body` en italien (langue cible), `teaser` en anglais
   (chrome d'accueil) — donnée, donc réversible.
+- Meta d'affichage : indication légère de modalité + durée (« Read · N min »),
+  **aucun CEFR affiché**.
 
 ## Statut & historique
 
-- **In progress** — tranche verticale livrée en session autonome (PO absent), sous
-  décisions déjà validées. À faire valider par le PO au retour.
+- **In progress** — domaine + catalogue + tests livrés (session autonome).
+- **Done** — UI câblée (Journey → Discover → Content), flow complet utilisable et
+  vérifié manuellement (Flows A–D). **À valider par le PO** au retour.
