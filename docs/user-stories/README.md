@@ -10,7 +10,8 @@ ailleurs).
 | ID | Titre | Statut |
 |----|-------|--------|
 | [US-01](US-01-create-language-journey.md) | Create my language journey | `Done` |
-| [US-02](US-02-discover-something-interesting.md) | Discover something interesting | `Done` |
+| [US-02](US-02-discover-something-interesting.md) | Discover something interesting | `Implemented · Production deployed · Awaiting PO validation` |
+| [US-UX-01](US-UX-01-establish-the-compostelle-experience.md) | Establish the COMPOSTELLE experience | `Implemented · Awaiting PO validation` |
 
 La vue backlog complète est dans [`../product/backlog.md`](../product/backlog.md).
 La légende des statuts y est également définie.

@@ -1,8 +1,26 @@
 # US-02 — Discover something interesting
 
 - **ID** : US-02
-- **Statut** : Implemented — awaiting MVP foundation validation
+- **Statut** : Implemented · Production deployed · Awaiting PO validation
 - **Étape de la boucle pédagogique** : DISCOVER (principalement)
+
+> Le bug de restauration signalé par le PO est corrigé (cause racine : cache locale
+> globale + niveau non affiché — voir commit `fix: restore durable journeys after
+> sign in`). La restauration durable Supabase est prouvée (tests `durableRestore`).
+> Passé à `Awaiting PO validation` : ne devient `PO validated` que sur validation
+> explicite du PO via la recette ci-dessous.
+
+## Recette PO (à exécuter en Production)
+
+1. Ouvrir la Production, se connecter (email + password du compte démo Supabase).
+2. Italian restauré avec le **bon niveau** (« Italian · B2 »).
+3. Spanish restauré avec le **bon niveau** (« Spanish · A2 »).
+4. Basculer Italian → Spanish (les deux préservés ; contenu et niveau changent).
+5. Ouvrir un contenu Italian → revenir.
+6. Basculer vers Spanish → ouvrir un contenu Spanish → revenir.
+7. Se déconnecter, **vider le localStorage** (ou session propre), se reconnecter.
+8. Vérifier de nouveau : Italian = B2, Spanish = A2, contenu correct par langue.
+9. Aucune erreur console, aucune page blanche.
 
 > L'UI de découverte est acceptée techniquement. Deux prérequis MVP posés par le PO
 > ont été ajoutés et livrés : **persistance durable** (Supabase/PostgreSQL, D-10 /
