@@ -37,7 +37,7 @@ Pour repartir d'un état vierge : vider le `localStorage` du site, ou utiliser
 ### Flow D — État local corrompu / absent
 | # | Étape | Résultat attendu |
 |---|-------|------------------|
-| D1 | Mettre une valeur invalide dans `localStorage` (`lontano.journey.v1` = `"{cassé"`), recharger | L'app **récupère proprement** : retour à l'onboarding, pas de page blanche. |
+| D1 | Mettre une valeur invalide dans `localStorage` (`compostelle.journey.v1` = `"{cassé"`), recharger | L'app **récupère proprement** : retour à l'onboarding, pas de page blanche. |
 | D2 | Vider le `localStorage`, recharger | Onboarding affiché normalement. |
 
 ## Vérifications transverses

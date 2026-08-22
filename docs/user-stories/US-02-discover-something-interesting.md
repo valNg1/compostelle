@@ -19,12 +19,12 @@ avec ce qu'il aime. La découverte précède et motive l'apprentissage.
 
 ## Principe produit structurant
 
-> **The learner chooses what interests them. LONTANO adapts the learning experience.**
+> **The learner chooses what interests them. COMPOSTELLE adapts the learning experience.**
 
 Conséquences appliquées ici :
 
 - le produit ne demande **jamais** « Do you want an A2 or B1 text? » ;
-- le niveau (CEFR) est géré par LONTANO, **jamais** au centre visuel de l'expérience ;
+- le niveau (CEFR) est géré par COMPOSTELLE, **jamais** au centre visuel de l'expérience ;
 - **aucun CEFR n'est affiché** dans le feed de découverte.
 
 ## Périmètre (cette tranche)
@@ -51,7 +51,7 @@ UNDERSTAND / RECALL / USE / MEMORY, pas US-02).
   temps réel).
 - Catégories : `thriller`, `history`, `travel`, `culture`, `news`, `sport`,
   `everyday_life`.
-- `surprise_me` **n'est pas une catégorie** : c'est une préférence autorisant LONTANO
+- `surprise_me` **n'est pas une catégorie** : c'est une préférence autorisant COMPOSTELLE
   à proposer autre chose que les intérêts explicites.
 - Exigence éditoriale : contenus intéressants indépendamment de la pédagogie ; pas de
   faux texte scolaire (« Maria goes to the supermarket »). Narratif = original ;

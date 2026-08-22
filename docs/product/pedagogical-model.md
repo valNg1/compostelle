@@ -2,7 +2,7 @@
 
 ## La boucle centrale
 
-L'expérience LONTANO repose sur une boucle unique, **générique** (indépendante d'un
+L'expérience COMPOSTELLE repose sur une boucle unique, **générique** (indépendante d'un
 média particulier) :
 
 ```
@@ -77,7 +77,7 @@ l'utilisateur :
 
 > **Invariant structurant** — Le niveau *déclaré* (`declaredLevel`) doit toujours
 > rester conceptuellement **distinct** du futur niveau *estimé* (`estimatedLevel`)
-> par LONTANO, et stocké séparément.
+> par COMPOSTELLE, et stocké séparément.
 
 Conséquence : deux utilisateurs ayant déclaré le même niveau (p. ex. B1) doivent
 progressivement recevoir des **expériences différentes**.

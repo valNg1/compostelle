@@ -2,25 +2,25 @@
 
 ## Formulation de travail
 
-> **LONTANO helps you learn a language through things worth discovering.**
+> **COMPOSTELLE helps you learn a language through things worth discovering.**
 
 *(Formulation de travail — pas encore une tagline marketing définitive.)*
 
-LONTANO est une application d'apprentissage des langues fondée sur trois piliers :
+COMPOSTELLE est une application d'apprentissage des langues fondée sur trois piliers :
 
 ```
 CONTENTS + TRANSMISSION + PERSONALISATION
 ```
 
-**LONTANO n'est pas une application de lecture.** La lecture est une modalité
+**COMPOSTELLE n'est pas une application de lecture.** La lecture est une modalité
 importante — probablement l'une des premières du MVP — mais elle ne définit pas le
 produit à elle seule. Le produit se pense comme un espace où l'on **découvre des
 choses intéressantes** dans la langue apprise, sous **plusieurs formes**.
 
 ## Principe fondateur : TRANSMISSION
 
-L'objectif de LONTANO n'est pas seulement d'apprendre du vocabulaire ou de la
-grammaire. LONTANO doit permettre d'**apprendre une langue à travers des contenus qui
+L'objectif de COMPOSTELLE n'est pas seulement d'apprendre du vocabulaire ou de la
+grammaire. COMPOSTELLE doit permettre d'**apprendre une langue à travers des contenus qui
 ont une valeur propre** : histoire, culture, fiction, voyage, actualité, sport, vie
 quotidienne, etc.
 
@@ -68,7 +68,7 @@ Genres envisagés :
 - Original fiction
 - *(plus tard)* histoires feuilletonnantes
 
-**Les contenus narratifs produits spécifiquement pour LONTANO doivent être
+**Les contenus narratifs produits spécifiquement pour COMPOSTELLE doivent être
 originaux.**
 
 ## MVP
@@ -77,7 +77,7 @@ originaux.**
 - Le MVP peut rester volontairement limité (une seule modalité concrète suffit). Son
   rôle est de tester la question fondamentale :
 
-> Est-ce que LONTANO donne envie de revenir apprendre demain, parce que l'expérience
+> Est-ce que COMPOSTELLE donne envie de revenir apprendre demain, parce que l'expérience
 > est intéressante, personnalisée et réellement utile ?
 
 ## Voir aussi

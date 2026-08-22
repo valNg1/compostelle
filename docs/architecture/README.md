@@ -36,7 +36,7 @@ L'UI et la persistance dépendent du domaine, jamais l'inverse.
 ## Invariant produit reflété dans le modèle
 
 `declaredLevel` (hypothèse déclarée par l'apprenant) et `estimatedLevel` (futur
-niveau estimé par LONTANO) sont **deux champs distincts**. `estimatedLevel` vaut
+niveau estimé par COMPOSTELLE) sont **deux champs distincts**. `estimatedLevel` vaut
 `null` à la création et n'est jamais dérivé du niveau déclaré. Ils ne doivent jamais
 être fusionnés.
 

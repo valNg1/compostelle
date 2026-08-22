@@ -1,6 +1,6 @@
 # Product Backlog
 
-Backlog produit de LONTANO. Chaque User Story validée possède un fichier dédié dans
+Backlog produit de COMPOSTELLE. Chaque User Story validée possède un fichier dédié dans
 [`../user-stories/`](../user-stories/README.md) et reste la **source unique** de ses
 règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 

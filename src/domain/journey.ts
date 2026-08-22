@@ -1,5 +1,5 @@
 /**
- * LONTANO — US-01: Create my language journey
+ * COMPOSTELLE — US-01: Create my language journey
  *
  * Business model for the learner's language journey. This module is UI-agnostic
  * and side-effect free: it only describes the journey and the rules that govern
@@ -20,7 +20,7 @@ export const MVP_LANGUAGE: Language = "it";
 export type DeclaredLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "UNKNOWN";
 
 /**
- * Level LONTANO *estimates* from real usage. Deliberately a distinct concept
+ * Level COMPOSTELLE *estimates* from real usage. Deliberately a distinct concept
  * from {@link DeclaredLevel}: it never carries `"UNKNOWN"`, and it is `null`
  * until the product has gathered enough signal to estimate anything.
  *

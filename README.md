@@ -1,9 +1,9 @@
-# LONTANO
+# COMPOSTELLE
 
-**LONTANO helps you learn a language through things worth discovering.**
+**COMPOSTELLE helps you learn a language through things worth discovering.**
 *(formulation de travail — pas une tagline définitive)*
 
-LONTANO est une application d'apprentissage des langues fondée sur
+COMPOSTELLE est une application d'apprentissage des langues fondée sur
 **CONTENTS + TRANSMISSION + PERSONALISATION** : apprendre une langue à travers des
 contenus qui ont une valeur propre (histoire, culture, fiction, voyage, actualité,
 sport, vie quotidienne…). La pédagogie soutient la découverte, et non l'inverse.
@@ -98,5 +98,5 @@ src/
 
 Tout arbitrage fonctionnel se juge à cette aune :
 
-> Est-ce que LONTANO donne envie de revenir apprendre demain, parce que l'expérience
+> Est-ce que COMPOSTELLE donne envie de revenir apprendre demain, parce que l'expérience
 > est intéressante, personnalisée et réellement utile ?

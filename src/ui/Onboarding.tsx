@@ -37,14 +37,14 @@ export function Onboarding({ onCreated }: OnboardingProps) {
   return (
     <section className="onboarding" aria-labelledby="onboarding-title">
       <header className="onboarding__intro">
-        <p className="onboarding__eyebrow">Your reading journey begins</p>
+        <p className="onboarding__eyebrow">Your journey begins</p>
         <h1 id="onboarding-title" className="onboarding__title">
-          Learn a language by reading
+          Learn a language through
           <br />
-          what you actually want to read.
+          things worth discovering.
         </h1>
         <p className="onboarding__language">
-          Reading in <strong>Italian</strong>
+          Discovering in <strong>Italian</strong>
         </p>
       </header>
 
@@ -69,8 +69,8 @@ export function Onboarding({ onCreated }: OnboardingProps) {
       </fieldset>
 
       <fieldset className="field">
-        <legend className="field__label">What would you love to read?</legend>
-        <div className="chips" aria-label="Reading interests">
+        <legend className="field__label">What would you love to discover?</legend>
+        <div className="chips" aria-label="Interests">
           {INTEREST_OPTIONS.map((opt) => {
             const on = draft.interests.includes(opt.value);
             return (
@@ -94,7 +94,7 @@ export function Onboarding({ onCreated }: OnboardingProps) {
         disabled={!valid}
         onClick={begin}
       >
-        Start reading
+        Start discovering
       </button>
     </section>
   );

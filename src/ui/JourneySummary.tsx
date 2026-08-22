@@ -37,7 +37,7 @@ export function JourneySummary({ journey, onReset }: JourneySummaryProps) {
       <h1 id="summary-title" className="onboarding__title">
         Welcome back to your
         <br />
-        {LANGUAGE_LABEL[journey.language]} reading.
+        {LANGUAGE_LABEL[journey.language]} discoveries.
       </h1>
 
       <dl className="summary__grid">
@@ -50,7 +50,7 @@ export function JourneySummary({ journey, onReset }: JourneySummaryProps) {
           <dd>{levelLabel(journey)}</dd>
         </div>
         <div className="summary__interests">
-          <dt>Reading interests</dt>
+          <dt>Interests</dt>
           <dd>
             <div className="chips chips--static">
               {interestLabels(journey).map((label) => (

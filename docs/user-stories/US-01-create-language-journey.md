@@ -55,7 +55,7 @@ départ.
 ### Règle structurante (invariant)
 
 > Le **niveau déclaré** (`declaredLevel`) doit être stocké **séparément** du futur
-> modèle de niveau **estimé** (`estimatedLevel`) par LONTANO. Au démarrage,
+> modèle de niveau **estimé** (`estimatedLevel`) par COMPOSTELLE. Au démarrage,
 > `estimatedLevel = null`. Le niveau déclaré n'est qu'une hypothèse initiale, jamais
 > une vérité figée, et les deux concepts ne doivent **jamais** être fusionnés.
 
