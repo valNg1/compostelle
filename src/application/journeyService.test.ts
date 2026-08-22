@@ -1,27 +1,25 @@
 import { describe, it, expect, vi } from "vitest";
 import { createJourney, type LanguageJourney } from "../domain/journey";
+import type { Language } from "../domain/language";
 import { InMemoryJourneyRepository } from "../persistence/inMemoryJourneyRepository";
 import { JourneyService, type JourneyCache } from "./journeyService";
 
-/** A fake cache (no localStorage) with an explicit learner id and local value. */
+/** In-memory JourneyCache (no localStorage), with test hooks. */
 function fakeCache(
-  init: { learnerId?: string; local?: LanguageJourney | null } = {},
-): JourneyCache & { local: LanguageJourney | null; learnerId: string } {
+  seed: LanguageJourney[] = [],
+): JourneyCache & { size(): number } {
+  const byLanguage = new Map<Language, LanguageJourney>(
+    seed.map((j) => [j.language, j]),
+  );
+  let current: Language | null = null;
   return {
-    learnerId: init.learnerId ?? "learner-1",
-    local: init.local ?? null,
-    getLearnerId() {
-      return this.learnerId;
-    },
-    loadLocal() {
-      return this.local;
-    },
-    saveLocal(journey) {
-      this.local = journey;
-    },
-    clearLocal() {
-      this.local = null;
-    },
+    loadAll: () => [...byLanguage.values()],
+    save: (j) => void byLanguage.set(j.language, j),
+    remove: (l) => void byLanguage.delete(l),
+    clearAll: () => byLanguage.clear(),
+    getCurrentLanguage: () => current,
+    setCurrentLanguage: (l) => void (current = l),
+    size: () => byLanguage.size,
   };
 }
 
@@ -37,74 +35,78 @@ const spanish = createJourney({
 });
 
 describe("JourneyService — durable authoritative + cache resilience", () => {
-  it("saves to both durable and cache", async () => {
+  it("saves to both durable and cache and tracks the current language", async () => {
     const durable = new InMemoryJourneyRepository();
     const cache = fakeCache();
-    const service = new JourneyService(durable, cache);
+    const service = new JourneyService(durable, cache, "user-1");
 
     await service.save(italian);
 
-    expect(await durable.load("learner-1")).toEqual(italian);
-    expect(cache.local).toEqual(italian);
+    expect(await durable.loadByLanguage("user-1", "it")).toEqual(italian);
+    expect(cache.loadAll()).toEqual([italian]);
+    expect(service.getCurrentLanguage()).toBe("it");
   });
 
-  it("restores from durable WITHOUT relying on the local cache", async () => {
+  it("restores BOTH languages from durable WITHOUT relying on the cache", async () => {
     const durable = new InMemoryJourneyRepository();
-    await durable.save("learner-1", spanish);
-    // Cache is empty — the only source is durable storage.
-    const cache = fakeCache({ learnerId: "learner-1", local: null });
-    const service = new JourneyService(durable, cache);
+    await durable.save("user-1", italian);
+    await durable.save("user-1", spanish);
+    const cache = fakeCache(); // empty — durable is the only source
+    const service = new JourneyService(durable, cache, "user-1");
 
-    const restored = await service.load();
+    const all = await service.listAll();
 
-    expect(restored).toEqual(spanish);
-    expect(cache.local).toEqual(spanish); // durable seeded the cache
+    expect(all.map((j) => j.language).sort()).toEqual(["es", "it"]);
+    expect((await service.load("it"))?.language).toBe("it");
+    expect((await service.load("es"))?.language).toBe("es");
+    expect(cache.size()).toBe(2); // durable seeded the cache
   });
 
-  it("prefers durable over a stale local cache", async () => {
+  it("only sees the scoped user's journeys (no cross-user access)", async () => {
     const durable = new InMemoryJourneyRepository();
-    await durable.save("learner-1", spanish);
-    const cache = fakeCache({ learnerId: "learner-1", local: italian });
-    const service = new JourneyService(durable, cache);
+    await durable.save("user-1", italian);
+    await durable.save("user-2", spanish);
+    const service = new JourneyService(durable, fakeCache(), "user-1");
 
-    expect(await service.load()).toEqual(spanish);
+    const all = await service.listAll();
+    expect(all).toEqual([italian]);
   });
 
   it("falls back to the cache when durable is unreachable", async () => {
     const durable = new InMemoryJourneyRepository();
-    vi.spyOn(durable, "load").mockRejectedValueOnce(new Error("offline"));
-    const cache = fakeCache({ local: italian });
-    const service = new JourneyService(durable, cache);
+    vi.spyOn(durable, "listByUser").mockRejectedValueOnce(new Error("offline"));
+    const cache = fakeCache([italian]);
+    const service = new JourneyService(durable, cache, "user-1");
 
-    expect(await service.load()).toEqual(italian);
+    expect(await service.listAll()).toEqual([italian]);
   });
 
-  it("seeds durable from a cache-only (e.g. legacy-migrated) journey", async () => {
+  it("seeds durable from cache-only (e.g. legacy-migrated) journeys", async () => {
     const durable = new InMemoryJourneyRepository();
-    const cache = fakeCache({ learnerId: "learner-1", local: italian });
-    const service = new JourneyService(durable, cache);
+    const cache = fakeCache([italian]);
+    const service = new JourneyService(durable, cache, "user-1");
 
-    await service.load();
+    await service.listAll();
 
-    expect(await durable.load("learner-1")).toEqual(italian);
+    expect(await durable.loadByLanguage("user-1", "it")).toEqual(italian);
   });
 
   it("works cache-only when no durable repository is configured", async () => {
-    const cache = fakeCache({ local: spanish });
-    const service = new JourneyService(null, cache);
+    const service = new JourneyService(null, fakeCache([spanish]), "user-1");
     expect(service.isDurable).toBe(false);
-    expect(await service.load()).toEqual(spanish);
+    expect(await service.listAll()).toEqual([spanish]);
   });
 
-  it("clears both durable and cache", async () => {
+  it("clears one language without destroying the other", async () => {
     const durable = new InMemoryJourneyRepository();
-    const cache = fakeCache({ learnerId: "learner-1", local: italian });
-    await durable.save("learner-1", italian);
-    const service = new JourneyService(durable, cache);
+    const cache = fakeCache([italian, spanish]);
+    await durable.save("user-1", italian);
+    await durable.save("user-1", spanish);
+    const service = new JourneyService(durable, cache, "user-1");
 
-    await service.clear();
+    await service.clear("it");
 
-    expect(cache.local).toBeNull();
-    expect(await durable.load("learner-1")).toBeNull();
+    expect(await service.load("it")).toBeNull();
+    expect((await service.load("es"))?.language).toBe("es");
   });
 });

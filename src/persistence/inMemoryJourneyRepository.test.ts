@@ -2,47 +2,74 @@ import { describe, it, expect } from "vitest";
 import { createJourney } from "../domain/journey";
 import { InMemoryJourneyRepository } from "./inMemoryJourneyRepository";
 
-const journey = createJourney({
+const italian = createJourney({
   language: "it",
   declaredLevel: "B1",
   interests: ["history", "travel"],
 });
+const spanish = createJourney({
+  language: "es",
+  declaredLevel: "A2",
+  interests: ["culture"],
+});
 
-describe("InMemoryJourneyRepository — durable CRUD", () => {
-  it("returns null for an unknown learner", async () => {
+describe("InMemoryJourneyRepository — user-scoped, multi-language CRUD", () => {
+  it("returns null / empty for an unknown user", async () => {
     const repo = new InMemoryJourneyRepository();
-    expect(await repo.load("nobody")).toBeNull();
+    expect(await repo.loadByLanguage("nobody", "it")).toBeNull();
+    expect(await repo.listByUser("nobody")).toEqual([]);
   });
 
-  it("saves and loads a journey by learner id", async () => {
+  it("lets one user hold Italian AND Spanish journeys simultaneously", async () => {
     const repo = new InMemoryJourneyRepository();
-    await repo.save("learner-1", journey);
-    expect(await repo.load("learner-1")).toEqual(journey);
+    await repo.save("user-1", italian);
+    await repo.save("user-1", spanish);
+
+    const all = await repo.listByUser("user-1");
+    const langs = all.map((j) => j.language).sort();
+    expect(langs).toEqual(["es", "it"]);
   });
 
-  it("isolates journeys per learner id", async () => {
+  it("updating Spanish does not mutate the Italian journey", async () => {
     const repo = new InMemoryJourneyRepository();
-    await repo.save("learner-1", journey);
-    expect(await repo.load("learner-2")).toBeNull();
-  });
+    await repo.save("user-1", italian);
+    await repo.save("user-1", spanish);
 
-  it("overwrites on repeated save (create or replace)", async () => {
-    const repo = new InMemoryJourneyRepository();
-    await repo.save("learner-1", journey);
-    const updated = createJourney({
+    const updatedSpanish = createJourney({
       language: "es",
-      declaredLevel: "A2",
-      interests: ["culture"],
+      declaredLevel: "C1",
+      interests: ["travel", "everyday_life"],
     });
-    await repo.save("learner-1", updated);
-    expect(await repo.load("learner-1")).toEqual(updated);
+    await repo.save("user-1", updatedSpanish);
+
+    expect(await repo.loadByLanguage("user-1", "it")).toEqual(italian);
+    expect(await repo.loadByLanguage("user-1", "es")).toEqual(updatedSpanish);
   });
 
-  it("clears a journey", async () => {
+  it("loading Italian returns Italian state; loading Spanish returns Spanish state", async () => {
     const repo = new InMemoryJourneyRepository();
-    await repo.save("learner-1", journey);
-    await repo.clear("learner-1");
-    expect(await repo.load("learner-1")).toBeNull();
+    await repo.save("user-1", italian);
+    await repo.save("user-1", spanish);
+
+    expect((await repo.loadByLanguage("user-1", "it"))?.language).toBe("it");
+    expect((await repo.loadByLanguage("user-1", "es"))?.language).toBe("es");
+  });
+
+  it("isolates data between users (no cross-user access)", async () => {
+    const repo = new InMemoryJourneyRepository();
+    await repo.save("user-1", italian);
+    expect(await repo.listByUser("user-2")).toEqual([]);
+    expect(await repo.loadByLanguage("user-2", "it")).toBeNull();
+  });
+
+  it("clears one language without touching the other", async () => {
+    const repo = new InMemoryJourneyRepository();
+    await repo.save("user-1", italian);
+    await repo.save("user-1", spanish);
+    await repo.clear("user-1", "it");
+
+    expect(await repo.loadByLanguage("user-1", "it")).toBeNull();
+    expect(await repo.loadByLanguage("user-1", "es")).toEqual(spanish);
   });
 
   it("stores a copy (no external mutation leaks in)", async () => {
@@ -52,9 +79,10 @@ describe("InMemoryJourneyRepository — durable CRUD", () => {
       declaredLevel: "A1",
       interests: ["news"],
     });
-    await repo.save("learner-1", mutable);
+    await repo.save("user-1", mutable);
     mutable.interests.push("sport");
-    const loaded = await repo.load("learner-1");
-    expect(loaded?.interests).toEqual(["news"]);
+    expect((await repo.loadByLanguage("user-1", "it"))?.interests).toEqual([
+      "news",
+    ]);
   });
 });

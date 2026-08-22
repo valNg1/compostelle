@@ -1,23 +1,29 @@
 /**
- * COMPOSTELLE — Journey repository port.
+ * COMPOSTELLE — Journey repository port (user-scoped, multi-language).
  *
  * The application depends on this interface, never on a concrete storage
- * technology. Adapters (Supabase, in-memory, …) implement it. This keeps the
- * domain and application layers free of any Supabase / SQL dependency:
+ * technology. A user owns SEPARATE journeys per target language, so switching
+ * language never destroys another language's journey.
  *
  *   UI → application (service) → JourneyRepository (port) → adapter → storage
  *
- * A journey is keyed by an opaque, anonymous `learnerId` (a per-device id), so
- * durable storage works without authentication.
+ * Ownership is an opaque `userId` (the authenticated Supabase `auth.uid()` when
+ * durable; a local anonymous id in cache-only mode).
  */
 
 import type { LanguageJourney } from "../domain/journey";
+import type { Language } from "../domain/language";
 
 export interface JourneyRepository {
-  /** Load the durable journey for a learner, or `null` if none. */
-  load(learnerId: string): Promise<LanguageJourney | null>;
-  /** Create or replace the durable journey for a learner. */
-  save(learnerId: string, journey: LanguageJourney): Promise<void>;
-  /** Remove the durable journey for a learner. */
-  clear(learnerId: string): Promise<void>;
+  /** All journeys owned by a user, one per language at most. */
+  listByUser(userId: string): Promise<LanguageJourney[]>;
+  /** The user's journey for one language, or `null`. */
+  loadByLanguage(
+    userId: string,
+    language: Language,
+  ): Promise<LanguageJourney | null>;
+  /** Create or replace the user's journey for `journey.language`. */
+  save(userId: string, journey: LanguageJourney): Promise<void>;
+  /** Remove the user's journey for one language. */
+  clear(userId: string, language: Language): Promise<void>;
 }

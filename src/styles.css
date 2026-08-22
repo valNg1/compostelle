@@ -268,6 +268,83 @@ body {
   font-size: 15px;
 }
 
+/* --- Language bar + shell (US-02 multi-language) --- */
+.discover-shell {
+  width: 100%;
+  max-width: var(--maxw);
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.langbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.langbar__langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.langbar__lang,
+.langbar__add,
+.langbar__signout {
+  appearance: none;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-dim);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.langbar__lang:hover,
+.langbar__add:hover,
+.langbar__signout:hover {
+  color: var(--ink);
+  border-color: #3a3e4b;
+}
+.langbar__lang--on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+.langbar__add {
+  border-style: dashed;
+}
+.langbar__signout {
+  border-color: transparent;
+}
+
+/* --- Auth form (magic link) --- */
+.text-input {
+  appearance: none;
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font: inherit;
+  font-size: 17px;
+}
+.text-input:focus-visible {
+  border-color: var(--accent);
+}
+.form-error {
+  margin: 0;
+  color: #e2a0a0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+}
+
 /* --- Content view (US-02) --- */
 .content__back {
   align-self: flex-start;

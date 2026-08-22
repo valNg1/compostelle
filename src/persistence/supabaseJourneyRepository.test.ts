@@ -4,20 +4,20 @@ import { toRow, fromRow, type JourneyRow } from "./supabaseJourneyRepository";
 
 /**
  * Pure row-mapper tests. No Supabase client / no live database required — these
- * guard the domain <-> PostgreSQL boundary of the durable adapter.
+ * guard the domain <-> PostgreSQL boundary (user_id + language_code columns).
  */
 
 describe("Supabase journey row mapping", () => {
-  it("maps a journey to a row (snake_case columns)", () => {
+  it("maps a journey to a user-owned row (snake_case columns)", () => {
     const journey = createJourney({
       language: "es",
       declaredLevel: "B2",
       interests: ["history", "travel"],
     });
-    const row = toRow("learner-1", journey);
+    const row = toRow("user-1", journey);
     expect(row).toMatchObject({
-      learner_id: "learner-1",
-      language: "es",
+      user_id: "user-1",
+      language_code: "es",
       declared_level: "B2",
       estimated_level: null,
       interests: ["history", "travel"],
@@ -31,13 +31,13 @@ describe("Supabase journey row mapping", () => {
       declaredLevel: "UNKNOWN",
       interests: ["surprise_me"],
     });
-    expect(fromRow(toRow("learner-x", journey))).toEqual(journey);
+    expect(fromRow(toRow("user-x", journey))).toEqual(journey);
   });
 
   it("keeps declaredLevel and estimatedLevel separate through the mapping", () => {
     const row: JourneyRow = {
-      learner_id: "l",
-      language: "es",
+      user_id: "u",
+      language_code: "es",
       declared_level: "C1",
       estimated_level: null,
       interests: ["culture"],
@@ -50,8 +50,8 @@ describe("Supabase journey row mapping", () => {
 
   it("defaults an unknown stored language to Italian", () => {
     const row: JourneyRow = {
-      learner_id: "l",
-      language: "xx",
+      user_id: "u",
+      language_code: "xx",
       declared_level: "A1",
       estimated_level: null,
       interests: [],

@@ -33,15 +33,20 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 - **Modalité** : la lecture (première du MVP). Pas d'autre modalité, pas de moteur IA.
 - **Langues cibles** : **Italian (`it`) + Spanish (`es`)** via la **même** structure
   applicative (D-11 / [ADR-0003](docs/decisions/adr/0003-language-agnostic-domain.md)).
-- **Persistance durable** : Supabase / PostgreSQL comme source de vérité derrière une
-  interface repository ; `localStorage` = cache/résilience/migration (D-10 /
-  [ADR-0002](docs/decisions/adr/0002-durable-persistence-supabase.md)). Sans `.env`
-  Supabase, l'app tourne en cache-only.
+- **Persistance durable** : Supabase / PostgreSQL, source de vérité derrière une
+  interface repository ; modèle **user-scoped multi-langue** (`unique(user_id,
+  language_code)`) — un apprenant garde des parcours séparés par langue (D-14 /
+  [ADR-0002](docs/decisions/adr/0002-durable-persistence-supabase.md)). `localStorage`
+  = cache/résilience/migration. Sans `.env`, l'app tourne en cache-only.
+- **Identité** : Supabase Auth **email magic-link** ; propriété des données =
+  `auth.uid()` ; **RLS owner-only** (D-13 /
+  [ADR-0004](docs/decisions/adr/0004-auth-magic-link.md)).
 
-> **Le MVP n'est pas validé** tant que COMPOSTELLE n'a pas prouvé **des données
-> apprenant durables** ET **au moins deux langues cibles** avec la **même structure
-> applicative** (D-12). Ces preuves sont livrées ; restent la connexion Supabase live
-> et le durcissement RLS (voir OPEN-01/02/03 dans les décisions).
+> **Le MVP n'est pas validé** tant que le **test d'acceptation runtime** ne passe pas
+> sur un vrai Supabase (D-12) : login → parcours it + es durables → déconnexion +
+> vidage localStorage → reconnexion → parcours restaurés. Le code, les tests et le
+> déploiement sont prêts ; **provisionner Supabase + déployer sur `compostel.org` sont
+> des actions PO** — voir [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md) (OPEN-03).
 
 Le repository documente **ce qui existe réellement**, jamais une architecture
 imaginée pour plus tard.
@@ -84,9 +89,9 @@ Structure du code :
 src/
 ├─ domain/        # modèle métier pur : journey, language, content, discovery
 ├─ content/       # données : catalog.it.ts + catalog.es.ts (+ catalog.ts)
-├─ application/   # port JourneyRepository + JourneyService (orchestration)
-├─ persistence/   # adaptateurs : Supabase, in-memory, cache localStorage
-└─ ui/            # composants React (Onboarding, Discover, DiscoveryFeed, ContentView)
+├─ application/   # ports + orchestration : journeyRepository, authService, journeyService
+├─ persistence/   # adaptateurs : Supabase (repo + auth), in-memory, cache localStorage
+└─ ui/            # composants React : AuthScreen, Onboarding, Discover, DiscoveryFeed, ContentView
 ```
 
 ---

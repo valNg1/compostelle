@@ -9,10 +9,19 @@ import {
   type DeclaredLevel,
   type LanguageJourney,
 } from "../domain/journey";
-import { LANGUAGES, languageLabel, type Language } from "../domain/language";
+import {
+  LANGUAGES,
+  languageLabel,
+  DEFAULT_LANGUAGE,
+  type Language,
+} from "../domain/language";
 
 interface OnboardingProps {
   onCreated: (journey: LanguageJourney) => void;
+  /** Pre-selected language (e.g. when adding a second language journey). */
+  initialLanguage?: Language;
+  /** When present (e.g. adding a language with journeys already), show a Back link. */
+  onCancel?: () => void;
 }
 
 /**
@@ -20,8 +29,14 @@ interface OnboardingProps {
  * Deliberately light — it should feel like starting a journey, not filling a form.
  * Persistence is handled by the caller (App) so this stays UI-only.
  */
-export function Onboarding({ onCreated }: OnboardingProps) {
-  const [draft, setDraft] = useState(emptyDraft);
+export function Onboarding({
+  onCreated,
+  initialLanguage,
+  onCancel,
+}: OnboardingProps) {
+  const [draft, setDraft] = useState(() =>
+    emptyDraft(initialLanguage ?? DEFAULT_LANGUAGE),
+  );
   const { valid } = validateDraft(draft);
 
   function selectLanguage(language: Language) {
@@ -39,6 +54,11 @@ export function Onboarding({ onCreated }: OnboardingProps) {
 
   return (
     <section className="onboarding" aria-labelledby="onboarding-title">
+      {onCancel && (
+        <button type="button" className="content__back" onClick={onCancel}>
+          ← Back
+        </button>
+      )}
       <header className="onboarding__intro">
         <p className="onboarding__eyebrow">Your journey begins</p>
         <h1 id="onboarding-title" className="onboarding__title">
