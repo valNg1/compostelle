@@ -1,13 +1,19 @@
 import { describe, it, expect } from "vitest";
 import type { DeclaredLevel, Interest, LanguageJourney } from "./journey";
+import type { Language } from "./language";
 import type { Category, ContentItem } from "./content";
 import { selectDiscoveryFeed } from "./discovery";
 
 // --- fixtures ------------------------------------------------------------
 
-function item(id: string, category: Category): ContentItem {
+function item(
+  id: string,
+  category: Category,
+  language: Language = "it",
+): ContentItem {
   return {
     id,
+    language,
     title: `title-${id}`,
     category,
     teaser: `teaser-${id}`,
@@ -20,9 +26,10 @@ function item(id: string, category: Category): ContentItem {
 function journeyWith(
   interests: Interest[],
   declaredLevel: DeclaredLevel = "A1",
+  language: Language = "it",
 ): LanguageJourney {
   return {
-    language: "it",
+    language,
     declaredLevel,
     estimatedLevel: null,
     interests,
@@ -136,5 +143,54 @@ describe("selectDiscoveryFeed — purity & invariants", () => {
     expect(selectDiscoveryFeed(j, catalog)).toEqual(
       selectDiscoveryFeed(j, catalog),
     );
+  });
+});
+
+describe("selectDiscoveryFeed — language isolation", () => {
+  const itThriller = item("it-t", "thriller", "it");
+  const itHistory = item("it-h", "history", "it");
+  const esHistory = item("es-h", "history", "es");
+  const esTravel = item("es-tr", "travel", "es");
+  const mixed = [itThriller, itHistory, esHistory, esTravel];
+
+  it("an Italian journey only ever receives Italian content", () => {
+    const feed = selectDiscoveryFeed(
+      journeyWith(["history"], "A1", "it"),
+      mixed,
+    );
+    expect(shownItems(feed).every((c) => c.language === "it")).toBe(true);
+  });
+
+  it("a Spanish journey only ever receives Spanish content", () => {
+    const feed = selectDiscoveryFeed(
+      journeyWith(["history"], "A1", "es"),
+      mixed,
+    );
+    expect(shownItems(feed).length).toBeGreaterThan(0);
+    expect(shownItems(feed).every((c) => c.language === "es")).toBe(true);
+  });
+
+  it("Surprise me never crosses the target language", () => {
+    // Spanish journey, single interest + surprise: exploration stays Spanish.
+    const feed = selectDiscoveryFeed(
+      journeyWith(["history", "surprise_me"], "A1", "es"),
+      mixed,
+    );
+    expect(shownItems(feed).every((c) => c.language === "es")).toBe(true);
+    // ...and can still surface an outside category within Spanish (travel).
+    expect(shownItems(feed).some((c) => c.category !== "history")).toBe(true);
+  });
+
+  it("the fallback stays within the target language", () => {
+    // No Spanish sport exists -> fallback must not leak Italian content.
+    const feed = selectDiscoveryFeed(journeyWith(["sport"], "A1", "es"), mixed);
+    expect(shownItems(feed).every((c) => c.language === "es")).toBe(true);
+  });
+
+  it("works unchanged (same signature) for both languages", () => {
+    const itFeed = selectDiscoveryFeed(journeyWith(["history"], "A1", "it"), mixed);
+    const esFeed = selectDiscoveryFeed(journeyWith(["history"], "A1", "es"), mixed);
+    expect(itFeed.featured?.language).toBe("it");
+    expect(esFeed.featured?.language).toBe("es");
   });
 });

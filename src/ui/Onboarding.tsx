@@ -9,19 +9,24 @@ import {
   type DeclaredLevel,
   type LanguageJourney,
 } from "../domain/journey";
-import { saveJourney } from "../persistence/journeyStorage";
+import { LANGUAGES, languageLabel, type Language } from "../domain/language";
 
 interface OnboardingProps {
   onCreated: (journey: LanguageJourney) => void;
 }
 
 /**
- * Single-screen onboarding: pick a level, pick interests, begin.
+ * Single-screen onboarding: pick a target language, a level, some interests.
  * Deliberately light — it should feel like starting a journey, not filling a form.
+ * Persistence is handled by the caller (App) so this stays UI-only.
  */
 export function Onboarding({ onCreated }: OnboardingProps) {
   const [draft, setDraft] = useState(emptyDraft);
   const { valid } = validateDraft(draft);
+
+  function selectLanguage(language: Language) {
+    setDraft((d) => ({ ...d, language }));
+  }
 
   function selectLevel(level: DeclaredLevel) {
     setDraft((d) => ({ ...d, declaredLevel: level }));
@@ -29,9 +34,7 @@ export function Onboarding({ onCreated }: OnboardingProps) {
 
   function begin() {
     if (!valid) return;
-    const journey = createJourney(draft);
-    saveJourney(journey);
-    onCreated(journey);
+    onCreated(createJourney(draft));
   }
 
   return (
@@ -44,9 +47,29 @@ export function Onboarding({ onCreated }: OnboardingProps) {
           things worth discovering.
         </h1>
         <p className="onboarding__language">
-          Discovering in <strong>Italian</strong>
+          Discovering in <strong>{languageLabel(draft.language)}</strong>
         </p>
       </header>
+
+      <fieldset className="field">
+        <legend className="field__label">Which language?</legend>
+        <div className="chips" role="radiogroup" aria-label="Target language">
+          {LANGUAGES.map((lang) => (
+            <button
+              key={lang.code}
+              type="button"
+              role="radio"
+              aria-checked={draft.language === lang.code}
+              className={
+                "chip" + (draft.language === lang.code ? " chip--on" : "")
+              }
+              onClick={() => selectLanguage(lang.code)}
+            >
+              {lang.label}
+            </button>
+          ))}
+        </div>
+      </fieldset>
 
       <fieldset className="field">
         <legend className="field__label">Where are you starting from?</legend>
@@ -88,12 +111,7 @@ export function Onboarding({ onCreated }: OnboardingProps) {
         </div>
       </fieldset>
 
-      <button
-        type="button"
-        className="cta"
-        disabled={!valid}
-        onClick={begin}
-      >
+      <button type="button" className="cta" disabled={!valid} onClick={begin}>
         Start discovering
       </button>
     </section>

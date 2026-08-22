@@ -7,6 +7,10 @@
  * Design (D-07): selection is interest-based only. There is no CEFR adaptation
  * in this slice and no `estimatedLevel` is invented — the function never mutates
  * the journey and never touches persistence.
+ *
+ * Language isolation: the feed only ever contains content in the journey's
+ * target language. `Surprise me` explores other categories, never other
+ * languages.
  */
 
 import type { Interest, LanguageJourney } from "./journey";
@@ -44,12 +48,13 @@ export function explicitCategories(journey: LanguageJourney): Category[] {
  * Build the discovery feed for a journey against a catalog.
  *
  * Rules (see US-02):
- *  - `matched`   = catalog items whose category is a declared interest (stable
- *                  catalog order);
- *  - `unmatched` = the rest (stable catalog order);
- *  - if nothing matches -> fall back to the whole catalog ("something worth
- *    discovering today"); else if `surprise_me` is on -> matched then unmatched
- *    (exploration); else -> matched only;
+ *  - the catalog is first restricted to the journey's target language;
+ *  - `matched`   = in-language items whose category is a declared interest
+ *                  (stable catalog order);
+ *  - `unmatched` = the rest of the in-language items (stable catalog order);
+ *  - if nothing matches -> fall back to the whole in-language catalog
+ *    ("something worth discovering today"); else if `surprise_me` is on ->
+ *    matched then unmatched (exploration); else -> matched only;
  *  - featured = first of the ranked list; alternatives = the next ones, capped.
  */
 export function selectDiscoveryFeed(
@@ -61,12 +66,14 @@ export function selectDiscoveryFeed(
   const explicit = new Set(explicitCategories(journey));
   const allowSurprise = journey.interests.includes("surprise_me");
 
-  const matched = catalog.filter((c) => explicit.has(c.category));
-  const unmatched = catalog.filter((c) => !explicit.has(c.category));
+  // Language isolation first: never mix target languages, Surprise me included.
+  const inLanguage = catalog.filter((c) => c.language === journey.language);
+  const matched = inLanguage.filter((c) => explicit.has(c.category));
+  const unmatched = inLanguage.filter((c) => !explicit.has(c.category));
 
   let ranked: ContentItem[];
   if (matched.length === 0) {
-    ranked = [...catalog]; // clean fallback
+    ranked = [...inLanguage]; // clean fallback, still language-isolated
   } else if (allowSurprise) {
     ranked = [...matched, ...unmatched]; // exploration
   } else {

@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { getContentById, CATEGORIES, type ContentItem } from "./content";
+import { isLanguage } from "./language";
 import { CATALOG } from "../content/catalog";
 
 const sample: ContentItem[] = [
   {
     id: "a",
+    language: "it",
     title: "A",
     category: "thriller",
     teaser: "t",
@@ -14,6 +16,7 @@ const sample: ContentItem[] = [
   },
   {
     id: "b",
+    language: "it",
     title: "B",
     category: "history",
     teaser: "t",
@@ -67,5 +70,14 @@ describe("CATALOG integrity", () => {
     for (const cat of CATEGORIES) {
       expect(present.has(cat)).toBe(true);
     }
+  });
+
+  it("only uses known languages, and ships both it and es", () => {
+    for (const c of CATALOG) {
+      expect(isLanguage(c.language)).toBe(true);
+    }
+    const langs = new Set(CATALOG.map((c) => c.language));
+    expect(langs.has("it")).toBe(true);
+    expect(langs.has("es")).toBe(true);
   });
 });

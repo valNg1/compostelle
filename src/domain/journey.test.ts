@@ -4,52 +4,75 @@ import {
   emptyDraft,
   toggleInterest,
   validateDraft,
-  MVP_LANGUAGE,
   type JourneyDraft,
 } from "./journey";
+import { DEFAULT_LANGUAGE, LANGUAGES } from "./language";
+
+/** Draft factory — language defaults to the product default. */
+function draft(partial: Partial<JourneyDraft>): JourneyDraft {
+  return {
+    language: DEFAULT_LANGUAGE,
+    declaredLevel: null,
+    interests: [],
+    ...partial,
+  };
+}
 
 describe("validateDraft — a journey cannot be validated without a declared level", () => {
   it("is invalid when no level is declared", () => {
-    const draft: JourneyDraft = { declaredLevel: null, interests: ["thriller"] };
-    const result = validateDraft(draft);
+    const result = validateDraft(draft({ interests: ["thriller"] }));
     expect(result.valid).toBe(false);
     expect(result.errors.declaredLevel).toBe("required");
   });
 
   it("creating a journey from a draft without a declared level throws", () => {
-    const draft: JourneyDraft = { declaredLevel: null, interests: ["thriller"] };
-    expect(() => createJourney(draft)).toThrow();
+    expect(() => createJourney(draft({ interests: ["thriller"] }))).toThrow();
   });
 
   it("becomes valid once a level and an interest are chosen", () => {
-    const draft: JourneyDraft = { declaredLevel: "B1", interests: ["history"] };
-    expect(validateDraft(draft).valid).toBe(true);
+    expect(
+      validateDraft(draft({ declaredLevel: "B1", interests: ["history"] })).valid,
+    ).toBe(true);
   });
 });
 
 describe('"I don\'t know my level" (UNKNOWN)', () => {
   it("is accepted as a valid declared level", () => {
-    const draft: JourneyDraft = {
-      declaredLevel: "UNKNOWN",
-      interests: ["travel"],
-    };
-    expect(validateDraft(draft).valid).toBe(true);
+    expect(
+      validateDraft(draft({ declaredLevel: "UNKNOWN", interests: ["travel"] }))
+        .valid,
+    ).toBe(true);
   });
 
   it("still yields a null estimatedLevel — the two stay separate", () => {
-    const journey = createJourney({
-      declaredLevel: "UNKNOWN",
-      interests: ["travel"],
-    });
+    const journey = createJourney(
+      draft({ declaredLevel: "UNKNOWN", interests: ["travel"] }),
+    );
     expect(journey.declaredLevel).toBe("UNKNOWN");
     expect(journey.estimatedLevel).toBeNull();
   });
 });
 
+describe("language is carried by the journey (it + es)", () => {
+  it("supports every configured language", () => {
+    for (const { code } of LANGUAGES) {
+      const journey = createJourney(
+        draft({ language: code, declaredLevel: "A1", interests: ["culture"] }),
+      );
+      expect(journey.language).toBe(code);
+      expect(journey.estimatedLevel).toBeNull();
+    }
+  });
+
+  it("defaults an empty draft to the default language", () => {
+    expect(emptyDraft().language).toBe(DEFAULT_LANGUAGE);
+    expect(emptyDraft("es").language).toBe("es");
+  });
+});
+
 describe("interest selection", () => {
   it("requires at least one interest to validate", () => {
-    const draft: JourneyDraft = { declaredLevel: "A2", interests: [] };
-    const result = validateDraft(draft);
+    const result = validateDraft(draft({ declaredLevel: "A2", interests: [] }));
     expect(result.valid).toBe(false);
     expect(result.errors.interests).toBe("required");
   });
@@ -68,35 +91,31 @@ describe("interest selection", () => {
   });
 
   it("supports selecting multiple interests", () => {
-    let draft = emptyDraft();
-    draft = toggleInterest(draft, "thriller");
-    draft = toggleInterest(draft, "culture");
-    draft = toggleInterest(draft, "sport");
-    expect(draft.interests).toEqual(["thriller", "culture", "sport"]);
+    let d = emptyDraft();
+    d = toggleInterest(d, "thriller");
+    d = toggleInterest(d, "culture");
+    d = toggleInterest(d, "sport");
+    expect(d.interests).toEqual(["thriller", "culture", "sport"]);
   });
 });
 
 describe("createJourney — declaredLevel and estimatedLevel are never merged", () => {
-  it("sets the MVP language and initialises estimatedLevel to null", () => {
-    const journey = createJourney({
-      declaredLevel: "C1",
-      interests: ["news", "history"],
-    });
-    expect(journey.language).toBe(MVP_LANGUAGE);
-    expect(journey.language).toBe("it");
+  it("carries the chosen language and initialises estimatedLevel to null", () => {
+    const journey = createJourney(
+      draft({ declaredLevel: "C1", interests: ["news", "history"] }),
+    );
+    expect(journey.language).toBe(DEFAULT_LANGUAGE);
     expect(journey.declaredLevel).toBe("C1");
     expect(journey.estimatedLevel).toBeNull();
     expect(journey.interests).toEqual(["news", "history"]);
-    expect(typeof journey.createdAt).toBe("string");
     expect(Number.isNaN(Date.parse(journey.createdAt))).toBe(false);
   });
 
   it("keeps the two fields independent regardless of the declared value", () => {
     for (const declaredLevel of ["A1", "A2", "B1", "B2", "C1", "UNKNOWN"] as const) {
-      const journey = createJourney({
-        declaredLevel,
-        interests: ["surprise_me"],
-      });
+      const journey = createJourney(
+        draft({ declaredLevel, interests: ["surprise_me"] }),
+      );
       expect(journey.declaredLevel).toBe(declaredLevel);
       expect(journey.estimatedLevel).toBeNull();
     }

@@ -27,20 +27,21 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 
 ## Phase actuelle : MVP DELIVERY
 
-Le Product Owner a donné le **GO** pour développer le MVP. Le développement est
-lancé, focalisé sur une **première tranche verticale de US-01**.
+- **US-01 « Create my language journey »** : `Done` (validée PO).
+- **US-02 « Discover something interesting »** : `Implemented — awaiting MVP
+  foundation validation`.
+- **Modalité** : la lecture (première du MVP). Pas d'autre modalité, pas de moteur IA.
+- **Langues cibles** : **Italian (`it`) + Spanish (`es`)** via la **même** structure
+  applicative (D-11 / [ADR-0003](docs/decisions/adr/0003-language-agnostic-domain.md)).
+- **Persistance durable** : Supabase / PostgreSQL comme source de vérité derrière une
+  interface repository ; `localStorage` = cache/résilience/migration (D-10 /
+  [ADR-0002](docs/decisions/adr/0002-durable-persistence-supabase.md)). Sans `.env`
+  Supabase, l'app tourne en cache-only.
 
-Périmètre volontairement resserré à ce stade :
-
-- première langue : **Italian** ;
-- **une seule modalité concrète (lecture)** suffit pour le MVP — les autres
-  modalités ne sont pas développées ;
-- pas de backend, pas de moteur IA, pas de US-02+ ;
-- persistance **locale** (navigateur) pour US-01.
-
-> US-01 « Create my language journey » est **DONE**. La prochaine US sera
-> **redéfinie** par le PO et ChatGPT à partir du modèle produit multimodal (D-06)
-> avant tout développement.
+> **Le MVP n'est pas validé** tant que COMPOSTELLE n'a pas prouvé **des données
+> apprenant durables** ET **au moins deux langues cibles** avec la **même structure
+> applicative** (D-12). Ces preuves sont livrées ; restent la connexion Supabase live
+> et le durcissement RLS (voir OPEN-01/02/03 dans les décisions).
 
 Le repository documente **ce qui existe réellement**, jamais une architecture
 imaginée pour plus tard.
@@ -59,27 +60,33 @@ Ce repository Git est le **référentiel officiel** du projet.
 
 ---
 
-## Application (US-01)
+## Application
 
-Socle technique : **Vite + React + TypeScript + Vitest**. Le modèle métier est en
-fonctions pures, séparé de l'UI ; la persistance est injectable et locale. Détails :
-[`docs/architecture/`](docs/architecture/README.md).
+Socle technique : **Vite + React + TypeScript + Vitest**. Domaine en fonctions pures
+séparé de l'UI ; persistance derrière une interface repository (durable Supabase +
+cache local). Détails : [`docs/architecture/`](docs/architecture/README.md).
 
 ```bash
 npm install       # installer les dépendances
 npm run dev       # lancer l'app en développement
-npm test          # exécuter les tests (règles métier + persistance)
+npm test          # exécuter les tests
 npm run build     # build de production
 npm run typecheck # vérification des types
 ```
+
+Persistance durable (optionnelle en dev) : copier `.env.example` → `.env` et
+renseigner `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (voir
+[`supabase/`](supabase/README.md)). Sans ces variables, l'app tourne en cache-only.
 
 Structure du code :
 
 ```
 src/
-├─ domain/        # modèle métier pur (journey.ts) + tests
-├─ persistence/   # persistance locale injectable + tests
-└─ ui/            # composants React (Onboarding, JourneySummary)
+├─ domain/        # modèle métier pur : journey, language, content, discovery
+├─ content/       # données : catalog.it.ts + catalog.es.ts (+ catalog.ts)
+├─ application/   # port JourneyRepository + JourneyService (orchestration)
+├─ persistence/   # adaptateurs : Supabase, in-memory, cache localStorage
+└─ ui/            # composants React (Onboarding, Discover, DiscoveryFeed, ContentView)
 ```
 
 ---

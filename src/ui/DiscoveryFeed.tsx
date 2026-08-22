@@ -3,10 +3,12 @@ import {
   type ContentItem,
   type Modality,
 } from "../domain/content";
+import { languageLabel, type Language } from "../domain/language";
 import type { DiscoveryFeed as Feed } from "../domain/discovery";
 
 interface DiscoveryFeedProps {
   feed: Feed;
+  language: Language;
   onOpen: (id: string) => void;
   onReset: () => void;
 }
@@ -27,11 +29,16 @@ function meta(item: ContentItem): string {
  * Intent — "Here is something worth discovering today." Calm and editorial,
  * no grid, no filters, no level shown.
  */
-export function DiscoveryFeed({ feed, onOpen, onReset }: DiscoveryFeedProps) {
+export function DiscoveryFeed({
+  feed,
+  language,
+  onOpen,
+  onReset,
+}: DiscoveryFeedProps) {
   return (
     <section className="discover" aria-labelledby="discover-title">
       <header className="discover__intro">
-        <p className="onboarding__eyebrow">Today in Italian</p>
+        <p className="onboarding__eyebrow">Today in {languageLabel(language)}</p>
         <h1 id="discover-title" className="onboarding__title">
           Something worth
           <br />

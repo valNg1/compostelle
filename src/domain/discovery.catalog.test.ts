@@ -13,9 +13,10 @@ import { CATALOG } from "../content/catalog";
 function journeyWith(
   interests: Interest[],
   declaredLevel: DeclaredLevel = "A1",
+  language: "it" | "es" = "it",
 ): LanguageJourney {
   return {
-    language: "it",
+    language,
     declaredLevel,
     estimatedLevel: null,
     interests,
@@ -63,5 +64,28 @@ describe("discovery against the real catalog", () => {
       if (!item) continue;
       expect(getContentById(CATALOG, item.id)?.id).toBe(item.id);
     }
+  });
+
+  it("an Italian journey receives only Italian content", () => {
+    const feed = selectDiscoveryFeed(journeyWith(["history"], "A1", "it"), CATALOG);
+    const shown = [feed.featured, ...feed.alternatives].filter(Boolean);
+    expect(shown.length).toBeGreaterThan(0);
+    expect(shown.every((c) => c?.language === "it")).toBe(true);
+  });
+
+  it("a Spanish journey receives only Spanish content (same catalog, same code)", () => {
+    const feed = selectDiscoveryFeed(journeyWith(["history"], "A1", "es"), CATALOG);
+    const shown = [feed.featured, ...feed.alternatives].filter(Boolean);
+    expect(shown.length).toBeGreaterThan(0);
+    expect(shown.every((c) => c?.language === "es")).toBe(true);
+  });
+
+  it("Surprise me stays within Spanish for a Spanish journey", () => {
+    const feed = selectDiscoveryFeed(
+      journeyWith(["culture", "surprise_me"], "A1", "es"),
+      CATALOG,
+    );
+    const shown = [feed.featured, ...feed.alternatives].filter(Boolean);
+    expect(shown.every((c) => c?.language === "es")).toBe(true);
   });
 });

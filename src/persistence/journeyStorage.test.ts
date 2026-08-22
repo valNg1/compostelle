@@ -27,7 +27,7 @@ describe("journey persistence", () => {
 
   it("persists a journey and reloads it identically (round-trip)", () => {
     const store = memoryStore();
-    const journey = createJourney({
+    const journey = createJourney({ language: "it",
       declaredLevel: "B2",
       interests: ["thriller", "travel"],
     });
@@ -40,7 +40,7 @@ describe("journey persistence", () => {
 
   it("preserves declaredLevel and estimatedLevel as separate fields", () => {
     const store = memoryStore();
-    const journey = createJourney({
+    const journey = createJourney({ language: "it",
       declaredLevel: "UNKNOWN",
       interests: ["culture"],
     });
@@ -62,7 +62,7 @@ describe("journey persistence", () => {
   it("clears a saved journey", () => {
     const store = memoryStore();
     saveJourney(
-      createJourney({ declaredLevel: "A1", interests: ["news"] }),
+      createJourney({ language: "it", declaredLevel: "A1", interests: ["news"] }),
       store,
     );
     clearJourney(store);
@@ -78,7 +78,7 @@ describe("legacy key migration (lontano -> compostelle)", () => {
 
   it("migrates a valid journey from the legacy key to the new key", () => {
     const store = memoryStore();
-    const journey = createJourney({
+    const journey = createJourney({ language: "it",
       declaredLevel: "B1",
       interests: ["history", "travel"],
     });
@@ -97,8 +97,8 @@ describe("legacy key migration (lontano -> compostelle)", () => {
 
   it("prefers the new key over the legacy key when both exist", () => {
     const store = memoryStore();
-    const current = createJourney({ declaredLevel: "C1", interests: ["news"] });
-    const legacy = createJourney({ declaredLevel: "A1", interests: ["sport"] });
+    const current = createJourney({ language: "it", declaredLevel: "C1", interests: ["news"] });
+    const legacy = createJourney({ language: "it", declaredLevel: "A1", interests: ["sport"] });
     store.setItem(STORAGE_KEY, JSON.stringify(current));
     store.setItem(LEGACY_STORAGE_KEY, JSON.stringify(legacy));
 
@@ -114,7 +114,7 @@ describe("legacy key migration (lontano -> compostelle)", () => {
   it("saveJourney writes only the new key", () => {
     const store = memoryStore();
     saveJourney(
-      createJourney({ declaredLevel: "A2", interests: ["culture"] }),
+      createJourney({ language: "it", declaredLevel: "A2", interests: ["culture"] }),
       store,
     );
     expect(store.getItem(STORAGE_KEY)).not.toBeNull();
@@ -125,7 +125,7 @@ describe("legacy key migration (lontano -> compostelle)", () => {
     const store = memoryStore();
     store.setItem(LEGACY_STORAGE_KEY, "anything");
     saveJourney(
-      createJourney({ declaredLevel: "A1", interests: ["news"] }),
+      createJourney({ language: "it", declaredLevel: "A1", interests: ["news"] }),
       store,
     );
     clearJourney(store);

@@ -6,11 +6,12 @@
  * its creation. Persistence lives in `../persistence/journeyStorage.ts`.
  */
 
-/** Languages available in the product. MVP ships Italian only. */
-export type Language = "it";
+import {
+  DEFAULT_LANGUAGE,
+  type Language,
+} from "./language";
 
-/** The only language offered for the MVP. */
-export const MVP_LANGUAGE: Language = "it";
+export type { Language } from "./language";
 
 /**
  * Level the learner *declares*. This is only an initial hypothesis about their
@@ -52,6 +53,7 @@ export interface LanguageJourney {
 
 /** In-progress selection before the journey is validated. */
 export interface JourneyDraft {
+  language: Language;
   declaredLevel: DeclaredLevel | null;
   interests: Interest[];
 }
@@ -85,8 +87,8 @@ export const INTEREST_OPTIONS: ReadonlyArray<{
 ];
 
 /** An empty draft — the starting point of the onboarding flow. */
-export function emptyDraft(): JourneyDraft {
-  return { declaredLevel: null, interests: [] };
+export function emptyDraft(language: Language = DEFAULT_LANGUAGE): JourneyDraft {
+  return { language, declaredLevel: null, interests: [] };
 }
 
 /** Toggle an interest in a draft, returning a new draft (immutable). */
@@ -146,7 +148,7 @@ export function createJourney(
     throw new Error("Cannot create a journey from an invalid draft.");
   }
   return {
-    language: MVP_LANGUAGE,
+    language: draft.language,
     declaredLevel: draft.declaredLevel,
     estimatedLevel: null,
     interests: draft.interests,

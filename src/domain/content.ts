@@ -11,6 +11,8 @@
  * (see {@link Interest} in `./journey`) minus `surprise_me`, which is a
  * preference, not a category.
  */
+import type { Language } from "./language";
+
 export type Category =
   | "thriller"
   | "history"
@@ -51,7 +53,9 @@ export type Modality = "read" | "listen" | "explore";
 /** A single discoverable piece of content. */
 export interface ContentItem {
   id: string;
-  /** In the target language (Italian). */
+  /** Target language this content belongs to. */
+  language: Language;
+  /** In the target language. */
   title: string;
   category: Category;
   /** Short, enticing teaser (kept in the UI language for the feed chrome). */

@@ -31,5 +31,12 @@ export function Discover({ journey, onReset }: DiscoverProps) {
     return <ContentView content={openContent} onBack={() => setOpenId(null)} />;
   }
 
-  return <DiscoveryFeed feed={feed} onOpen={setOpenId} onReset={onReset} />;
+  return (
+    <DiscoveryFeed
+      feed={feed}
+      language={journey.language}
+      onOpen={setOpenId}
+      onReset={onReset}
+    />
+  );
 }
