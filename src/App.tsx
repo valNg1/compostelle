@@ -140,6 +140,9 @@ export function App() {
   const suggestedLanguage: Language =
     LANGUAGES.find((l) => !ownedLanguages.includes(l.code))?.code ??
     DEFAULT_LANGUAGE;
+  const orderedJourneys = LANGUAGES.map((l) =>
+    journeys.find((j) => j.language === l.code),
+  ).filter((j): j is LanguageJourney => Boolean(j));
 
   const showOnboarding = adding || journeys.length === 0 || !currentJourney;
 
@@ -158,7 +161,7 @@ export function App() {
       ) : (
         <Discover
           journey={currentJourney}
-          ownedLanguages={ownedLanguages}
+          journeys={orderedJourneys}
           onSwitchLanguage={handleSwitch}
           onAddLanguage={() => setAdding(true)}
           onResetCurrent={handleResetCurrent}

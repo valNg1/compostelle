@@ -35,7 +35,7 @@ describe("LocalJourneyCache — multi-language cache", () => {
   beforeEach(() => installMemoryStorage());
 
   it("stores several journeys, one per language", () => {
-    const cache = new LocalJourneyCache();
+    const cache = new LocalJourneyCache("local-user");
     cache.save(italian);
     cache.save(spanish);
     const langs = cache.loadAll().map((j) => j.language).sort();
@@ -43,7 +43,7 @@ describe("LocalJourneyCache — multi-language cache", () => {
   });
 
   it("removing one language keeps the other", () => {
-    const cache = new LocalJourneyCache();
+    const cache = new LocalJourneyCache("local-user");
     cache.save(italian);
     cache.save(spanish);
     cache.remove("it");
@@ -51,22 +51,33 @@ describe("LocalJourneyCache — multi-language cache", () => {
   });
 
   it("tracks the current language", () => {
-    const cache = new LocalJourneyCache();
+    const cache = new LocalJourneyCache("local-user");
     cache.setCurrentLanguage("es");
     expect(cache.getCurrentLanguage()).toBe("es");
   });
 
-  it("migrates a legacy single journey into the multi-language cache (no loss)", () => {
+  it("migrates a legacy single journey for the anonymous owner (no loss)", () => {
     const map = installMemoryStorage();
     // Simulate the previous single-journey key.
     map.set(STORAGE_KEY, JSON.stringify(italian));
 
-    const cache = new LocalJourneyCache();
+    const cache = new LocalJourneyCache("local-user", { migrateLegacy: true });
     const all = cache.loadAll();
 
     expect(all).toEqual([italian]);
-    // Legacy key dropped, v2 key populated.
+    // Legacy key dropped, user-scoped v2 key populated.
     expect(map.get(STORAGE_KEY)).toBeUndefined();
-    expect(map.get(JOURNEYS_KEY)).toBeTruthy();
+    expect(map.get(`${JOURNEYS_KEY}::local-user`)).toBeTruthy();
+  });
+
+  it("does NOT migrate the legacy key for an authenticated user", () => {
+    const map = installMemoryStorage();
+    map.set(STORAGE_KEY, JSON.stringify(italian));
+
+    // migrateLegacy defaults to false (authenticated-user path).
+    const cache = new LocalJourneyCache("auth-uid-123");
+    expect(cache.loadAll()).toEqual([]);
+    // Legacy key untouched (belongs to the anonymous owner, not this user).
+    expect(map.get(STORAGE_KEY)).toBeTruthy();
   });
 });

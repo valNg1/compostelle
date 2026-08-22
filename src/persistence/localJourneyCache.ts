@@ -11,7 +11,7 @@ import { isLanguage, type Language } from "../domain/language";
 import type { JourneyCache } from "../application/journeyService";
 import { loadJourney as loadLegacyJourney, clearJourney } from "./journeyStorage";
 
-/** v2 multi-language cache. */
+/** v2 multi-language cache prefix; the actual key is scoped per user. */
 export const JOURNEYS_KEY = "compostelle.journeys.v2";
 /** Anonymous per-device id, used only as a fallback owner in cache-only mode. */
 export const LOCAL_USER_KEY = "compostelle.user.v1";
@@ -50,9 +50,27 @@ export function getLocalUserId(): string {
 }
 
 export class LocalJourneyCache implements JourneyCache {
+  private readonly key: string;
+
+  /**
+   * @param userId  Owner id — the cache is scoped per user so one user's journeys
+   *                never leak into another's session (Supabase stays the single
+   *                source of truth). Use the auth uid, or the local anonymous id
+   *                in cache-only mode.
+   * @param options `migrateLegacy` seeds the single-journey v1 key into this
+   *                cache — only for the anonymous/cache-only owner (the v1 key
+   *                predates auth), never for an authenticated user.
+   */
+  constructor(
+    userId: string,
+    private readonly options: { migrateLegacy?: boolean } = {},
+  ) {
+    this.key = `${JOURNEYS_KEY}::${userId}`;
+  }
+
   private read(): CacheShape {
     const store = readStore();
-    const raw = store ? safeGet(store, JOURNEYS_KEY) : null;
+    const raw = store ? safeGet(store, this.key) : null;
     if (raw) {
       try {
         const parsed = JSON.parse(raw) as CacheShape;
@@ -63,7 +81,9 @@ export class LocalJourneyCache implements JourneyCache {
         /* fall through to migration/empty */
       }
     }
-    return this.migrateLegacy();
+    return this.options.migrateLegacy
+      ? this.migrateLegacy()
+      : { current: null, byLanguage: {} };
   }
 
   /** Seed the v2 cache from the previous single-journey key (once). */
@@ -83,7 +103,7 @@ export class LocalJourneyCache implements JourneyCache {
 
   private write(shape: CacheShape): void {
     const store = readStore();
-    if (store) safeSet(store, JOURNEYS_KEY, JSON.stringify(shape));
+    if (store) safeSet(store, this.key, JSON.stringify(shape));
   }
 
   loadAll(): LanguageJourney[] {

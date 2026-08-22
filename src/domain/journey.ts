@@ -71,6 +71,14 @@ export const DECLARED_LEVEL_OPTIONS: ReadonlyArray<{
   { value: "UNKNOWN", label: "I don't know my level" },
 ];
 
+/**
+ * Short CEFR badge for a declared level (e.g. "B2"), or an empty string for
+ * `"UNKNOWN"` — the level shown as quiet context, never as a required KPI.
+ */
+export function levelBadge(declaredLevel: DeclaredLevel): string {
+  return declaredLevel === "UNKNOWN" ? "" : declaredLevel;
+}
+
 /** Ordered list of interest options, with human labels for the UI. */
 export const INTEREST_OPTIONS: ReadonlyArray<{
   value: Interest;

@@ -315,6 +315,10 @@ body {
   color: var(--accent-ink);
   font-weight: 600;
 }
+.langbar__level {
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
 .langbar__add {
   border-style: dashed;
 }

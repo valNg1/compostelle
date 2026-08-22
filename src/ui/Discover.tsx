@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { LanguageJourney } from "../domain/journey";
+import { levelBadge, type LanguageJourney } from "../domain/journey";
 import { getContentById } from "../domain/content";
 import { languageLabel, type Language } from "../domain/language";
 import { selectDiscoveryFeed } from "../domain/discovery";
@@ -9,8 +9,8 @@ import { ContentView } from "./ContentView";
 
 interface DiscoverProps {
   journey: LanguageJourney;
-  /** Languages the learner already has a journey for (for switching). */
-  ownedLanguages: Language[];
+  /** The learner's journeys (for switching, with their declared levels). */
+  journeys: LanguageJourney[];
   onSwitchLanguage: (language: Language) => void;
   onAddLanguage: () => void;
   onResetCurrent: () => void;
@@ -20,11 +20,12 @@ interface DiscoverProps {
 /**
  * DISCOVER stage (US-02). Owns the navigation between the personalised feed and
  * a single content view, plus a minimal bar to switch between the learner's
- * existing language journeys (switching never destroys a journey).
+ * existing language journeys (switching never destroys a journey). The bar keeps
+ * the declared level visible as quiet context: "Italian · B2".
  */
 export function Discover({
   journey,
-  ownedLanguages,
+  journeys,
   onSwitchLanguage,
   onAddLanguage,
   onResetCurrent,
@@ -46,25 +47,23 @@ export function Discover({
     <div className="discover-shell">
       <nav className="langbar" aria-label="Your languages">
         <div className="langbar__langs">
-          {ownedLanguages.map((code) => (
-            <button
-              key={code}
-              type="button"
-              aria-current={code === journey.language}
-              className={
-                "langbar__lang" +
-                (code === journey.language ? " langbar__lang--on" : "")
-              }
-              onClick={() => onSwitchLanguage(code)}
-            >
-              {languageLabel(code)}
-            </button>
-          ))}
-          <button
-            type="button"
-            className="langbar__add"
-            onClick={onAddLanguage}
-          >
+          {journeys.map((j) => {
+            const active = j.language === journey.language;
+            const badge = levelBadge(j.declaredLevel);
+            return (
+              <button
+                key={j.language}
+                type="button"
+                aria-current={active}
+                className={"langbar__lang" + (active ? " langbar__lang--on" : "")}
+                onClick={() => onSwitchLanguage(j.language)}
+              >
+                {languageLabel(j.language)}
+                {badge && <span className="langbar__level"> · {badge}</span>}
+              </button>
+            );
+          })}
+          <button type="button" className="langbar__add" onClick={onAddLanguage}>
             + Add a language
           </button>
         </div>

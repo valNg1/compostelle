@@ -21,8 +21,10 @@ export function getAuthService(): AuthService | null {
 
 /** Build a journey service scoped to `userId` (auth.uid() or local anon id). */
 export function createJourneyService(userId: string): JourneyService {
-  const cache = new LocalJourneyCache();
   const client = getSupabaseClient();
+  // Legacy single-journey migration only applies to the anonymous cache-only
+  // owner (the v1 key predates auth); never attach it to an authenticated user.
+  const cache = new LocalJourneyCache(userId, { migrateLegacy: client === null });
   const durable = client ? new SupabaseJourneyRepository(client) : null;
   return new JourneyService(durable, cache, userId);
 }
