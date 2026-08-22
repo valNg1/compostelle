@@ -1,0 +1,156 @@
+/**
+ * COMPOSTELLE — US-02 local content catalog.
+ *
+ * Small, hand-written catalog of content worth discovering in Italian. Editorial
+ * rules (US-02): interesting regardless of pedagogy; narrative pieces are
+ * original; historical/cultural pieces stay factual and prudent; no real-time
+ * news dependency. `title`/`body` are in the target language (Italian), `teaser`
+ * is in the UI language (English) to entice from the feed.
+ *
+ * This is DATA. The types live in `../domain/content.ts`, the selection logic in
+ * `../domain/discovery.ts`.
+ */
+
+import type { ContentItem } from "../domain/content";
+
+export const CATALOG: ContentItem[] = [
+  // --- thriller (original fiction) ---------------------------------------
+  {
+    id: "tram-14",
+    title: "L'ultima corsa del tram 14",
+    category: "thriller",
+    teaser: "A late-night tram, empty except for one passenger who never got on.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Il tram numero 14 faceva l'ultima corsa a mezzanotte e dieci. Elena saliva sempre a quell'ora, quando le carrozze erano vuote e i finestrini restituivano solo il suo riflesso. Quella notte, però, in fondo alla vettura c'era un uomo con un cappotto grigio. Non lo aveva visto salire. A ogni fermata le porte si aprivano, nessuno scendeva, nessuno saliva, e l'uomo restava immobile. Quando Elena si voltò all'ultima fermata, il sedile era vuoto. Sul vetro appannato, però, qualcuno aveva scritto una sola parola: «Domani».",
+  },
+  {
+    id: "portone-verde",
+    title: "Il portone chiuso",
+    category: "thriller",
+    teaser: "The same locked door every night — until the night it stood open.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Ogni sera, tornando a casa, Marco passava davanti al portone verde del numero 7. Era sempre chiuso, con la vernice scrostata e una serratura arrugginita che sembrava non aprirsi da anni. Una notte di novembre, invece, il portone era socchiuso. Dall'interno usciva una luce calda e il profumo di pane appena sfornato. Marco si fermò, la mano a pochi centimetri dal legno. Sapeva che al numero 7 non abitava nessuno da quando era bambino. Eppure qualcuno, là dentro, sembrava aspettarlo.",
+  },
+
+  // --- history (factual, prudent) ---------------------------------------
+  {
+    id: "pompei",
+    title: "Pompei, la città sospesa",
+    category: "history",
+    teaser: "How a single day in 79 AD froze an entire Roman town in time.",
+    estimatedMinutes: 4,
+    modality: "read",
+    body: "Nell'anno 79 d.C. il Vesuvio eruttò e in poche ore seppellì Pompei sotto uno spesso strato di cenere e lapilli. La città romana, vivace e popolosa, scomparve dalla superficie. Paradossalmente, proprio la cenere che la distrusse la conservò: case, botteghe, affreschi e oggetti quotidiani rimasero protetti per secoli. Gli scavi sistematici iniziarono nel Settecento e continuano ancora oggi. Camminare tra le sue strade significa vedere come vivevano davvero i Romani: le insegne dei negozi, i graffiti sui muri, le stanze dipinte. Pompei non è un monumento isolato, ma un'intera città fermata nel tempo.",
+  },
+  {
+    id: "biblioteca-alessandria",
+    title: "La biblioteca di Alessandria",
+    category: "history",
+    teaser: "The ancient world's greatest library — and what we really know about its end.",
+    estimatedMinutes: 4,
+    modality: "read",
+    body: "La Biblioteca di Alessandria d'Egitto, fondata intorno al III secolo a.C., fu uno dei più grandi centri del sapere del mondo antico. Vi si raccoglievano rotoli di papiro provenienti da tutto il Mediterraneo, e vi lavoravano studiosi di matematica, astronomia e medicina. Sulla sua fine circolano molte leggende. In realtà gli storici non attribuiscono la sua scomparsa a un unico incendio o a un solo evento: la biblioteca conobbe probabilmente un lungo declino, dovuto a guerre, tagli di risorse e al mutare dei tempi. Resta il simbolo di un'idea ancora attuale: riunire in un solo luogo tutta la conoscenza umana.",
+  },
+
+  // --- travel ------------------------------------------------------------
+  {
+    id: "cinque-terre",
+    title: "A piedi nelle Cinque Terre",
+    category: "travel",
+    teaser: "Five villages, one cliff path, and the sea always just below you.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Le Cinque Terre sono cinque piccoli borghi affacciati sul mare della Liguria: Monterosso, Vernazza, Corniglia, Manarola e Riomaggiore. Per secoli sono stati collegati soprattutto da sentieri scavati nella roccia e da terrazzamenti coltivati a vite. Il percorso a piedi che unisce i paesi regala un panorama continuo sul Mar Ligure, tra muretti a secco, limoni e case colorate. Camminare da un borgo all'altro richiede tempo e gambe allenate, ma permette di vedere ciò che dal treno resta invisibile: il lavoro paziente con cui gli abitanti hanno strappato alla montagna ogni fazzoletto di terra.",
+  },
+  {
+    id: "napoli-caffe",
+    title: "Un caffè a Napoli",
+    category: "travel",
+    teaser: "In Naples, a coffee can be a ritual — and sometimes a gift to a stranger.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "A Napoli il caffè non è soltanto una bevanda: è un gesto, un momento, a volte un dono. In molti bar sopravvive l'usanza del «caffè sospeso»: un cliente ne paga due ma ne beve uno solo, lasciando l'altro già pagato per chi verrà dopo e non potrà permetterselo. Nato come piccola forma di generosità anonima, il caffè sospeso è diventato un simbolo della città. Lo si beve in piedi al bancone, spesso in pochi secondi. Ma dietro quella tazzina c'è un'idea precisa: prendersi cura, senza clamore, di uno sconosciuto.",
+  },
+
+  // --- culture -----------------------------------------------------------
+  {
+    id: "gesti",
+    title: "Le mani che parlano",
+    category: "culture",
+    teaser: "Why an Italian conversation happens as much in the hands as in the words.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Si dice spesso che gli italiani parlino con le mani, e in parte è vero. Molti gesti hanno un significato preciso e condiviso: le dita unite che si muovono verso l'alto, la mano che ruota per dire «più o meno», il dito che tira la palpebra per invitare alla prudenza. Questi segni non sostituiscono le parole, ma le accompagnano, aggiungendo ritmo ed emozione al discorso. Alcuni studiosi ne hanno catalogati centinaia. Osservare le mani di chi parla, in Italia, è quasi come leggere una seconda lingua che scorre insieme alla prima.",
+  },
+  {
+    id: "scala",
+    title: "Una sera alla Scala",
+    category: "culture",
+    teaser: "Inside Milan's opera house, where every season opens on the same December night.",
+    estimatedMinutes: 4,
+    modality: "read",
+    body: "Il Teatro alla Scala di Milano è uno dei più celebri teatri d'opera del mondo. Fu inaugurato nel 1778 e da allora ha ospitato alcune delle voci e dei direttori più importanti della storia della musica. Ogni anno la stagione si apre il 7 dicembre, giorno di Sant'Ambrogio, patrono della città: è un evento atteso, seguito ben oltre le mura del teatro. Dietro il sipario lavorano centinaia di persone, dai musicisti ai sarti, dagli scenografi ai tecnici. Assistere a una «prima» alla Scala significa entrare in un rito che unisce musica, storia e identità cittadina.",
+  },
+
+  // --- news / contemporary (evergreen, no real-time dependency) ---------
+  {
+    id: "borghi",
+    title: "Il ritorno dei borghi",
+    category: "news",
+    teaser: "Italy's small villages are being rediscovered, one empty house at a time.",
+    estimatedMinutes: 4,
+    modality: "read",
+    body: "Per decenni molti piccoli borghi italiani si sono lentamente svuotati: i giovani partivano verso le città in cerca di lavoro, e le case restavano chiuse. Negli ultimi anni, però, qualcosa sta cambiando. Alcuni comuni hanno messo in vendita abitazioni abbandonate a prezzi simbolici, a patto di ristrutturarle; altri puntano sul lavoro a distanza per attirare nuovi abitanti. Non è una soluzione valida ovunque, e i risultati variano molto da luogo a luogo. Ma l'idea di tornare a vivere in un paese piccolo, più lento e più legato alla comunità, attira oggi anche chi era cresciuto pensando solo alla città.",
+  },
+  {
+    id: "citta-ztl",
+    title: "Le città senza auto",
+    category: "news",
+    teaser: "Limited-traffic zones are quietly reshaping how Italians move through their cities.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "In molte città italiane il centro storico è protetto da una «zona a traffico limitato», la ZTL. Solo alcuni veicoli autorizzati possono entrare in certe ore, mentre gli altri rischiano una multa registrata dalle telecamere. L'obiettivo è duplice: ridurre l'inquinamento e restituire le strade antiche ai pedoni. Non tutti sono d'accordo. Commercianti e residenti discutono spesso di come conciliare la tutela dei centri con le esigenze di chi ci lavora e ci abita. La ZTL è così diventata molto più di una regola stradale: è un modo di ripensare a chi appartiene la città.",
+  },
+
+  // --- sport -------------------------------------------------------------
+  {
+    id: "maglia-rosa",
+    title: "La maglia rosa",
+    category: "sport",
+    teaser: "Why the leader of Italy's greatest cycling race wears pink.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Il Giro d'Italia è la più importante corsa a tappe di ciclismo del Paese. Ogni anno attraversa regioni diverse, tra montagne, colline e coste, per circa tre settimane. Chi è in testa alla classifica generale indossa la «maglia rosa». Il colore non è casuale: richiama le pagine rosa della Gazzetta dello Sport, il giornale che ideò la corsa nel 1909. Vincere il Giro, o anche solo una singola tappa, resta il sogno di molti corridori. E lungo le strade, ad aspettarli, ci sono sempre folle di tifosi.",
+  },
+  {
+    id: "calcio-vicoli",
+    title: "Il calcio nei vicoli",
+    category: "sport",
+    teaser: "Long before the stadiums, the game belongs to the narrow streets.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Prima degli stadi e delle telecamere, il calcio in Italia nasce spesso in strada. Nei vicoli dei centri storici, in piazze strette o nei cortili, bastano una palla e due maglioni per terra a segnare le porte. Le regole si adattano allo spazio: niente rimesse laterali, muri che rimandano il pallone, finestre da evitare con cura. È un gioco veloce, fatto di dribbling corti e di grida. Molti campioni raccontano di aver imparato proprio così, tra i sampietrini, molto prima di calcare un campo vero. Il calcio dei vicoli non ha pubblico, ma ha una sua precisa poesia.",
+  },
+
+  // --- everyday life -----------------------------------------------------
+  {
+    id: "aperitivo",
+    title: "L'ora dell'aperitivo",
+    category: "everyday_life",
+    teaser: "The unhurried hour between work and dinner that Italians turned into an art.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "L'aperitivo è il momento che separa la fine del lavoro dalla cena. Nel tardo pomeriggio ci si siede al bar, si ordina qualcosa da bere e, spesso, arrivano piccoli stuzzichini: olive, patatine, tramezzini. Più che il cibo, conta il tempo: quello lento della conversazione, senza fretta. In alcune città l'aperitivo è diventato quasi un piccolo pasto, con buffet ricchi; in altre resta essenziale, poche cose ben fatte. In tutti i casi è un rito sociale prima che gastronomico: un modo per ritrovarsi, chiacchierare e lasciare che la giornata rallenti prima di sera.",
+  },
+  {
+    id: "mercato",
+    title: "La spesa al mercato",
+    category: "everyday_life",
+    teaser: "At the market, buying tomatoes is also catching up on the whole neighborhood.",
+    estimatedMinutes: 3,
+    modality: "read",
+    body: "Fare la spesa al mercato rionale è un'esperienza diversa dal supermercato. Le bancarelle espongono frutta e verdura di stagione, e i venditori conoscono spesso i clienti per nome. Comprare due pomodori può diventare l'occasione per un consiglio su come cucinarli o per uno scambio di notizie sul quartiere. I prezzi si leggono a voce alta, le cassette si riempiono in fretta, e l'aria profuma di erbe fresche e di pane. Il mercato non è solo un luogo dove si compra: è un punto d'incontro, uno dei pochi spazi in cui la città si ferma a parlare con se stessa.",
+  },
+];
