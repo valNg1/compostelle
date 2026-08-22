@@ -3,6 +3,11 @@
 **COMPOSTELLE helps you learn a language through things worth discovering.**
 *(formulation de travail — pas une tagline définitive)*
 
+- **Brand:** COMPOSTELLE
+- **Official domain:** https://compostel.org
+- **Public domain (short form):** compostel.org
+- **Repository:** https://github.com/valNg1/compostelle.git
+
 COMPOSTELLE est une application d'apprentissage des langues fondée sur
 **CONTENTS + TRANSMISSION + PERSONALISATION** : apprendre une langue à travers des
 contenus qui ont une valeur propre (histoire, culture, fiction, voyage, actualité,
