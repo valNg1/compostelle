@@ -35,12 +35,13 @@ export function AuthScreen({ auth }: AuthScreenProps) {
   return (
     <section className="onboarding" aria-labelledby="auth-title">
       <header className="onboarding__intro">
-        <p className="onboarding__eyebrow">Sign in to save your journeys</p>
+        <p className="brandmark">COMPOSTELLE</p>
         <h1 id="auth-title" className="onboarding__title">
-          Learn a language through
+          A new language.
           <br />
-          things worth discovering.
+          A wider world.
         </h1>
+        <p className="onboarding__language">Sign in to continue your journey.</p>
       </header>
 
       <form className="field" onSubmit={submit} noValidate>

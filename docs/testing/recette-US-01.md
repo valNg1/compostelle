@@ -22,7 +22,7 @@ npm test        # doit être 100 % vert
 
 | # | Scénario | Étapes | Résultat attendu |
 |---|----------|--------|------------------|
-| R1 | Écran d'accueil premium | Ouvrir l'app (aucun parcours existant) | Un seul écran, sobre : titre **COMPOSTELLE** (onglet), « Learn a language through things worth discovering », « Discovering in **Italian** », choix du niveau, intérêts, bouton « Start discovering ». Aucune impression de formulaire. Aucun « LONTANO » visible. |
+| R1 | Écran d'accueil premium | Ouvrir l'app (aucun parcours existant) | Un seul écran, sobre : titre **COMPOSTELLE** (onglet), tagline « A new language. A wider world. », « Discovering in **Italian** », choix du niveau, intérêts, bouton « Start discovering ». Aucune impression de formulaire. Aucun « LONTANO » visible. |
 | R2 | Impossible de valider sans niveau | Ne rien sélectionner ; observer le bouton | « Start discovering » **désactivé**. |
 | R3 | Niveau seul insuffisant | Choisir un niveau, aucun intérêt | « Start discovering » toujours **désactivé**. |
 | R4 | Validation nominale | Choisir un niveau + au moins un intérêt, cliquer « Start discovering » | Arrivée directe sur l'écran **DISCOVER** (US-02) — voir [recette-US-02](recette-US-02.md). L'écran résumé US-01 n'est plus la destination. |

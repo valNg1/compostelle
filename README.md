@@ -1,7 +1,7 @@
 # COMPOSTELLE
 
-**COMPOSTELLE helps you learn a language through things worth discovering.**
-*(formulation de travail — pas une tagline définitive)*
+**A new language. A wider world.**
+*(signature produit officielle du MVP — D-15)*
 
 - **Brand:** COMPOSTELLE
 - **Official domain:** https://compostel.org

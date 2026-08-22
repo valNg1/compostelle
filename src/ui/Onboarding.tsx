@@ -62,9 +62,9 @@ export function Onboarding({
       <header className="onboarding__intro">
         <p className="onboarding__eyebrow">Your journey begins</p>
         <h1 id="onboarding-title" className="onboarding__title">
-          Learn a language through
+          A new language.
           <br />
-          things worth discovering.
+          A wider world.
         </h1>
         <p className="onboarding__language">
           Discovering in <strong>{languageLabel(draft.language)}</strong>

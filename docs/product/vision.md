@@ -1,10 +1,12 @@
 # Product Vision
 
-## Formulation de travail
+## Signature produit officielle
 
-> **COMPOSTELLE helps you learn a language through things worth discovering.**
+> **A new language. A wider world.**
 
-*(Formulation de travail — pas encore une tagline marketing définitive.)*
+*(Signature MVP officielle — [D-15](../decisions/README.md). Remplace la formulation
+de travail antérieure « Learn a language through things worth discovering », conservée
+uniquement dans l'historique / les décisions à des fins de traçabilité.)*
 
 COMPOSTELLE est une application d'apprentissage des langues fondée sur trois piliers :
 

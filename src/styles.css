@@ -67,6 +67,16 @@ body {
   color: var(--accent);
 }
 
+.brandmark {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
 .onboarding__title {
   margin: 0;
   font-weight: 500;
