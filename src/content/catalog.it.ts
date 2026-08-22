@@ -28,7 +28,7 @@ export const IT_CATALOG: ContentItem[] = [
       { id: "a1", expression: "l'ultima corsa", meaning: "l'ultimo viaggio della giornata", translation: "the last run (of the day)" },
       { id: "a2", expression: "in fondo alla vettura", meaning: "nella parte posteriore del tram", translation: "at the back of the car" },
       { id: "a3", expression: "restava immobile", meaning: "non si muoveva affatto", translation: "stayed completely still" },
-      { id: "a4", expression: "il vetro appannato", meaning: "il vetro coperto di vapore", translation: "the fogged-up glass" },
+      { id: "a4", expression: "vetro appannato", meaning: "il vetro coperto di vapore", translation: "the fogged-up glass" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "Che cosa significa «l'ultima corsa»?", options: ["L'ultimo viaggio della giornata", "Una gara di velocità", "Il primo tram del mattino"], answerIndex: 0, annotationId: "a1" },

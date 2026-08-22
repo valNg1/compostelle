@@ -1,35 +1,41 @@
 import { useMemo, useState } from "react";
 import { levelBadge, type LanguageJourney } from "../domain/journey";
-import { getContentById } from "../domain/content";
+import { getContentById, type ContentItem } from "../domain/content";
 import { languageLabel, type Language } from "../domain/language";
+import type { MemorySummary } from "../domain/memory";
+import { isPlayable, type LearningContent } from "../domain/learning";
 import { selectDiscoveryFeed } from "../domain/discovery";
 import { CATALOG } from "../content/catalog";
+import type { MemoryEvent } from "../application/memoryService";
 import { DiscoveryFeed } from "./DiscoveryFeed";
 import { ContentView } from "./ContentView";
+import { LearningSession } from "./LearningSession";
 
 interface DiscoverProps {
   journey: LanguageJourney;
-  /** The learner's journeys (for switching, with their declared levels). */
   journeys: LanguageJourney[];
+  memory: MemorySummary;
   onSwitchLanguage: (language: Language) => void;
   onAddLanguage: () => void;
   onResetCurrent: () => void;
   onSignOut?: () => void;
+  onFinishSession: (events: MemoryEvent[]) => void;
 }
 
 /**
- * DISCOVER stage (US-02). Owns the navigation between the personalised feed and
- * a single content view, plus a minimal bar to switch between the learner's
- * existing language journeys (switching never destroys a journey). The bar keeps
- * the declared level visible as quiet context: "Italian · B2".
+ * DISCOVER stage. Navigates feed → learning session (or plain read for content
+ * without a pedagogical payload), switches between language journeys, and shows
+ * quiet JOURNEY progression (what's learning / to review).
  */
 export function Discover({
   journey,
   journeys,
+  memory,
   onSwitchLanguage,
   onAddLanguage,
   onResetCurrent,
   onSignOut,
+  onFinishSession,
 }: DiscoverProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
@@ -39,6 +45,17 @@ export function Discover({
   );
 
   const openContent = openId ? getContentById(CATALOG, openId) : null;
+
+  if (openContent && isPlayable(openContent)) {
+    return (
+      <LearningSession
+        content={openContent as ContentItem & LearningContent}
+        onExit={() => setOpenId(null)}
+        onFinish={onFinishSession}
+        onContinue={() => setOpenId(null)}
+      />
+    );
+  }
   if (openContent) {
     return <ContentView content={openContent} onBack={() => setOpenId(null)} />;
   }
@@ -73,6 +90,20 @@ export function Discover({
           </button>
         )}
       </nav>
+
+      {memory.total > 0 && (
+        <p className="progress" aria-label="Your progress">
+          <span>
+            <strong>{memory.learning}</strong> learning
+          </span>
+          <span>
+            <strong>{memory.acquired}</strong> acquired
+          </span>
+          <span>
+            <strong>{memory.toReview}</strong> to review
+          </span>
+        </p>
+      )}
 
       <DiscoveryFeed
         feed={feed}

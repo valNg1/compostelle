@@ -81,3 +81,45 @@ export function answerUsesKeyExpression(
     normalized.includes(k.trim().toLowerCase()),
   );
 }
+
+/** A run of body text, optionally carrying the annotation it renders. */
+export interface TextSegment {
+  text: string;
+  annotation?: Annotation;
+}
+
+/**
+ * Split a body into plain runs and annotated runs (first, non-overlapping
+ * occurrence of each annotation's expression, case-insensitive). Pure and
+ * deterministic — the UNDERSTAND renderer just maps these to spans/buttons.
+ */
+export function buildAnnotatedSegments(
+  body: string,
+  annotations: readonly Annotation[],
+): TextSegment[] {
+  const lower = body.toLowerCase();
+  const matches = annotations
+    .map((annotation) => {
+      const start = lower.indexOf(annotation.expression.toLowerCase());
+      return start < 0
+        ? null
+        : { start, end: start + annotation.expression.length, annotation };
+    })
+    .filter((m): m is { start: number; end: number; annotation: Annotation } =>
+      m !== null,
+    )
+    .sort((a, b) => a.start - b.start);
+
+  const segments: TextSegment[] = [];
+  let cursor = 0;
+  let lastEnd = -1;
+  for (const m of matches) {
+    if (m.start < lastEnd) continue; // skip overlaps
+    if (m.start > cursor) segments.push({ text: body.slice(cursor, m.start) });
+    segments.push({ text: body.slice(m.start, m.end), annotation: m.annotation });
+    cursor = m.end;
+    lastEnd = m.end;
+  }
+  if (cursor < body.length) segments.push({ text: body.slice(cursor) });
+  return segments;
+}

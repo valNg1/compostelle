@@ -359,6 +359,180 @@ body {
   font-size: 14px;
 }
 
+/* --- Journey progress line --- */
+.progress {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--ink-dim);
+}
+.progress strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Learning session (US-03..06) --- */
+.step {
+  width: 100%;
+  max-width: var(--maxw);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.step__title {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(22px, 4vw, 30px);
+  line-height: 1.2;
+}
+
+.ls-hint {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--ink-dim);
+}
+
+.reading {
+  margin: 0;
+}
+.annot {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  border-bottom: 1px dotted var(--accent);
+  line-height: inherit;
+}
+.annot:hover,
+.annot--on {
+  background: rgba(228, 197, 144, 0.16);
+}
+
+.understand {
+  position: relative;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.understand__close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  border: 0;
+  background: none;
+  color: var(--ink-dim);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.understand__expr {
+  margin: 0;
+  font-weight: 600;
+  font-size: 18px;
+}
+.understand__translation {
+  margin: 0;
+  color: var(--accent);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+.understand__meaning {
+  margin: 0;
+  color: var(--ink-dim);
+}
+.understand__example {
+  margin: 0;
+  font-style: italic;
+  color: var(--ink-dim);
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.option {
+  appearance: none;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--bg-elev);
+  color: var(--ink);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  font: inherit;
+  font-size: 17px;
+  transition: border-color 0.12s ease;
+}
+.option:hover:not(:disabled) {
+  border-color: #3a3e4b;
+}
+.option--correct {
+  border-color: #5fae7f;
+  background: rgba(95, 174, 127, 0.14);
+}
+.option--wrong {
+  border-color: #c98b8b;
+  background: rgba(201, 139, 139, 0.14);
+}
+.feedback {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink-dim);
+}
+
+.use__gap {
+  margin: 0;
+  font-size: 19px;
+}
+.use__input {
+  max-width: 100%;
+  resize: vertical;
+}
+.use__feedback {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.use__sample {
+  margin: 0;
+}
+.use__selfcheck {
+  margin: 0;
+  color: var(--ink-dim);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+
+.tally {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 18px;
+}
+.tally__n {
+  display: inline-block;
+  min-width: 1.6em;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- Content view (US-02) --- */
 .content__back {
   align-self: flex-start;
