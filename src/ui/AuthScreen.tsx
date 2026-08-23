@@ -35,7 +35,7 @@ export function AuthScreen({ auth }: AuthScreenProps) {
   return (
     <section className="onboarding" aria-labelledby="auth-title">
       <header className="onboarding__intro">
-        <p className="brandmark">COMPOSTELLE</p>
+        <p className="brandmark">COMPOSTEL</p>
         <h1 id="auth-title" className="onboarding__title">
           A new language.
           <br />

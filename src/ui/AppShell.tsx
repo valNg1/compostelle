@@ -110,7 +110,7 @@ export function AppShell({
   return (
     <div className="shell">
       <header className="appnav">
-        <span className="appnav__brand">COMPOSTELLE</span>
+        <span className="appnav__brand">COMPOSTEL</span>
         <nav className="appnav__links" aria-label="Sections">
           {SECTIONS.map((s) => (
             <button
