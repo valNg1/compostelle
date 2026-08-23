@@ -1,24 +1,46 @@
 # Modèle pédagogique
 
-## La boucle centrale
+## Architecture fonctionnelle officielle (D-18)
 
-L'expérience COMPOSTELLE repose sur une boucle unique, **générique** (indépendante d'un
-média particulier) :
+COMPOSTELLE s'organise autour de **trois espaces produit** :
 
 ```
-DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
+START → LEARN → MY JOURNEY
 ```
 
-### DISCOVER
-Entrer en contact avec quelque chose d'intéressant dans la langue cible. La
-découverte peut prendre différentes formes :
+- **START** — l'invitation à commencer (pas une activité pédagogique) : langue active,
+  modalité (READ au MVP ; LISTEN/EXPLORE à venir), thème. « What do I feel like
+  learning through today? » START **choisit une Learning Unit** correspondant au thème.
+- **LEARN** — le cœur : une **activité pédagogique complète** sur une Learning Unit :
 
-- lire ;
-- écouter ;
-- explorer ;
-- *(plus tard)* regarder ou interagir.
+  ```
+  CONTENT → UNDERSTAND → RECALL → USE → MEMORY
+  ```
 
-> La lecture est **une** modalité de DISCOVER, pas la définition du produit.
+- **MY JOURNEY** — l'espace personnel de pilotage (ouvrable indépendamment) : langue,
+  niveau, éléments mémorisés / à revoir, progression, activité récente.
+
+### Réinterprétation de l'ancienne boucle
+
+La boucle `DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY` reste la colonne
+vertébrale pédagogique, désormais **incarnée** par l'architecture ci-dessus :
+
+- **DISCOVER** devient une **fonction de START** (choisir quoi apprendre aujourd'hui) ;
+- **UNDERSTAND → RECALL → USE → MEMORY** sont les étapes de **LEARN** (CONTENT étant
+  le point d'entrée) ;
+- **JOURNEY** devient l'espace **MY JOURNEY**.
+
+Un seul modèle, pas deux modèles contradictoires.
+
+## Les étapes de LEARN
+
+### CONTENT
+Le point d'entrée de LEARN : la Learning Unit choisie depuis START. Le contenu est
+agréable à lire mais **n'est plus une page isolée** — l'apprenant entre dans une
+session d'apprentissage (READ au MVP ; LISTEN/EXPLORE plus tard).
+
+> La lecture est **une** modalité, pas la définition du produit. Le choix du contenu
+> (ex-DISCOVER) se fait dans START.
 
 ### UNDERSTAND
 Recevoir l'aide nécessaire pour comprendre **sans casser l'expérience** :
@@ -56,9 +78,12 @@ appris traverse des états :
 NEW → LEARNING → ACQUIRED → TO REVIEW
 ```
 
-### JOURNEY
+## MY JOURNEY (ex-JOURNEY)
+
 Faire vivre l'apprentissage comme un **chemin continu et personnalisé**, plutôt que
-comme une succession de leçons ou d'exercices isolés.
+comme une succession de leçons isolées. Concrètement, c'est l'espace **MY JOURNEY** :
+langue·niveau, ce qui est *learning* / *acquired* / *to review*, activité récente. Il
+est ouvrable indépendamment de START et se met à jour après chaque session.
 
 ## Personnalisation
 

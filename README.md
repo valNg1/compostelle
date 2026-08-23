@@ -27,9 +27,11 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 
 ## Phase actuelle : MVP DELIVERY
 
-- **Boucle pédagogique jouable de bout en bout** :
-  `DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY` (US-02..07), en italien et
-  en espagnol sur la même architecture. `Implemented · Awaiting PO validation`.
+- **Architecture fonctionnelle : `START → LEARN → MY JOURNEY`** (D-18). LEARN =
+  `CONTENT → UNDERSTAND → RECALL → USE → MEMORY` sur une **Learning Unit** canonique.
+  Jouable de bout en bout, italien et espagnol, même architecture.
+  `Implemented · Awaiting PO validation`. Contrat IA :
+  [`ai-learning-units.md`](docs/architecture/ai-learning-units.md).
 - **US-01 « Create my language journey »** : `Done` (validée PO).
 - **MEMORY durable** : progression d'apprentissage persistée par utilisateur et par
   langue (Supabase `memory_items`, RLS owner-only, migration `0002`).

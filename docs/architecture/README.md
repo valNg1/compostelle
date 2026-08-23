@@ -7,6 +7,18 @@ US-02, fondation MVP). Les choix structurants sont tracés en **ADR**
 [ADR-0002](../decisions/adr/0002-durable-persistence-supabase.md) persistance durable,
 [ADR-0003](../decisions/adr/0003-language-agnostic-domain.md) domaine multilingue.
 
+## Architecture fonctionnelle (D-18)
+
+```
+START → LEARN → MY JOURNEY
+                LEARN = CONTENT → UNDERSTAND → RECALL → USE → MEMORY
+```
+
+L'unité pédagogique est la **Learning Unit** (contenu + payload UNDERSTAND/RECALL/USE).
+START en choisit une par thème et lance toujours la boucle complète. Le futur pipeline
+IA doit produire exactement cette structure — contrat :
+[`ai-learning-units.md`](ai-learning-units.md).
+
 ## Socle technique
 
 | Choix | Rôle |
@@ -29,6 +41,7 @@ src/
 │  ├─ content.ts    Contenu : types (langue + payload pédagogique), getContentById
 │  ├─ discovery.ts  Sélection déterministe du feed, isolée par langue
 │  ├─ learning.ts   Boucle : Annotation/RecallItem/UsePrompt, segments annotés
+│  ├─ learningUnit.ts  Learning Unit canonique + sélection par thème + contrat IA
 │  └─ memory.ts     MEMORY : états + transitions déterministes (nextState)
 ├─ content/       Données de contenu (même schéma pour toutes les langues)
 │  ├─ catalog.it.ts  Contenus italiens
@@ -54,12 +67,12 @@ src/
 │  └─ createJourneyService.ts       Composition root (auth + journey + memory)
 └─ ui/            Composants React ; ne portent aucune règle métier
    ├─ AuthScreen.tsx      Connexion email + password (mode durable)
-   ├─ Onboarding.tsx      Choix langue + niveau + intérêts
-   ├─ Discover.tsx        Feed + barre de langues + progression + session
-   ├─ DiscoveryFeed.tsx   Feed (mêmes composants pour toutes les langues)
-   ├─ ContentView.tsx     Lecture simple (contenu sans payload)
+   ├─ Onboarding.tsx      Création d'un parcours (langue + niveau + intérêts)
+   ├─ Home.tsx            Shell post-login : nav START / MY JOURNEY + langue
+   ├─ Start.tsx           START : langue·niveau, modalité, thème → lance LEARN
+   ├─ MyJourney.tsx       MY JOURNEY : progression + mémoire récente
    ├─ AnnotatedText.tsx   Lecture avec expressions tappables (UNDERSTAND)
-   └─ LearningSession.tsx Boucle READ→UNDERSTAND→RECALL→USE→MEMORY→JOURNEY
+   └─ LearningSession.tsx LEARN : CONTENT→UNDERSTAND→RECALL→USE→MEMORY→complete
 ```
 
 Principe : **les règles métier vivent dans `domain/`** (pures, testables sans DOM).

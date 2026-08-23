@@ -35,10 +35,13 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 
 ## La boucle pédagogique est jouable
 
-`DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY` est implémentée de bout en
-bout, jouable en italien et en espagnol sur la même architecture (US-02..07). MEMORY
-est durable (Supabase, migration `0002`). Reste à valider en Production par le PO
-(recette dans les fiches US et [DEPLOYMENT.md](../operations/DEPLOYMENT.md)).
+Architecture fonctionnelle **`START → LEARN → MY JOURNEY`** (D-18), LEARN =
+`CONTENT → UNDERSTAND → RECALL → USE → MEMORY`. Implémentée de bout en bout, jouable en
+italien et en espagnol sur la même architecture (US-02..07), autour d'une **Learning
+Unit canonique de référence** (ex. *Pompei, la città sospesa*) qui sert de template au
+futur pipeline IA ([contrat](../architecture/ai-learning-units.md)). MEMORY durable
+(Supabase, migration `0002`). Reste à valider en Production par le PO (recette dans les
+fiches US et [DEPLOYMENT.md](../operations/DEPLOYMENT.md)).
 
 ## Évolutions proposées (non démarrées)
 

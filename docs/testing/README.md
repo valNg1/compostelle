@@ -28,6 +28,7 @@ DOM) :
 | [`src/domain/learning.test.ts`](../../src/domain/learning.test.ts) | `isPlayable`, self-check USE, découpage annoté (UNDERSTAND). |
 | [`src/domain/memory.test.ts`](../../src/domain/memory.test.ts) | Transitions déterministes `nextState`, `summarize`. |
 | [`src/content/catalog.learning.test.ts`](../../src/content/catalog.learning.test.ts) | Contenu jouable ≥ 2 par langue, recall bien formés, annotations/use valides. |
+| [`src/domain/learningUnit.test.ts`](../../src/domain/learningUnit.test.ts) | Learning Unit canonique : `playableUnits`, `unitTopics`, `selectUnitForTheme` (déterministe, par langue), `memoryTargets` — START ne lance qu'une unité jouable. |
 | [`src/application/memoryService.test.ts`](../../src/application/memoryService.test.ts) | MEMORY durable : transitions, isolation user + langue, restauration navigateur neuf, cache-only. |
 | [`src/persistence/supabaseMemoryRepository.test.ts`](../../src/persistence/supabaseMemoryRepository.test.ts) | Mappers purs mémoire (domaine ↔ PostgreSQL). |
 
