@@ -17,8 +17,10 @@ interface LearningSessionProps {
   onExit: () => void;
   /** Persist the collected memory events (fire-and-forget on the caller side). */
   onFinish: (events: MemoryEvent[]) => void;
-  /** Move on to a new discovery. */
+  /** Primary CTA on completion — go to the personal space (My Journey). */
   onContinue: () => void;
+  /** Secondary CTA on completion — go back to Start. */
+  onBackToStart: () => void;
 }
 
 /** Fold events into a per-expression final state for the session summary. */
@@ -42,6 +44,7 @@ export function LearningSession({
   onExit,
   onFinish,
   onContinue,
+  onBackToStart,
 }: LearningSessionProps) {
   const [phase, setPhase] = useState<Phase>("read");
   const [events, setEvents] = useState<MemoryEvent[]>(() =>
@@ -295,6 +298,9 @@ export function LearningSession({
       </ul>
       <button type="button" className="cta" onClick={onContinue}>
         Continue your journey
+      </button>
+      <button type="button" className="link" onClick={onBackToStart}>
+        Back to Start
       </button>
     </section>
   );

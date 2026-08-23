@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { LanguageJourney } from "./domain/journey";
 import { LANGUAGES, DEFAULT_LANGUAGE, type Language } from "./domain/language";
-import { summarize, type MemorySummary } from "./domain/memory";
+import { summarize, type MemorySummary, type MemoryItem } from "./domain/memory";
 import type { JourneyService } from "./application/journeyService";
 import type { MemoryService, MemoryEvent } from "./application/memoryService";
 import {
@@ -11,7 +11,7 @@ import {
 } from "./persistence/createJourneyService";
 import { getLocalUserId } from "./persistence/localJourneyCache";
 import { Onboarding } from "./ui/Onboarding";
-import { Discover } from "./ui/Discover";
+import { Home } from "./ui/Home";
 import { AuthScreen } from "./ui/AuthScreen";
 
 const EMPTY_SUMMARY: MemorySummary = {
@@ -49,6 +49,7 @@ export function App() {
   const [current, setCurrent] = useState<Language | null>(null);
   const [adding, setAdding] = useState(false);
   const [memory, setMemory] = useState<MemorySummary>(EMPTY_SUMMARY);
+  const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([]);
 
   // Resolve identity (auth when configured, else anonymous local id).
   useEffect(() => {
@@ -103,10 +104,11 @@ export function App() {
     };
   }, [userId]);
 
-  // Load the memory summary for the active language.
+  // Load the memory (summary + items) for the active language.
   useEffect(() => {
     if (!memoryService || current === null) {
       setMemory(EMPTY_SUMMARY);
+      setMemoryItems([]);
       return;
     }
     let active = true;
@@ -114,7 +116,9 @@ export function App() {
       .list(current)
       .catch(() => [])
       .then((items) => {
-        if (active) setMemory(summarize(items));
+        if (!active) return;
+        setMemory(summarize(items));
+        setMemoryItems(items);
       });
     return () => {
       active = false;
@@ -151,21 +155,12 @@ export function App() {
     void memoryService
       .apply(language, events)
       .then((items) => {
-        if (language === current) setMemory(summarize(items));
+        if (language === current) {
+          setMemory(summarize(items));
+          setMemoryItems(items);
+        }
       })
       .catch(() => {});
-  }
-
-  function handleResetCurrent() {
-    if (current === null) return;
-    const removed = current;
-    void service?.clear(removed);
-    setJourneys((prev) => {
-      const next = prev.filter((j) => j.language !== removed);
-      setCurrent(next[0]?.language ?? null);
-      return next;
-    });
-    setAdding(false);
   }
 
   async function handleSignOut() {
@@ -200,13 +195,13 @@ export function App() {
           }
         />
       ) : (
-        <Discover
+        <Home
           journey={currentJourney}
           journeys={orderedJourneys}
           memory={memory}
+          memoryItems={memoryItems}
           onSwitchLanguage={handleSwitch}
           onAddLanguage={() => setAdding(true)}
-          onResetCurrent={handleResetCurrent}
           onSignOut={authService ? handleSignOut : undefined}
           onFinishSession={(events) =>
             handleFinishSession(currentJourney.language, events)

@@ -359,6 +359,139 @@ body {
   font-size: 14px;
 }
 
+/* --- Home shell: top nav (Start / My Journey) + language --- */
+.home {
+  width: 100%;
+  max-width: var(--maxw);
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+.topnav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.topnav__tabs {
+  display: flex;
+  gap: 6px;
+}
+.tab {
+  appearance: none;
+  cursor: pointer;
+  border: 0;
+  background: none;
+  padding: 8px 4px;
+  margin-right: 10px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+  color: var(--ink-dim);
+  border-bottom: 2px solid transparent;
+}
+.tab--on {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.topnav__lang {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* --- Start / My Journey layout --- */
+.start,
+.journey {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.chip--soon {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.counts {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+.counts dt {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+}
+.counts dd {
+  margin: 4px 0 0;
+  font-size: 30px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.recent {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.recent__label {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  font-weight: 600;
+}
+.recent__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.recent__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.recent__expr {
+  font-size: 18px;
+}
+.tag {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.tag--learning {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.tag--acquired {
+  color: #7fc79b;
+  border-color: #5fae7f;
+}
+.tag--to_review {
+  color: #d9a3a3;
+  border-color: #c98b8b;
+}
+
 /* --- Journey progress line --- */
 .progress {
   margin: 0;
