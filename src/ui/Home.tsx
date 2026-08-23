@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { levelBadge, type LanguageJourney } from "../domain/journey";
 import { languageLabel, type Language } from "../domain/language";
+import { t, INTERFACE_LANGUAGES, type InterfaceLanguage } from "../domain/i18n";
 import type { MemoryItem, MemorySummary } from "../domain/memory";
 import {
   selectUnitForTheme,
@@ -19,6 +20,8 @@ interface HomeProps {
   journeys: LanguageJourney[];
   memory: MemorySummary;
   memoryItems: MemoryItem[];
+  interfaceLanguage: InterfaceLanguage;
+  onSetInterfaceLanguage: (language: InterfaceLanguage) => void;
   onSwitchLanguage: (language: Language) => void;
   onAddLanguage: () => void;
   onSignOut?: () => void;
@@ -37,6 +40,8 @@ export function Home({
   journeys,
   memory,
   memoryItems,
+  interfaceLanguage,
+  onSetInterfaceLanguage,
   onSwitchLanguage,
   onAddLanguage,
   onSignOut,
@@ -50,6 +55,8 @@ export function Home({
     return (
       <LearningSession
         content={unit}
+        declaredLevel={journey.declaredLevel}
+        interfaceLanguage={interfaceLanguage}
         onExit={() => setUnit(null)}
         onFinish={onFinishSession}
         onContinue={() => {
@@ -82,7 +89,7 @@ export function Home({
             className={"tab" + (view === "start" ? " tab--on" : "")}
             onClick={() => setView("start")}
           >
-            Start
+            {t("nav.start", interfaceLanguage)}
           </button>
           <button
             type="button"
@@ -91,7 +98,7 @@ export function Home({
             className={"tab" + (view === "journey" ? " tab--on" : "")}
             onClick={() => setView("journey")}
           >
-            My Journey
+            {t("nav.journey", interfaceLanguage)}
           </button>
         </div>
         <div className="topnav__lang">
@@ -112,20 +119,47 @@ export function Home({
             );
           })}
           <button type="button" className="langbar__add" onClick={onAddLanguage}>
-            + Add
+            {t("home.add", interfaceLanguage)}
           </button>
           {onSignOut && (
             <button type="button" className="langbar__signout" onClick={onSignOut}>
-              Sign out
+              {t("home.signout", interfaceLanguage)}
             </button>
           )}
         </div>
       </nav>
 
+      <div className="ilang" role="group" aria-label="Interface language">
+        {INTERFACE_LANGUAGES.filter((l) => l.ready).map((l) => (
+          <button
+            key={l.code}
+            type="button"
+            aria-pressed={interfaceLanguage === l.code}
+            className={
+              "ilang__opt" +
+              (interfaceLanguage === l.code ? " ilang__opt--on" : "")
+            }
+            onClick={() => onSetInterfaceLanguage(l.code)}
+          >
+            {l.label}
+          </button>
+        ))}
+      </div>
+
       {view === "start" ? (
-        <Start journey={journey} topics={topics} onStart={startTheme} />
+        <Start
+          journey={journey}
+          topics={topics}
+          interfaceLanguage={interfaceLanguage}
+          onStart={startTheme}
+        />
       ) : (
-        <MyJourney journey={journey} memory={memory} items={memoryItems} />
+        <MyJourney
+          journey={journey}
+          memory={memory}
+          items={memoryItems}
+          interfaceLanguage={interfaceLanguage}
+        />
       )}
     </div>
   );

@@ -63,22 +63,72 @@ export const IT_CATALOG: ContentItem[] = [
     estimatedMinutes: 4,
     modality: "read",
     body: "Nell'anno 79 d.C. il Vesuvio eruttò e in poche ore seppellì Pompei sotto uno spesso strato di cenere e lapilli. La città romana, vivace e popolosa, scomparve dalla superficie. Paradossalmente, proprio la cenere che la distrusse la conservò: case, botteghe, affreschi e oggetti quotidiani rimasero protetti per secoli. Gli scavi sistematici iniziarono nel Settecento e continuano ancora oggi. Camminare tra le sue strade significa vedere come vivevano davvero i Romani: le insegne dei negozi, i graffiti sui muri, le stanze dipinte. Pompei non è un monumento isolato, ma un'intera città fermata nel tempo.",
+    // Canonical Learning Unit: rich annotation pool spanning difficulties, so
+    // UNDERSTAND density adapts to the learner (A2 sees many, C1 sees the few
+    // richest). Translations carry en + fr (interface language).
     annotations: [
-      { id: "a1", expression: "seppellì", meaning: "coprì completamente, nascose sotto terra", translation: "buried" },
-      { id: "a2", expression: "cenere e lapilli", meaning: "materiali espulsi dal vulcano", translation: "ash and volcanic stones" },
-      { id: "a3", expression: "gli scavi", meaning: "il lavoro di riportare alla luce ciò che è sepolto", translation: "the excavations" },
-      { id: "a4", expression: "fermata nel tempo", meaning: "rimasta uguale, come bloccata", translation: "frozen in time" },
+      { id: "oggetti", expression: "oggetti quotidiani", difficulty: "A2", meaning: "cose di tutti i giorni", translation: "everyday objects", translations: { en: "everyday objects", fr: "objets du quotidien" } },
+      { id: "botteghe", expression: "botteghe", difficulty: "A2", meaning: "piccoli negozi o laboratori", translation: "workshops / small shops", translations: { en: "workshops / small shops", fr: "échoppes / ateliers" } },
+      { id: "erutto", expression: "eruttò", difficulty: "B1", meaning: "esplose gettando lava e cenere", translation: "erupted", translations: { en: "erupted", fr: "est entré en éruption" } },
+      { id: "seppelli", expression: "seppellì", difficulty: "B1", meaning: "coprì completamente, nascose sotto terra", translation: "buried", translations: { en: "buried", fr: "a enseveli" } },
+      { id: "cenere", expression: "cenere e lapilli", difficulty: "B2", meaning: "materiali espulsi dal vulcano", translation: "ash and volcanic stones", translations: { en: "ash and volcanic stones", fr: "cendres et lapilli" } },
+      { id: "scomparve", expression: "scomparve dalla superficie", difficulty: "B2", meaning: "sparì dalla vista, non fu più visibile", translation: "vanished from the surface", translations: { en: "vanished from the surface", fr: "a disparu de la surface" } },
+      { id: "insegne", expression: "le insegne dei negozi", difficulty: "B2", meaning: "i cartelli che indicano i negozi", translation: "the shop signs", translations: { en: "the shop signs", fr: "les enseignes des boutiques" } },
+      { id: "vivace", expression: "vivace e popolosa", difficulty: "C1", meaning: "piena di vita e di abitanti", translation: "lively and populous", translations: { en: "lively and populous", fr: "vivante et peuplée" } },
+      { id: "protetti", expression: "rimasero protetti per secoli", difficulty: "C1", meaning: "restarono al sicuro per centinaia di anni", translation: "stayed protected for centuries", translations: { en: "stayed protected for centuries", fr: "sont restés protégés pendant des siècles" } },
+      { id: "fermata", expression: "fermata nel tempo", difficulty: "C1", meaning: "rimasta uguale, come bloccata", translation: "frozen in time", translations: { en: "frozen in time", fr: "figée dans le temps" }, example: "Un piccolo borgo può sembrare fermato nel tempo." },
     ],
+    // Recall tests the richest expressions (C1 → selected at every level) plus a
+    // comprehension target. Instructions/options are interface-language; the gap
+    // material stays in the target language.
     recall: [
-      { id: "r1", kind: "meaning", prompt: "Che cosa significa «seppellì»?", options: ["Coprì e nascose sotto terra", "Ricostruì", "Illuminò"], answerIndex: 0, annotationId: "a1" },
-      { id: "r2", kind: "gap", prompt: "Il Vesuvio coprì la città di ______ e lapilli.", options: ["cenere", "acqua", "sabbia"], answerIndex: 0, annotationId: "a2" },
-      { id: "r3", kind: "comprehension", prompt: "Perché Pompei è «fermata nel tempo»?", options: ["È rimasta come allora, protetta dalla cenere", "È stata ricostruita da poco", "Non è mai stata abitata"], answerIndex: 0, annotationId: "a4" },
+      {
+        id: "r1",
+        kind: "meaning",
+        prompt: "What does “fermata nel tempo” mean here?",
+        promptI18n: { en: "What does “fermata nel tempo” mean here?", fr: "Que signifie « fermata nel tempo » ici ?" },
+        options: ["frozen in time", "rebuilt recently", "never inhabited"],
+        optionsI18n: { fr: ["figée dans le temps", "reconstruite récemment", "jamais habitée"] },
+        answerIndex: 0,
+        annotationId: "fermata",
+      },
+      {
+        id: "r2",
+        kind: "gap",
+        prompt: "Grazie alla cenere, gli oggetti ______ protetti per secoli.",
+        options: ["rimasero", "tornarono", "partirono"],
+        answerIndex: 0,
+        annotationId: "protetti",
+      },
+      {
+        id: "r3",
+        kind: "comprehension",
+        prompt: "Why is Pompeii described as a city “frozen in time”?",
+        promptI18n: { en: "Why is Pompeii described as a city “frozen in time”?", fr: "Pourquoi Pompéi est-elle décrite comme une ville « figée dans le temps » ?" },
+        options: [
+          "The ash that destroyed it also preserved it",
+          "It was rebuilt to look old",
+          "It was never a real city",
+        ],
+        optionsI18n: {
+          fr: [
+            "La cendre qui l'a détruite l'a aussi conservée",
+            "Elle a été reconstruite pour paraître ancienne",
+            "Elle n'a jamais été une vraie ville",
+          ],
+        },
+        answerIndex: 0,
+      },
     ],
     use: {
-      prompt: "Completa con un'espressione del testo.",
-      gapSentence: "Visitare Pompei è come vedere una città ______.",
-      sampleAnswer: "fermata nel tempo",
-      keyExpressions: ["fermata nel tempo"],
+      prompt: "Use “fermata nel tempo” in a sentence of your own.",
+      promptI18n: {
+        en: "Use “fermata nel tempo” in a sentence of your own.",
+        fr: "Utilisez « fermata nel tempo » dans une phrase à vous.",
+      },
+      starter: "Mi sembra che...",
+      sampleAnswer: "Il piccolo borgo di montagna sembra fermato nel tempo.",
+      keyExpressions: ["fermata nel tempo", "fermato nel tempo"],
     },
   },
   {

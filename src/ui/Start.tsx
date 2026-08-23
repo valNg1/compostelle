@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { levelBadge, type LanguageJourney } from "../domain/journey";
 import { languageLabel } from "../domain/language";
+import { t, type InterfaceLanguage } from "../domain/i18n";
 import { CATEGORY_LABELS, type Category } from "../domain/content";
 import type { Theme } from "../domain/learningUnit";
 
@@ -8,6 +9,7 @@ interface StartProps {
   journey: LanguageJourney;
   /** Topics (categories) with a playable unit in the active language. */
   topics: Category[];
+  interfaceLanguage: InterfaceLanguage;
   onStart: (theme: Theme) => void;
 }
 
@@ -16,23 +18,29 @@ interface StartProps {
  * learner want to start. Choose a theme (and, later, a modality) and go.
  * "What do I feel like learning through today?"
  */
-export function Start({ journey, topics, onStart }: StartProps) {
+export function Start({
+  journey,
+  topics,
+  interfaceLanguage,
+  onStart,
+}: StartProps) {
+  const il = interfaceLanguage;
   const badge = levelBadge(journey.declaredLevel);
   const themes: Theme[] = [...topics, "surprise_me"];
   const [theme, setTheme] = useState<Theme>(themes[0] ?? "surprise_me");
 
-  function themeLabel(t: Theme): string {
-    return t === "surprise_me" ? "Surprise me" : CATEGORY_LABELS[t as Category];
+  function themeLabel(item: Theme): string {
+    return item === "surprise_me"
+      ? t("theme.surprise", il)
+      : CATEGORY_LABELS[item as Category];
   }
 
   return (
     <section className="start" aria-labelledby="start-title">
       <header className="onboarding__intro">
-        <p className="onboarding__eyebrow">Start</p>
+        <p className="onboarding__eyebrow">{t("start.eyebrow", il)}</p>
         <h1 id="start-title" className="onboarding__title">
-          What do you feel like
-          <br />
-          learning through today?
+          {t("start.title", il)}
         </h1>
         <p className="onboarding__language">
           {languageLabel(journey.language)}
@@ -41,33 +49,33 @@ export function Start({ journey, topics, onStart }: StartProps) {
       </header>
 
       <fieldset className="field">
-        <legend className="field__label">How do you want to learn?</legend>
+        <legend className="field__label">{t("start.how", il)}</legend>
         <div className="chips">
           <button type="button" className="chip chip--on" aria-pressed="true">
-            Read
+            {t("modality.read", il)}
           </button>
           <button type="button" className="chip chip--soon" disabled>
-            Listen · soon
+            {t("modality.listen", il)}
           </button>
           <button type="button" className="chip chip--soon" disabled>
-            Explore · soon
+            {t("modality.explore", il)}
           </button>
         </div>
       </fieldset>
 
       <fieldset className="field">
-        <legend className="field__label">What are you in the mood for?</legend>
+        <legend className="field__label">{t("start.mood", il)}</legend>
         <div className="chips" role="radiogroup" aria-label="Theme">
-          {themes.map((t) => (
+          {themes.map((item) => (
             <button
-              key={t}
+              key={item}
               type="button"
               role="radio"
-              aria-checked={theme === t}
-              className={"chip" + (theme === t ? " chip--on" : "")}
-              onClick={() => setTheme(t)}
+              aria-checked={theme === item}
+              className={"chip" + (theme === item ? " chip--on" : "")}
+              onClick={() => setTheme(item)}
             >
-              {themeLabel(t)}
+              {themeLabel(item)}
             </button>
           ))}
         </div>
@@ -79,7 +87,7 @@ export function Start({ journey, topics, onStart }: StartProps) {
         disabled={themes.length === 0}
         onClick={() => onStart(theme)}
       >
-        Start learning
+        {t("start.cta", il)}
       </button>
     </section>
   );

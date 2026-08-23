@@ -9,12 +9,15 @@
 import type { AuthService } from "../application/authService";
 import { JourneyService } from "../application/journeyService";
 import { MemoryService } from "../application/memoryService";
+import { PreferencesService } from "../application/preferencesService";
 import { LocalJourneyCache } from "./localJourneyCache";
 import { LocalMemoryCache } from "./localMemoryCache";
+import { LocalPreferencesCache } from "./localPreferencesCache";
 import { getSupabaseClient } from "./supabaseClient";
 import { SupabaseAuthService } from "./supabaseAuth";
 import { SupabaseJourneyRepository } from "./supabaseJourneyRepository";
 import { SupabaseMemoryRepository } from "./supabaseMemoryRepository";
+import { SupabasePreferencesRepository } from "./supabasePreferencesRepository";
 
 /** The Supabase auth service, or `null` when Supabase is unconfigured. */
 export function getAuthService(): AuthService | null {
@@ -38,4 +41,12 @@ export function createMemoryService(userId: string): MemoryService {
   const cache = new LocalMemoryCache(userId);
   const durable = client ? new SupabaseMemoryRepository(client) : null;
   return new MemoryService(durable, cache, userId);
+}
+
+/** Build a preferences service scoped to `userId` (interface language). */
+export function createPreferencesService(userId: string): PreferencesService {
+  const client = getSupabaseClient();
+  const cache = new LocalPreferencesCache(userId);
+  const durable = client ? new SupabasePreferencesRepository(client) : null;
+  return new PreferencesService(durable, cache, userId);
 }

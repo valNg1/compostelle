@@ -1,8 +1,17 @@
 import { useMemo, useState } from "react";
 import type { ContentItem } from "../domain/content";
 import { CATEGORY_LABELS } from "../domain/content";
+import type { DeclaredLevel } from "../domain/journey";
+import type { InterfaceLanguage } from "../domain/i18n";
+import { t } from "../domain/i18n";
 import {
   answerUsesKeyExpression,
+  annotationTranslation,
+  recallPrompt,
+  recallOptions,
+  usePromptText,
+  selectAnnotations,
+  countSentences,
   type Annotation,
   type LearningContent,
 } from "../domain/learning";
@@ -14,87 +23,105 @@ type Phase = "read" | "recall" | "use" | "complete";
 
 interface LearningSessionProps {
   content: ContentItem & LearningContent;
+  declaredLevel: DeclaredLevel;
+  interfaceLanguage: InterfaceLanguage;
   onExit: () => void;
-  /** Persist the collected memory events (fire-and-forget on the caller side). */
   onFinish: (events: MemoryEvent[]) => void;
-  /** Primary CTA on completion — go to the personal space (My Journey). */
   onContinue: () => void;
-  /** Secondary CTA on completion — go back to Start. */
   onBackToStart: () => void;
 }
 
-/** Fold events into a per-expression final state for the session summary. */
-function sessionStates(
-  events: MemoryEvent[],
-): Map<string, MemoryState> {
-  const map = new Map<string, MemoryState>();
-  for (const e of events) {
-    map.set(e.expression, nextState(map.get(e.expression) ?? null, e.signal));
-  }
-  return map;
-}
+const LOWER_LEVELS: ReadonlySet<DeclaredLevel> = new Set([
+  "A1",
+  "A2",
+  "UNKNOWN",
+]);
 
 /**
- * The end-to-end learning session: READ + UNDERSTAND → RECALL → USE → MEMORY
- * summary → JOURNEY continuation. Deterministic; collects memory events and
- * hands them to the caller to persist.
+ * LEARN: CONTENT + UNDERSTAND → RECALL → USE → MEMORY → complete. UNDERSTAND is
+ * adapted to the learner's level (density + selection); all chrome, instructions
+ * and feedback follow the interface language, while the material stays in the
+ * target language.
  */
 export function LearningSession({
   content,
+  declaredLevel,
+  interfaceLanguage,
   onExit,
   onFinish,
   onContinue,
   onBackToStart,
 }: LearningSessionProps) {
+  const il = interfaceLanguage;
+
+  // Adaptive UNDERSTAND: which expressions to surface for this learner.
+  const annotations = useMemo(
+    () =>
+      selectAnnotations(
+        content.annotations,
+        declaredLevel,
+        countSentences(content.body),
+      ),
+    [content, declaredLevel],
+  );
+  const selectedIds = useMemo(
+    () => new Set(annotations.map((a) => a.id)),
+    [annotations],
+  );
+
+  // Recall tests only what was shown (or global comprehension), max 3.
+  const recallItems = useMemo(
+    () =>
+      content.recall
+        .filter((r) => !r.annotationId || selectedIds.has(r.annotationId))
+        .slice(0, 3),
+    [content.recall, selectedIds],
+  );
+
   const [phase, setPhase] = useState<Phase>("read");
   const [events, setEvents] = useState<MemoryEvent[]>(() =>
-    // Every annotation is at least "encountered" when the session starts.
-    content.annotations.map((a) => ({
+    annotations.map((a) => ({
       expression: a.expression,
       meaning: a.meaning,
       signal: "encountered",
     })),
   );
 
-  const meaningByExpression = useMemo(() => {
+  const meaningByExpr = useMemo(() => {
     const m = new Map<string, string>();
-    for (const a of content.annotations) m.set(a.expression, a.meaning);
+    for (const a of annotations) m.set(a.expression, a.meaning);
     return m;
-  }, [content.annotations]);
+  }, [annotations]);
 
   function record(expression: string, signal: MemoryEvent["signal"]) {
     setEvents((prev) => [
       ...prev,
-      { expression, meaning: meaningByExpression.get(expression) ?? "", signal },
+      { expression, meaning: meaningByExpr.get(expression) ?? "", signal },
     ]);
   }
 
-  // --- READ + UNDERSTAND ---------------------------------------------------
-  const [activeAnnotation, setActiveAnnotation] = useState<Annotation | null>(
-    null,
-  );
+  // --- READ + UNDERSTAND ---
+  const [active, setActive] = useState<Annotation | null>(null);
   function openAnnotation(a: Annotation) {
-    setActiveAnnotation((cur) => (cur?.id === a.id ? null : a));
+    setActive((cur) => (cur?.id === a.id ? null : a));
     record(a.expression, "understood");
   }
 
-  // --- RECALL --------------------------------------------------------------
+  // --- RECALL ---
   const [recallIndex, setRecallIndex] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  const recallItem = content.recall[recallIndex];
+  const item = recallItems[recallIndex];
 
-  function pickOption(i: number) {
-    if (picked !== null || !recallItem) return;
+  function pick(i: number) {
+    if (picked !== null || !item) return;
     setPicked(i);
-    const correct = i === recallItem.answerIndex;
-    const expr = content.annotations.find(
-      (a) => a.id === recallItem.annotationId,
-    )?.expression;
+    const correct = i === item.answerIndex;
+    const expr = content.annotations.find((a) => a.id === item.annotationId)
+      ?.expression;
     if (expr) record(expr, correct ? "recalled_correct" : "recalled_wrong");
   }
-
   function nextRecall() {
-    if (recallIndex + 1 < content.recall.length) {
+    if (recallIndex + 1 < recallItems.length) {
       setRecallIndex((n) => n + 1);
       setPicked(null);
     } else {
@@ -102,22 +129,30 @@ export function LearningSession({
     }
   }
 
-  // --- USE -----------------------------------------------------------------
+  // --- USE ---
   const [answer, setAnswer] = useState("");
   const [checked, setChecked] = useState(false);
+  const used = checked && answerUsesKeyExpression(answer, content.use.keyExpressions);
   function checkUse() {
     setChecked(true);
-    const used = answerUsesKeyExpression(answer, content.use.keyExpressions);
-    if (used) {
-      const matched = content.annotations.filter((a) =>
+    if (answerUsesKeyExpression(answer, content.use.keyExpressions)) {
+      const matched = annotations.filter((a) =>
         answerUsesKeyExpression(answer, [a.expression]),
       );
-      const targets = matched.length > 0 ? matched : [content.annotations[0]];
-      for (const a of targets) if (a) record(a.expression, "used");
+      const targets =
+        matched.length > 0
+          ? matched
+          : annotations.filter((a) =>
+              content.use.keyExpressions.some(
+                (k) => k.toLowerCase() === a.expression.toLowerCase(),
+              ),
+            );
+      for (const a of (targets.length > 0 ? targets : annotations.slice(0, 1))) {
+        record(a.expression, "used");
+      }
     }
   }
 
-  // --- COMPLETE ------------------------------------------------------------
   function finish() {
     onFinish(events);
     setPhase("complete");
@@ -129,65 +164,68 @@ export function LearningSession({
     return (
       <article className="content" aria-labelledby="ls-title">
         <button type="button" className="content__back" onClick={onExit}>
-          ← Back to discover
+          ←
         </button>
         <p className="content__category">{category}</p>
         <h1 id="ls-title" className="content__title">
           {content.title}
         </h1>
-        <p className="ls-hint">Tap the highlighted expressions to understand them.</p>
+        <p className="ls-hint">{t("ls.hint", il)}</p>
         <div className="content__body">
           <AnnotatedText
             body={content.body}
-            annotations={content.annotations}
+            annotations={annotations}
             onOpen={openAnnotation}
-            activeId={activeAnnotation?.id ?? null}
+            activeId={active?.id ?? null}
           />
         </div>
 
-        {activeAnnotation && (
+        {active && (
           <aside className="understand" aria-live="polite">
             <button
               type="button"
               className="understand__close"
               aria-label="Close"
-              onClick={() => setActiveAnnotation(null)}
+              onClick={() => setActive(null)}
             >
               ×
             </button>
-            <p className="understand__expr">{activeAnnotation.expression}</p>
+            <p className="understand__expr">{active.expression}</p>
             <p className="understand__translation">
-              {activeAnnotation.translation}
+              {annotationTranslation(active, il)}
             </p>
-            <p className="understand__meaning">{activeAnnotation.meaning}</p>
-            {activeAnnotation.example && (
-              <p className="understand__example">“{activeAnnotation.example}”</p>
+            <p className="understand__meaning">{active.meaning}</p>
+            {active.example && (
+              <p className="understand__example">“{active.example}”</p>
             )}
           </aside>
         )}
 
         <button type="button" className="cta" onClick={() => setPhase("recall")}>
-          Continue
+          {t("ls.continue", il)}
         </button>
       </article>
     );
   }
 
-  if (phase === "recall" && recallItem) {
-    const correct = picked !== null && picked === recallItem.answerIndex;
+  if (phase === "recall" && item) {
+    const correct = picked !== null && picked === item.answerIndex;
+    const options = recallOptions(item, il);
     return (
       <section className="step" aria-labelledby="ls-step-title">
-        <p className="onboarding__eyebrow">Recall · {recallIndex + 1}/{content.recall.length}</p>
+        <p className="onboarding__eyebrow">
+          {t("recall.eyebrow", il)} · {recallIndex + 1}/{recallItems.length}
+        </p>
+        {item.kind === "gap" && <p className="ls-hint">{t("recall.gap_q", il)}</p>}
         <h1 id="ls-step-title" className="step__title">
-          {recallItem.prompt}
+          {recallPrompt(item, il)}
         </h1>
         <div className="options">
-          {recallItem.options.map((opt, i) => {
-            const isAnswer = i === recallItem.answerIndex;
-            const state =
+          {options.map((opt, i) => {
+            const cls =
               picked === null
                 ? ""
-                : isAnswer
+                : i === item.answerIndex
                   ? " option--correct"
                   : i === picked
                     ? " option--wrong"
@@ -196,9 +234,9 @@ export function LearningSession({
               <button
                 key={i}
                 type="button"
-                className={"option" + state}
+                className={"option" + cls}
                 disabled={picked !== null}
-                onClick={() => pickOption(i)}
+                onClick={() => pick(i)}
               >
                 {opt}
               </button>
@@ -207,12 +245,14 @@ export function LearningSession({
         </div>
         {picked !== null && (
           <p className="feedback" role="status">
-            {correct ? "Correct." : "Not quite — the highlighted answer is right."}
+            {correct ? t("recall.correct", il) : t("recall.incorrect", il)}
           </p>
         )}
         {picked !== null && (
           <button type="button" className="cta" onClick={nextRecall}>
-            {recallIndex + 1 < content.recall.length ? "Next" : "Continue"}
+            {recallIndex + 1 < recallItems.length
+              ? t("recall.next", il)
+              : t("ls.continue", il)}
           </button>
         )}
       </section>
@@ -220,18 +260,29 @@ export function LearningSession({
   }
 
   if (phase === "use") {
-    const used = checked && answerUsesKeyExpression(answer, content.use.keyExpressions);
+    const showScaffold = LOWER_LEVELS.has(declaredLevel);
     return (
       <section className="step" aria-labelledby="ls-use-title">
-        <p className="onboarding__eyebrow">Use the language</p>
+        <p className="onboarding__eyebrow">{t("use.eyebrow", il)}</p>
         <h1 id="ls-use-title" className="step__title">
-          {content.use.prompt}
+          {usePromptText(content.use, il)}
         </h1>
         {content.use.gapSentence && (
           <p className="use__gap">{content.use.gapSentence}</p>
         )}
+        <div className="scaffold">
+          <p className="scaffold__line">
+            {t("use.scaffold_expr", il)}{" "}
+            <strong>{content.use.keyExpressions[0]}</strong>
+          </p>
+          {showScaffold && content.use.starter && (
+            <p className="scaffold__line">
+              {t("use.scaffold_start", il)} <em>{content.use.starter}</em>
+            </p>
+          )}
+        </div>
         <label className="field__label" htmlFor="use-answer">
-          Your sentence
+          {t("use.your_sentence", il)}
         </label>
         <textarea
           id="use-answer"
@@ -247,22 +298,24 @@ export function LearningSession({
             disabled={answer.trim().length === 0}
             onClick={checkUse}
           >
-            Check
+            {t("use.check", il)}
           </button>
         ) : (
           <>
             <div className="use__feedback" role="status" aria-live="polite">
-              <p className="use__sample">
-                <strong>Sample answer:</strong> {content.use.sampleAnswer}
-              </p>
               <p className="use__selfcheck">
                 {used
-                  ? "Nice — you used a key expression."
-                  : "Tip: try using one of the key expressions."}
+                  ? t("use.used", il)
+                  : t("use.not_used", il, {
+                      expr: content.use.keyExpressions[0] ?? "",
+                    })}
+              </p>
+              <p className="use__sample">
+                <strong>{t("use.sample", il)}</strong> {content.use.sampleAnswer}
               </p>
             </div>
             <button type="button" className="cta" onClick={finish}>
-              Continue
+              {t("ls.continue", il)}
             </button>
           </>
         )}
@@ -270,37 +323,38 @@ export function LearningSession({
     );
   }
 
-  // --- complete ---
-  const states = sessionStates(events);
-  const explored = states.size;
-  let remembered = 0;
-  let toReview = 0;
-  for (const s of states.values()) {
-    if (s === "LEARNING" || s === "ACQUIRED") remembered++;
-    else if (s === "TO_REVIEW") toReview++;
+  // --- complete (MEMORY summary) ---
+  const states = new Map<string, MemoryState>();
+  for (const e of events) {
+    states.set(e.expression, nextState(states.get(e.expression) ?? null, e.signal));
   }
+  const explored = states.size;
+  const recalled = new Set(
+    events.filter((e) => e.signal === "recalled_correct").map((e) => e.expression),
+  ).size;
+  const usedCount = new Set(
+    events.filter((e) => e.signal === "used").map((e) => e.expression),
+  ).size;
+  let toReview = 0;
+  for (const s of states.values()) if (s === "TO_REVIEW") toReview++;
+
   return (
     <section className="step complete" aria-labelledby="ls-done-title">
-      <p className="onboarding__eyebrow">Session complete</p>
+      <p className="onboarding__eyebrow">{t("complete.eyebrow", il)}</p>
       <h1 id="ls-done-title" className="step__title">
-        You made progress.
+        {t("complete.title", il)}
       </h1>
       <ul className="tally">
-        <li>
-          <span className="tally__n">{explored}</span> expressions explored
-        </li>
-        <li>
-          <span className="tally__n">{remembered}</span> remembered
-        </li>
-        <li>
-          <span className="tally__n">{toReview}</span> to review
-        </li>
+        <li>{t("complete.explored", il, { n: explored })}</li>
+        <li>{t("complete.recalled", il, { n: recalled })}</li>
+        <li>{t("complete.used", il, { n: usedCount })}</li>
+        <li>{t("complete.to_review", il, { n: toReview })}</li>
       </ul>
       <button type="button" className="cta" onClick={onContinue}>
-        Continue your journey
+        {t("complete.continue", il)}
       </button>
       <button type="button" className="link" onClick={onBackToStart}>
-        Back to Start
+        {t("complete.back", il)}
       </button>
     </section>
   );

@@ -15,28 +15,36 @@ import {
   DEFAULT_LANGUAGE,
   type Language,
 } from "../domain/language";
+import { INTERFACE_LANGUAGES, type InterfaceLanguage } from "../domain/i18n";
 
 interface OnboardingProps {
-  onCreated: (journey: LanguageJourney) => void;
+  onCreated: (journey: LanguageJourney, interfaceLanguage?: InterfaceLanguage) => void;
   /** Pre-selected language (e.g. when adding a second language journey). */
   initialLanguage?: Language;
+  /** Current interface language (pre-selected in the "Explain things to me in" chooser). */
+  interfaceLanguage: InterfaceLanguage;
+  /** Show the "Explain things to me in" chooser (first onboarding only). */
+  askInterfaceLanguage: boolean;
   /** When present (e.g. adding a language with journeys already), show a Back link. */
   onCancel?: () => void;
 }
 
 /**
- * Single-screen onboarding: pick a target language, a level, some interests.
- * Deliberately light — it should feel like starting a journey, not filling a form.
+ * Single-screen onboarding: pick a target language, the interface language
+ * ("Explain things to me in"), a level and some interests. Deliberately light.
  * Persistence is handled by the caller (App) so this stays UI-only.
  */
 export function Onboarding({
   onCreated,
   initialLanguage,
+  interfaceLanguage,
+  askInterfaceLanguage,
   onCancel,
 }: OnboardingProps) {
   const [draft, setDraft] = useState(() =>
     emptyDraft(initialLanguage ?? DEFAULT_LANGUAGE),
   );
+  const [explainIn, setExplainIn] = useState<InterfaceLanguage>(interfaceLanguage);
   const { valid } = validateDraft(draft);
 
   function selectLanguage(language: Language) {
@@ -49,7 +57,7 @@ export function Onboarding({
 
   function begin() {
     if (!valid) return;
-    onCreated(createJourney(draft));
+    onCreated(createJourney(draft), askInterfaceLanguage ? explainIn : undefined);
   }
 
   return (
@@ -90,6 +98,32 @@ export function Onboarding({
           ))}
         </div>
       </fieldset>
+
+      {askInterfaceLanguage && (
+        <fieldset className="field">
+          <legend className="field__label">Explain things to me in</legend>
+          <div className="chips" role="radiogroup" aria-label="Interface language">
+            {INTERFACE_LANGUAGES.map((lang) => (
+              <button
+                key={lang.code}
+                type="button"
+                role="radio"
+                aria-checked={explainIn === lang.code}
+                disabled={!lang.ready}
+                className={
+                  "chip" +
+                  (explainIn === lang.code ? " chip--on" : "") +
+                  (lang.ready ? "" : " chip--soon")
+                }
+                onClick={() => lang.ready && setExplainIn(lang.code)}
+              >
+                {lang.label}
+                {!lang.ready && " · soon"}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       <fieldset className="field">
         <legend className="field__label">Where are you starting from?</legend>

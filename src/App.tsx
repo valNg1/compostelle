@@ -2,12 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import type { LanguageJourney } from "./domain/journey";
 import { LANGUAGES, DEFAULT_LANGUAGE, type Language } from "./domain/language";
 import { summarize, type MemorySummary, type MemoryItem } from "./domain/memory";
+import {
+  DEFAULT_INTERFACE_LANGUAGE,
+  type InterfaceLanguage,
+} from "./domain/i18n";
 import type { JourneyService } from "./application/journeyService";
 import type { MemoryService, MemoryEvent } from "./application/memoryService";
+import type { PreferencesService } from "./application/preferencesService";
 import {
   getAuthService,
   createJourneyService,
   createMemoryService,
+  createPreferencesService,
 } from "./persistence/createJourneyService";
 import { getLocalUserId } from "./persistence/localJourneyCache";
 import { Onboarding } from "./ui/Onboarding";
@@ -45,11 +51,16 @@ export function App() {
 
   const [service, setService] = useState<JourneyService | null>(null);
   const [memoryService, setMemoryService] = useState<MemoryService | null>(null);
+  const [preferencesService, setPreferencesService] =
+    useState<PreferencesService | null>(null);
   const [journeys, setJourneys] = useState<LanguageJourney[]>([]);
   const [current, setCurrent] = useState<Language | null>(null);
   const [adding, setAdding] = useState(false);
   const [memory, setMemory] = useState<MemorySummary>(EMPTY_SUMMARY);
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([]);
+  const [interfaceLanguage, setInterfaceLanguage] = useState<InterfaceLanguage>(
+    DEFAULT_INTERFACE_LANGUAGE,
+  );
 
   // Resolve identity (auth when configured, else anonymous local id).
   useEffect(() => {
@@ -89,6 +100,14 @@ export function App() {
     const svc = createJourneyService(userId);
     setService(svc);
     setMemoryService(createMemoryService(userId));
+    const prefs = createPreferencesService(userId);
+    setPreferencesService(prefs);
+    prefs
+      .load()
+      .then((p) => {
+        if (active && p) setInterfaceLanguage(p.interfaceLanguage);
+      })
+      .catch(() => {});
     svc
       .listAll()
       .catch(() => [] as LanguageJourney[])
@@ -138,11 +157,20 @@ export function App() {
   const currentJourney =
     current !== null ? journeys.find((j) => j.language === current) ?? null : null;
 
-  function handleCreated(journey: LanguageJourney) {
+  function handleCreated(journey: LanguageJourney, chosen?: InterfaceLanguage) {
     setJourneys((prev) => upsertByLanguage(prev, journey));
     setCurrent(journey.language);
     setAdding(false);
     void service?.save(journey);
+    if (chosen) {
+      setInterfaceLanguage(chosen);
+      void preferencesService?.save({ interfaceLanguage: chosen });
+    }
+  }
+
+  function handleSetInterfaceLanguage(language: InterfaceLanguage) {
+    setInterfaceLanguage(language);
+    void preferencesService?.save({ interfaceLanguage: language });
   }
 
   function handleSwitch(language: Language) {
@@ -188,6 +216,8 @@ export function App() {
         <Onboarding
           onCreated={handleCreated}
           initialLanguage={adding ? suggestedLanguage : undefined}
+          interfaceLanguage={interfaceLanguage}
+          askInterfaceLanguage={journeys.length === 0}
           onCancel={
             adding && journeys.length > 0
               ? () => setAdding(false)
@@ -200,6 +230,8 @@ export function App() {
           journeys={orderedJourneys}
           memory={memory}
           memoryItems={memoryItems}
+          interfaceLanguage={interfaceLanguage}
+          onSetInterfaceLanguage={handleSetInterfaceLanguage}
           onSwitchLanguage={handleSwitch}
           onAddLanguage={() => setAdding(true)}
           onSignOut={authService ? handleSignOut : undefined}
