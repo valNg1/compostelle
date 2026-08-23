@@ -27,10 +27,10 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 
 ## Phase actuelle : MVP DELIVERY
 
-- **Architecture fonctionnelle : `START → LEARN → MY JOURNEY`** (D-18). LEARN =
-  `CONTENT → UNDERSTAND → RECALL → USE → MEMORY` sur une **Learning Unit** canonique.
-  Jouable de bout en bout, italien et espagnol, même architecture.
-  `Implemented · Awaiting PO validation`. Contrat IA :
+- **Application à 4 espaces : `HOME → LEARN → MY JOURNEY → MY SPACE`** (D-18/D-21),
+  navigation persistante + dashboard d'accueil (progression + prochaine action) +
+  espace personnel. LEARN = `CONTENT → UNDERSTAND → RECALL → USE → MEMORY` sur une
+  **Learning Unit** canonique. Jouable it/es, même architecture. Contrat IA :
   [`ai-learning-units.md`](docs/architecture/ai-learning-units.md).
 - **US-01 « Create my language journey »** : `Done` (validée PO).
 - **MEMORY durable** : progression d'apprentissage persistée par utilisateur et par

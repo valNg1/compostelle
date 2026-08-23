@@ -15,6 +15,8 @@ has prepared everything up to those steps; the actions below need the PO.
      + owner-only RLS. Depends on 0001.
    - [`supabase/migrations/0003_create_user_preferences.sql`](../../supabase/migrations/0003_create_user_preferences.sql)
      — `user_preferences` table (interface language, one row per user) + owner-only RLS.
+   - [`supabase/migrations/0004_create_learning_activity.sql`](../../supabase/migrations/0004_create_learning_activity.sql)
+     — `learning_activity` table (completed-session history, per user/language) + owner-only RLS.
    Re-running a migration on an existing project is safe (idempotent guards).
 3. Open **Authentication → Providers → Email** and enable **Email** with
    **email + password** (turn OFF "Confirm email" for the MVP demo account, or

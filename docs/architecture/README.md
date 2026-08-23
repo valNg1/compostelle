@@ -7,17 +7,20 @@ US-02, fondation MVP). Les choix structurants sont tracés en **ADR**
 [ADR-0002](../decisions/adr/0002-durable-persistence-supabase.md) persistance durable,
 [ADR-0003](../decisions/adr/0003-language-agnostic-domain.md) domaine multilingue.
 
-## Architecture fonctionnelle (D-18)
+## Architecture fonctionnelle (D-18, D-21)
+
+Application à 4 espaces sous une navigation persistante (`AppShell`, routing hash) :
 
 ```
-START → LEARN → MY JOURNEY
-                LEARN = CONTENT → UNDERSTAND → RECALL → USE → MEMORY
+HOME → LEARN → MY JOURNEY → MY SPACE
+               LEARN = CONTENT → UNDERSTAND → RECALL → USE → MEMORY
 ```
 
-L'unité pédagogique est la **Learning Unit** (contenu + payload UNDERSTAND/RECALL/USE).
-START en choisit une par thème et lance toujours la boucle complète. Le futur pipeline
-IA doit produire exactement cette structure — contrat :
-[`ai-learning-units.md`](ai-learning-units.md).
+- **HOME** : dashboard (progression + prochaine action) ; **LEARN** : START + Learning
+  Unit ; **MY JOURNEY** : progression & mémoire ; **MY SPACE** : profil/préférences/compte.
+- L'unité pédagogique est la **Learning Unit** (contenu + payload UNDERSTAND/RECALL/USE) ;
+  LEARN en choisit une par thème et lance toujours la boucle complète. Contrat IA :
+  [`ai-learning-units.md`](ai-learning-units.md).
 
 ## Socle technique
 
@@ -41,9 +44,10 @@ src/
 │  ├─ journey.ts    Parcours : types, validation, niveau, levelBadge
 │  ├─ content.ts    Contenu : types (langue + payload pédagogique), getContentById
 │  ├─ discovery.ts  Sélection déterministe du feed, isolée par langue
-│  ├─ learning.ts   Boucle : Annotation/RecallItem/UsePrompt, segments annotés
+│  ├─ learning.ts   Boucle : Annotation/RecallItem/UsePrompt, segments, densité adaptative
 │  ├─ learningUnit.ts  Learning Unit canonique + sélection par thème + contrat IA
-│  └─ memory.ts     MEMORY : états + transitions déterministes (nextState)
+│  ├─ memory.ts     MEMORY : états + transitions déterministes (nextState)
+│  └─ activity.ts   Historique des sessions terminées (recent activity)
 ├─ content/       Données de contenu (même schéma pour toutes les langues)
 │  ├─ catalog.it.ts  Contenus italiens
 │  ├─ catalog.es.ts  Contenus espagnols (preuve)
@@ -54,6 +58,7 @@ src/
 │  ├─ authService.ts        PORT — identité (email+password), aucune dép. Supabase
 │  ├─ signIn.ts             Logique de connexion testable (attemptSignIn)
 │  ├─ preferencesService.ts PORT + service : langue d'interface (par user, durable)
+│  ├─ activityService.ts    PORT + service : historique des sessions (durable + cache)
 │  ├─ journeyService.ts     Durable autoritaire + cache + migration
 │  └─ memoryService.ts      Applique les signaux (nextState), durable + cache
 ├─ persistence/   Adaptateurs de stockage / auth
@@ -66,14 +71,17 @@ src/
 │  ├─ localJourneyCache.ts          Cache journeys (localStorage, user-scoped)
 │  ├─ localMemoryCache.ts           Cache mémoire (localStorage, user+langue)
 │  ├─ supabasePreferencesRepository.ts / inMemory… / localPreferencesCache.ts  Préférences (interface language)
+│  ├─ supabaseActivityRepository.ts / inMemory… / localActivityCache.ts  Historique des sessions
 │  ├─ journeyStorage.ts             localStorage (cache/migration legacy)
 │  └─ createJourneyService.ts       Composition root (auth + journey + memory)
 └─ ui/            Composants React ; ne portent aucune règle métier
    ├─ AuthScreen.tsx      Connexion email + password (mode durable)
-   ├─ Onboarding.tsx      Création d'un parcours (langue + niveau + intérêts)
-   ├─ Home.tsx            Shell post-login : nav START / MY JOURNEY + langue
-   ├─ Start.tsx           START : langue·niveau, modalité, thème → lance LEARN
-   ├─ MyJourney.tsx       MY JOURNEY : progression + mémoire récente
+   ├─ Onboarding.tsx      Création d'un parcours (langue + interface + niveau + intérêts)
+   ├─ AppShell.tsx        Nav persistante HOME/LEARN/MY JOURNEY/MY SPACE + routing hash
+   ├─ HomeDashboard.tsx   HOME : progression + prochaine action + activité récente
+   ├─ Start.tsx           LEARN : langue·niveau, modalité, thème → lance la Learning Unit
+   ├─ MyJourney.tsx       MY JOURNEY : progression + mémoire + activité
+   ├─ MySpace.tsx         MY SPACE : profil / langue d'interface / langues / compte
    ├─ AnnotatedText.tsx   Lecture avec expressions tappables (UNDERSTAND)
    └─ LearningSession.tsx LEARN : CONTENT→UNDERSTAND→RECALL→USE→MEMORY→complete
 ```

@@ -32,6 +32,7 @@ DOM) :
 | [`src/domain/understand.test.ts`](../../src/domain/understand.test.ts) | **Densité UNDERSTAND adaptative** (débutant > avancé, pas de trivial au-dessus du niveau, ordre de lecture, UNKNOWN, legacy) + résolveurs i18n (annotation/recall/use). |
 | [`src/domain/i18n.test.ts`](../../src/domain/i18n.test.ts) | `t()` FR/EN, interpolation, fallback EN, FR/EN prêts. |
 | [`src/application/preferencesService.test.ts`](../../src/application/preferencesService.test.ts) | Préférence langue d'interface : durable + cache, restauration navigateur neuf, isolation par user, cache-only. |
+| [`src/application/activityService.test.ts`](../../src/application/activityService.test.ts) | Historique des sessions : record + list (récent d'abord, limité), isolation user + langue, restauration durable, cache-only. |
 | [`src/application/memoryService.test.ts`](../../src/application/memoryService.test.ts) | MEMORY durable : transitions, isolation user + langue, restauration navigateur neuf, cache-only. |
 | [`src/persistence/supabaseMemoryRepository.test.ts`](../../src/persistence/supabaseMemoryRepository.test.ts) | Mappers purs mémoire (domaine ↔ PostgreSQL). |
 

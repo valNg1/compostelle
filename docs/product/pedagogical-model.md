@@ -1,24 +1,29 @@
 # Modèle pédagogique
 
-## Architecture fonctionnelle officielle (D-18)
+## Architecture fonctionnelle officielle (D-18, D-21)
 
-COMPOSTELLE s'organise autour de **trois espaces produit** :
+COMPOSTELLE est une application à **quatre espaces**, sous une navigation
+persistante (D-21) :
 
 ```
-START → LEARN → MY JOURNEY
+HOME → LEARN → MY JOURNEY → MY SPACE
 ```
 
-- **START** — l'invitation à commencer (pas une activité pédagogique) : langue active,
-  modalité (READ au MVP ; LISTEN/EXPLORE à venir), thème. « What do I feel like
-  learning through today? » START **choisit une Learning Unit** correspondant au thème.
-- **LEARN** — le cœur : une **activité pédagogique complète** sur une Learning Unit :
+- **HOME** — le **dashboard** d'accueil après login : « où j'en suis / quoi faire
+  ensuite ». Langue·niveau, CTA principal, progression (Learning/Acquired/To review),
+  appris récemment, activité récente. C'est le nouveau point d'entrée (l'ancien START
+  devient une fonction de LEARN).
+- **LEARN** — l'entrée pédagogique : choix langue/modalité/thème (ex-START) qui lance
+  une **Learning Unit** complète :
 
   ```
   CONTENT → UNDERSTAND → RECALL → USE → MEMORY
   ```
 
-- **MY JOURNEY** — l'espace personnel de pilotage (ouvrable indépendamment) : langue,
-  niveau, éléments mémorisés / à revoir, progression, activité récente.
+- **MY JOURNEY** — progression & mémoire détaillées par langue (« où en est mon
+  apprentissage »).
+- **MY SPACE** — espace personnel : profil, préférences (langue d'interface, langues
+  apprises + niveaux), compte (« moi / compte / réglages »).
 
 ### Réinterprétation de l'ancienne boucle
 
