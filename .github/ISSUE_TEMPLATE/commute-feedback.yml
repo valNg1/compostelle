@@ -1,0 +1,61 @@
+name: "🚇 Retour terrain (mobile / trajet)"
+description: "Un retour rapide pris pendant un test de COMPOSTELLE. Une phrase suffit."
+title: "[terrain] "
+labels: ["commute-feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: "Merci pour le retour 🙏 Remplis juste ce que tu peux — même un seul champ est utile."
+
+  - type: dropdown
+    id: screen
+    attributes:
+      label: Écran concerné
+      options:
+        - Home (dashboard)
+        - Learn (Start / session)
+        - My Journey
+        - My Space
+        - Navigation / transverse
+        - Je ne sais pas / autre
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Type de retour
+      options:
+        - "🔴 Bloquant (je ne peux pas continuer)"
+        - "🟠 Gênant (ça marche mais ça agace)"
+        - "🟡 Détail / polish"
+        - "💡 Idée / envie"
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: Ce qui s'est passé
+      description: "Ce que tu as vu / vécu. Une phrase suffit."
+      placeholder: "Ex : le CTA Home passe sous le clavier quand je tape."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Ce que j'attendais
+      description: "Facultatif — ce à quoi tu t'attendais à la place."
+      placeholder: "Ex : que le champ remonte au-dessus du clavier."
+    validations:
+      required: false
+
+  - type: input
+    id: device
+    attributes:
+      label: Appareil / contexte
+      description: "Facultatif."
+      placeholder: "Ex : iPhone, Safari, 4G, métro"
+    validations:
+      required: false
