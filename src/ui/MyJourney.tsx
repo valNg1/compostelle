@@ -2,11 +2,13 @@ import { levelBadge, type LanguageJourney } from "../domain/journey";
 import { languageLabel } from "../domain/language";
 import { t, type InterfaceLanguage } from "../domain/i18n";
 import type { MemoryItem, MemorySummary } from "../domain/memory";
+import type { LearningActivity } from "../domain/activity";
 
 interface MyJourneyProps {
   journey: LanguageJourney;
   memory: MemorySummary;
   items: MemoryItem[];
+  activities: LearningActivity[];
   interfaceLanguage: InterfaceLanguage;
 }
 
@@ -19,6 +21,7 @@ export function MyJourney({
   journey,
   memory,
   items,
+  activities,
   interfaceLanguage,
 }: MyJourneyProps) {
   const il = interfaceLanguage;
@@ -63,6 +66,28 @@ export function MyJourney({
                 <span className="recent__expr">{item.expression}</span>
                 <span className={"tag tag--" + item.state.toLowerCase()}>
                   {t("state." + item.state, il)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <div className="recent">
+        <h2 className="recent__label">{t("home.recent_activity", il)}</h2>
+        {activities.length === 0 ? (
+          <p className="discover__empty">{t("home.no_activity", il)}</p>
+        ) : (
+          <ul className="activity">
+            {activities.map((a, i) => (
+              <li key={a.learningUnitId + i} className="activity__item">
+                <span className="activity__title">{a.unitTitle}</span>
+                <span className="activity__meta">
+                  {new Date(a.completedAt).toLocaleDateString(
+                    il === "fr" ? "fr-FR" : "en-GB",
+                    { day: "numeric", month: "short" },
+                  )}{" "}
+                  · {t("activity.recalled", il, { n: a.recalled })}
                 </span>
               </li>
             ))}

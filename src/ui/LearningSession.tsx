@@ -21,12 +21,20 @@ import { AnnotatedText } from "./AnnotatedText";
 
 type Phase = "read" | "recall" | "use" | "complete";
 
+/** Summary of a completed session, for the activity history. */
+export interface SessionResult {
+  learningUnitId: string;
+  unitTitle: string;
+  recalled: number;
+  used: number;
+}
+
 interface LearningSessionProps {
   content: ContentItem & LearningContent;
   declaredLevel: DeclaredLevel;
   interfaceLanguage: InterfaceLanguage;
   onExit: () => void;
-  onFinish: (events: MemoryEvent[]) => void;
+  onFinish: (events: MemoryEvent[], result: SessionResult) => void;
   onContinue: () => void;
   onBackToStart: () => void;
 }
@@ -154,7 +162,18 @@ export function LearningSession({
   }
 
   function finish() {
-    onFinish(events);
+    const recalled = new Set(
+      events.filter((e) => e.signal === "recalled_correct").map((e) => e.expression),
+    ).size;
+    const usedCount = new Set(
+      events.filter((e) => e.signal === "used").map((e) => e.expression),
+    ).size;
+    onFinish(events, {
+      learningUnitId: content.id,
+      unitTitle: content.title,
+      recalled,
+      used: usedCount,
+    });
     setPhase("complete");
   }
 

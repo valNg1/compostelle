@@ -6,18 +6,22 @@ import {
   DEFAULT_INTERFACE_LANGUAGE,
   type InterfaceLanguage,
 } from "./domain/i18n";
+import type { LearningActivity } from "./domain/activity";
 import type { JourneyService } from "./application/journeyService";
 import type { MemoryService, MemoryEvent } from "./application/memoryService";
 import type { PreferencesService } from "./application/preferencesService";
+import type { ActivityService } from "./application/activityService";
 import {
   getAuthService,
   createJourneyService,
   createMemoryService,
   createPreferencesService,
+  createActivityService,
 } from "./persistence/createJourneyService";
 import { getLocalUserId } from "./persistence/localJourneyCache";
 import { Onboarding } from "./ui/Onboarding";
-import { Home } from "./ui/Home";
+import { AppShell } from "./ui/AppShell";
+import type { SessionResult } from "./ui/LearningSession";
 import { AuthScreen } from "./ui/AuthScreen";
 
 const EMPTY_SUMMARY: MemorySummary = {
@@ -53,11 +57,15 @@ export function App() {
   const [memoryService, setMemoryService] = useState<MemoryService | null>(null);
   const [preferencesService, setPreferencesService] =
     useState<PreferencesService | null>(null);
+  const [activityService, setActivityService] =
+    useState<ActivityService | null>(null);
   const [journeys, setJourneys] = useState<LanguageJourney[]>([]);
   const [current, setCurrent] = useState<Language | null>(null);
   const [adding, setAdding] = useState(false);
   const [memory, setMemory] = useState<MemorySummary>(EMPTY_SUMMARY);
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([]);
+  const [activities, setActivities] = useState<LearningActivity[]>([]);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [interfaceLanguage, setInterfaceLanguage] = useState<InterfaceLanguage>(
     DEFAULT_INTERFACE_LANGUAGE,
   );
@@ -72,6 +80,7 @@ export function App() {
     const unsubscribe = authService.onAuthChange((user) => {
       if (!active) return;
       setUserId(user?.id ?? null);
+      setUserEmail(user?.email ?? null);
       setNeedsAuth(user === null);
     });
     authService
@@ -79,6 +88,7 @@ export function App() {
       .then((user) => {
         if (!active) return;
         setUserId(user?.id ?? null);
+        setUserEmail(user?.email ?? null);
         setNeedsAuth(user === null);
         if (user === null) setReady(true);
       })
@@ -102,6 +112,7 @@ export function App() {
     setMemoryService(createMemoryService(userId));
     const prefs = createPreferencesService(userId);
     setPreferencesService(prefs);
+    setActivityService(createActivityService(userId));
     prefs
       .load()
       .then((p) => {
@@ -144,6 +155,24 @@ export function App() {
     };
   }, [memoryService, current]);
 
+  // Load recent activity for the active language.
+  useEffect(() => {
+    if (!activityService || current === null) {
+      setActivities([]);
+      return;
+    }
+    let active = true;
+    activityService
+      .list(current, 5)
+      .catch(() => [])
+      .then((list) => {
+        if (active) setActivities(list);
+      });
+    return () => {
+      active = false;
+    };
+  }, [activityService, current]);
+
   if (!ready) return null;
 
   if (authService && needsAuth && !userId) {
@@ -178,17 +207,40 @@ export function App() {
     service?.setCurrentLanguage(language);
   }
 
-  function handleFinishSession(language: Language, events: MemoryEvent[]) {
-    if (!memoryService || events.length === 0) return;
-    void memoryService
-      .apply(language, events)
-      .then((items) => {
-        if (language === current) {
-          setMemory(summarize(items));
-          setMemoryItems(items);
-        }
-      })
-      .catch(() => {});
+  function handleFinishSession(
+    language: Language,
+    events: MemoryEvent[],
+    result: SessionResult,
+  ) {
+    if (memoryService && events.length > 0) {
+      void memoryService
+        .apply(language, events)
+        .then((items) => {
+          if (language === current) {
+            setMemory(summarize(items));
+            setMemoryItems(items);
+          }
+        })
+        .catch(() => {});
+    }
+    if (activityService) {
+      void activityService
+        .record(
+          {
+            language,
+            learningUnitId: result.learningUnitId,
+            unitTitle: result.unitTitle,
+            completedAt: new Date().toISOString(),
+            recalled: result.recalled,
+            used: result.used,
+          },
+          5,
+        )
+        .then((list) => {
+          if (language === current) setActivities(list);
+        })
+        .catch(() => {});
+    }
   }
 
   async function handleSignOut() {
@@ -225,18 +277,20 @@ export function App() {
           }
         />
       ) : (
-        <Home
+        <AppShell
           journey={currentJourney}
           journeys={orderedJourneys}
           memory={memory}
           memoryItems={memoryItems}
+          activities={activities}
           interfaceLanguage={interfaceLanguage}
+          userEmail={userEmail}
           onSetInterfaceLanguage={handleSetInterfaceLanguage}
           onSwitchLanguage={handleSwitch}
           onAddLanguage={() => setAdding(true)}
           onSignOut={authService ? handleSignOut : undefined}
-          onFinishSession={(events) =>
-            handleFinishSession(currentJourney.language, events)
+          onFinishSession={(events, result) =>
+            handleFinishSession(currentJourney.language, events, result)
           }
         />
       )}
