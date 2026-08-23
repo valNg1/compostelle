@@ -68,6 +68,13 @@ export function Onboarding({
         </button>
       )}
       <header className="onboarding__intro">
+        <img
+          className="intro__logo"
+          src="/icon-192.png"
+          alt="Compostel"
+          width={48}
+          height={48}
+        />
         <p className="onboarding__eyebrow">Your journey begins</p>
         <h1 id="onboarding-title" className="onboarding__title">
           A new language.

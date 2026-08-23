@@ -18,6 +18,7 @@ import { Start } from "./Start";
 import { HomeDashboard } from "./HomeDashboard";
 import { MyJourney } from "./MyJourney";
 import { MySpace } from "./MySpace";
+import { BrandLogo } from "./BrandLogo";
 
 type Section = "home" | "learn" | "journey" | "me";
 const SECTIONS: Section[] = ["home", "learn", "journey", "me"];
@@ -110,7 +111,7 @@ export function AppShell({
   return (
     <div className="shell">
       <header className="appnav">
-        <span className="appnav__brand">COMPOSTEL</span>
+        <BrandLogo />
         <nav className="appnav__links" aria-label="Sections">
           {SECTIONS.map((s) => (
             <button

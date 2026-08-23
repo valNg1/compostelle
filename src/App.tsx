@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { LanguageJourney } from "./domain/journey";
 import { LANGUAGES, DEFAULT_LANGUAGE, type Language } from "./domain/language";
 import { summarize, type MemorySummary, type MemoryItem } from "./domain/memory";
@@ -23,6 +23,21 @@ import { Onboarding } from "./ui/Onboarding";
 import { AppShell } from "./ui/AppShell";
 import type { SessionResult } from "./ui/LearningSession";
 import { AuthScreen } from "./ui/AuthScreen";
+import { SiteFooter } from "./ui/SiteFooter";
+import { SupportForm } from "./ui/SupportForm";
+import { MentionsLegales, Confidentialite, Cookies } from "./ui/LegalPages";
+
+/** Footer-reachable overlay pages (legal / support), driven by the URL hash. */
+type Overlay = "support" | "mentions-legales" | "confidentialite" | "cookies";
+
+function overlayFromHash(hash: string): Overlay | null {
+  const h = hash.replace(/^#\/?/, "");
+  if (h === "support") return "support";
+  if (h === "mentions-legales") return "mentions-legales";
+  if (h === "confidentialite") return "confidentialite";
+  if (h === "cookies") return "cookies";
+  return null;
+}
 
 const EMPTY_SUMMARY: MemorySummary = {
   learning: 0,
@@ -69,6 +84,16 @@ export function App() {
   const [interfaceLanguage, setInterfaceLanguage] = useState<InterfaceLanguage>(
     DEFAULT_INTERFACE_LANGUAGE,
   );
+  const [hash, setHash] = useState<string>(() =>
+    typeof window !== "undefined" ? window.location.hash : "",
+  );
+
+  // Track the URL hash so the footer's legal/support overlays can react to it.
+  useEffect(() => {
+    const onHash = () => setHash(window.location.hash);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   // Resolve identity (auth when configured, else anonymous local id).
   useEffect(() => {
@@ -175,14 +200,6 @@ export function App() {
 
   if (!ready) return null;
 
-  if (authService && needsAuth && !userId) {
-    return (
-      <main className="app">
-        <AuthScreen auth={authService} />
-      </main>
-    );
-  }
-
   const currentJourney =
     current !== null ? journeys.find((j) => j.language === current) ?? null : null;
 
@@ -261,39 +278,59 @@ export function App() {
   ).filter((j): j is LanguageJourney => Boolean(j));
 
   const showOnboarding = adding || journeys.length === 0 || !currentJourney;
+  const overlay = overlayFromHash(hash);
+  const closeOverlay = () => {
+    window.location.hash = "#/home";
+  };
+
+  let content: ReactNode;
+  if (overlay === "support") {
+    content = <SupportForm userEmail={userEmail} onClose={closeOverlay} />;
+  } else if (overlay === "mentions-legales") {
+    content = <MentionsLegales onClose={closeOverlay} />;
+  } else if (overlay === "confidentialite") {
+    content = <Confidentialite onClose={closeOverlay} />;
+  } else if (overlay === "cookies") {
+    content = <Cookies onClose={closeOverlay} />;
+  } else if (authService && needsAuth && !userId) {
+    content = <AuthScreen auth={authService} />;
+  } else if (showOnboarding) {
+    content = (
+      <Onboarding
+        onCreated={handleCreated}
+        initialLanguage={adding ? suggestedLanguage : undefined}
+        interfaceLanguage={interfaceLanguage}
+        askInterfaceLanguage={journeys.length === 0}
+        onCancel={
+          adding && journeys.length > 0 ? () => setAdding(false) : undefined
+        }
+      />
+    );
+  } else {
+    content = (
+      <AppShell
+        journey={currentJourney}
+        journeys={orderedJourneys}
+        memory={memory}
+        memoryItems={memoryItems}
+        activities={activities}
+        interfaceLanguage={interfaceLanguage}
+        userEmail={userEmail}
+        onSetInterfaceLanguage={handleSetInterfaceLanguage}
+        onSwitchLanguage={handleSwitch}
+        onAddLanguage={() => setAdding(true)}
+        onSignOut={authService ? handleSignOut : undefined}
+        onFinishSession={(events, result) =>
+          handleFinishSession(currentJourney.language, events, result)
+        }
+      />
+    );
+  }
 
   return (
-    <main className="app">
-      {showOnboarding ? (
-        <Onboarding
-          onCreated={handleCreated}
-          initialLanguage={adding ? suggestedLanguage : undefined}
-          interfaceLanguage={interfaceLanguage}
-          askInterfaceLanguage={journeys.length === 0}
-          onCancel={
-            adding && journeys.length > 0
-              ? () => setAdding(false)
-              : undefined
-          }
-        />
-      ) : (
-        <AppShell
-          journey={currentJourney}
-          journeys={orderedJourneys}
-          memory={memory}
-          memoryItems={memoryItems}
-          activities={activities}
-          interfaceLanguage={interfaceLanguage}
-          userEmail={userEmail}
-          onSetInterfaceLanguage={handleSetInterfaceLanguage}
-          onSwitchLanguage={handleSwitch}
-          onAddLanguage={() => setAdding(true)}
-          onSignOut={authService ? handleSignOut : undefined}
-          onFinishSession={(events, result) =>
-            handleFinishSession(currentJourney.language, events, result)
-          }
-        />
-      )}
-    </main>
+    <div className="app-root">
+      <main className="app">{content}</main>
+      <SiteFooter />
+    </div>
   );
 }

@@ -35,6 +35,13 @@ export function AuthScreen({ auth }: AuthScreenProps) {
   return (
     <section className="onboarding" aria-labelledby="auth-title">
       <header className="onboarding__intro">
+        <img
+          className="intro__logo"
+          src="/icon-192.png"
+          alt="Compostel"
+          width={48}
+          height={48}
+        />
         <p className="brandmark">COMPOSTEL</p>
         <h1 id="auth-title" className="onboarding__title">
           A new language.
