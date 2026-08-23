@@ -13,6 +13,8 @@ has prepared everything up to those steps; the actions below need the PO.
    - [`supabase/migrations/0002_create_memory_items.sql`](../../supabase/migrations/0002_create_memory_items.sql)
      — `memory_items` table (learning memory, one row per user/language/expression)
      + owner-only RLS. Depends on 0001.
+   - [`supabase/migrations/0003_create_user_preferences.sql`](../../supabase/migrations/0003_create_user_preferences.sql)
+     — `user_preferences` table (interface language, one row per user) + owner-only RLS.
    Re-running a migration on an existing project is safe (idempotent guards).
 3. Open **Authentication → Providers → Email** and enable **Email** with
    **email + password** (turn OFF "Confirm email" for the MVP demo account, or

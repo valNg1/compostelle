@@ -29,6 +29,9 @@ DOM) :
 | [`src/domain/memory.test.ts`](../../src/domain/memory.test.ts) | Transitions déterministes `nextState`, `summarize`. |
 | [`src/content/catalog.learning.test.ts`](../../src/content/catalog.learning.test.ts) | Contenu jouable ≥ 2 par langue, recall bien formés, annotations/use valides. |
 | [`src/domain/learningUnit.test.ts`](../../src/domain/learningUnit.test.ts) | Learning Unit canonique : `playableUnits`, `unitTopics`, `selectUnitForTheme` (déterministe, par langue), `memoryTargets` — START ne lance qu'une unité jouable. |
+| [`src/domain/understand.test.ts`](../../src/domain/understand.test.ts) | **Densité UNDERSTAND adaptative** (débutant > avancé, pas de trivial au-dessus du niveau, ordre de lecture, UNKNOWN, legacy) + résolveurs i18n (annotation/recall/use). |
+| [`src/domain/i18n.test.ts`](../../src/domain/i18n.test.ts) | `t()` FR/EN, interpolation, fallback EN, FR/EN prêts. |
+| [`src/application/preferencesService.test.ts`](../../src/application/preferencesService.test.ts) | Préférence langue d'interface : durable + cache, restauration navigateur neuf, isolation par user, cache-only. |
 | [`src/application/memoryService.test.ts`](../../src/application/memoryService.test.ts) | MEMORY durable : transitions, isolation user + langue, restauration navigateur neuf, cache-only. |
 | [`src/persistence/supabaseMemoryRepository.test.ts`](../../src/persistence/supabaseMemoryRepository.test.ts) | Mappers purs mémoire (domaine ↔ PostgreSQL). |
 

@@ -32,6 +32,33 @@ vertébrale pédagogique, désormais **incarnée** par l'architecture ci-dessus 
 
 Un seul modèle, pas deux modèles contradictoires.
 
+## Langue cible ≠ langue d'interface (D-19)
+
+- **targetLanguage** : la langue apprise (contenu, matériau UNDERSTAND, gaps à
+  compléter, production). Ex. `it`, `es`.
+- **interfaceLanguage** : la langue avec laquelle COMPOSTELLE explique, traduit,
+  guide et donne du feedback. Préférence **par utilisateur** (indépendante des
+  journeys), durable. FR + EN au MVP ; ES/IT/RU/ZH à venir.
+
+Exemple : `targetLanguage = it`, `interfaceLanguage = fr` → contenu italien, mais
+traductions/consignes/feedback en français.
+
+## UNDERSTAND — densité adaptative (D-20)
+
+Le nombre **et** la difficulté des expressions annotées dépendent du
+`declaredLevel` et de la longueur du texte. Cible indicative (texte ~5 phrases) :
+
+| Niveau | Annotations |
+|--------|-------------|
+| A1 | 8–10 |
+| A2 | 7–9 |
+| B1 | 6–8 |
+| B2 | 5–7 |
+| C1 | 3–5 |
+
+Débutant → plus d'aide ; avancé → moins d'annotations mais plus riches (idiomes,
+collocations), **jamais** de mots triviaux au-dessus du niveau. Pas de quota rigide.
+
 ## Les étapes de LEARN
 
 ### CONTENT

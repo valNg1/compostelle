@@ -26,7 +26,7 @@ règles et critères d'acceptation. Ce backlog n'en donne qu'une vue d'ensemble.
 |----|-------|--------------|--------|-------|
 | US-01 | Create my language journey | JOURNEY (entrée) | `Done` (validée PO) | [US-01](../user-stories/US-01-create-language-journey.md) |
 | US-02 | Discover something interesting | DISCOVER | `Implemented · Production deployed · Awaiting PO validation` | [US-02](../user-stories/US-02-discover-something-interesting.md) |
-| US-03 | Understand what I discover | UNDERSTAND | `Implemented · Awaiting PO validation` | [US-03](../user-stories/US-03-understand-what-i-discover.md) |
+| US-03 | Understand what I discover | UNDERSTAND | `PO functionally validated · adaptive density implemented` | [US-03](../user-stories/US-03-understand-what-i-discover.md) |
 | US-04 | Recall what I learned | RECALL | `Implemented · Awaiting PO validation` | [US-04](../user-stories/US-04-recall-what-i-learned.md) |
 | US-05 | Use the language | USE | `Implemented · Awaiting PO validation` | [US-05](../user-stories/US-05-use-the-language.md) |
 | US-06 | Build my memory | MEMORY | `Implemented · Awaiting PO validation` | [US-06](../user-stories/US-06-build-my-memory.md) |

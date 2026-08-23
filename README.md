@@ -36,6 +36,11 @@ DISCOVER → UNDERSTAND → RECALL → USE → MEMORY → JOURNEY
 - **MEMORY durable** : progression d'apprentissage persistée par utilisateur et par
   langue (Supabase `memory_items`, RLS owner-only, migration `0002`).
 - **Pédagogie déterministe** : aucune dépendance LLM externe obligatoire (D-16).
+- **Langue cible ≠ langue d'interface** (D-19) : on apprend l'italien avec une
+  interface **FR ou EN** (préférence par utilisateur, durable). ES/IT/RU/ZH
+  architecture-ready.
+- **UNDERSTAND adaptatif** (D-20) : densité et difficulté des annotations selon le
+  niveau déclaré (débutant = plus d'aide, avancé = moins mais plus riche).
 - **Langues cibles** : **Italian (`it`) + Spanish (`es`)** via la **même** structure
   applicative (D-11 / [ADR-0003](docs/decisions/adr/0003-language-agnostic-domain.md)).
 - **Persistance durable** : Supabase / PostgreSQL, source de vérité derrière une

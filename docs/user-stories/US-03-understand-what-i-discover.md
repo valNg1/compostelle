@@ -1,8 +1,15 @@
 # US-03 — Understand what I discover
 
 - **ID** : US-03
-- **Statut** : Implemented · Awaiting PO validation
+- **Statut** : PO functionally validated · Adaptive density enhancement implemented
 - **Étape de la boucle** : UNDERSTAND
+
+> **Amélioration livrée (D-20)** : la **densité UNDERSTAND s'adapte au niveau**
+> (`declaredLevel` + longueur du texte) et à la difficulté des expressions —
+> débutant = plus d'aide, avancé = moins mais plus riche, jamais de mots triviaux.
+> Voir la table de densité dans le [modèle pédagogique](../product/pedagogical-model.md).
+> Les explications suivent la **langue d'interface** (D-19), distincte de la langue
+> cible : traductions `translations{en,fr}`, sens (langue cible), exemple.
 
 ## User story
 

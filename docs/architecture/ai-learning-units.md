@@ -17,10 +17,12 @@ The generator receives a request and returns a complete Learning Unit. Types liv
 
 ```
 LearningUnitRequest {
-  language        // "it" | "es" (extensible via domain/language)
-  level           // learner declared level (A1..C1 | UNKNOWN)
-  modality        // "read" (MVP) | "listen" | "explore"
-  topic           // a content Category (history, travel, thriller, …)
+  targetLanguage    // language being learned: "it" | "es" (extensible)
+  declaredLevel     // A1..C1 | UNKNOWN — drives UNDERSTAND density/selection
+  interfaceLanguage // language of explanations/feedback: fr | en | es | it | ru | zh
+  topic             // a content Category (history, travel, thriller, …)
+  modality          // "read" (MVP) | "listen" | "explore"
+  contentLength     // target text length (drives annotation density)
   learnerContext? { knownExpressions?, toReview? }   // build on prior learning
 }
         │
@@ -28,6 +30,18 @@ LearningUnitRequest {
         │
 LearningUnit  (= ContentItem & LearningContent)
 ```
+
+### UNDERSTAND requirements the generator MUST satisfy
+
+- adapt annotation **density** to `declaredLevel` and text length (see the density
+  table in the pedagogical model, D-20);
+- select expressions **pedagogically useful for this level** (chunks, collocations,
+  useful/idiomatic expressions when relevant);
+- **avoid trivial annotations above the learner's level** (no easy words for advanced
+  learners just to hit a quota);
+- do not overload the page visually;
+- provide `translations` per interface language (at least `en`; `fr` for FR UI), and a
+  `difficulty` tier per annotation so density selection works.
 
 ## Required shape of a generated Learning Unit
 

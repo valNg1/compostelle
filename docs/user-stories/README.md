@@ -11,7 +11,7 @@ ailleurs).
 |----|-------|--------|
 | [US-01](US-01-create-language-journey.md) | Create my language journey | `Done` |
 | [US-02](US-02-discover-something-interesting.md) | Discover something interesting | `Implemented · Production deployed · Awaiting PO validation` |
-| [US-03](US-03-understand-what-i-discover.md) | Understand what I discover | `Implemented · Awaiting PO validation` |
+| [US-03](US-03-understand-what-i-discover.md) | Understand what I discover | `PO functionally validated · adaptive density implemented` |
 | [US-04](US-04-recall-what-i-learned.md) | Recall what I learned | `Implemented · Awaiting PO validation` |
 | [US-05](US-05-use-the-language.md) | Use the language | `Implemented · Awaiting PO validation` |
 | [US-06](US-06-build-my-memory.md) | Build my memory | `Implemented · Awaiting PO validation` |

@@ -36,7 +36,8 @@ Aucune dépendance backend, aucun moteur IA à ce stade. Voir
 ```
 src/
 ├─ domain/        Modèle métier PUR, sans dépendance UI ni I/O
-│  ├─ language.ts   Modèle de langue (it | es), langue-agnostique
+│  ├─ language.ts   Langue CIBLE (it | es), langue-agnostique
+│  ├─ i18n.ts       Langue d'INTERFACE (fr/en… ) + t() (chrome i18n)
 │  ├─ journey.ts    Parcours : types, validation, niveau, levelBadge
 │  ├─ content.ts    Contenu : types (langue + payload pédagogique), getContentById
 │  ├─ discovery.ts  Sélection déterministe du feed, isolée par langue
@@ -52,6 +53,7 @@ src/
 │  ├─ memoryRepository.ts   PORT — mémoire user + langue, aucune dép. Supabase
 │  ├─ authService.ts        PORT — identité (email+password), aucune dép. Supabase
 │  ├─ signIn.ts             Logique de connexion testable (attemptSignIn)
+│  ├─ preferencesService.ts PORT + service : langue d'interface (par user, durable)
 │  ├─ journeyService.ts     Durable autoritaire + cache + migration
 │  └─ memoryService.ts      Applique les signaux (nextState), durable + cache
 ├─ persistence/   Adaptateurs de stockage / auth
@@ -63,6 +65,7 @@ src/
 │  ├─ inMemoryMemoryRepository.ts   Mémoire en mémoire (tests/stand-in)
 │  ├─ localJourneyCache.ts          Cache journeys (localStorage, user-scoped)
 │  ├─ localMemoryCache.ts           Cache mémoire (localStorage, user+langue)
+│  ├─ supabasePreferencesRepository.ts / inMemory… / localPreferencesCache.ts  Préférences (interface language)
 │  ├─ journeyStorage.ts             localStorage (cache/migration legacy)
 │  └─ createJourneyService.ts       Composition root (auth + journey + memory)
 └─ ui/            Composants React ; ne portent aucune règle métier
