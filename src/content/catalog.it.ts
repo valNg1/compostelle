@@ -29,6 +29,9 @@ export const IT_CATALOG: ContentItem[] = [
       { id: "a2", expression: "in fondo alla vettura", meaning: "nella parte posteriore del tram", translation: "at the back of the car" },
       { id: "a3", expression: "restava immobile", meaning: "non si muoveva affatto", translation: "stayed completely still" },
       { id: "a4", expression: "vetro appannato", meaning: "il vetro coperto di vapore", translation: "the fogged-up glass" },
+      { id: "a5", expression: "cappotto grigio", meaning: "un soprabito di colore grigio", translation: "grey overcoat" },
+      { id: "a6", expression: "a ogni fermata", meaning: "a ciascuna sosta del tram", translation: "at every stop" },
+      { id: "a7", expression: "una sola parola", meaning: "un'unica parola, nient'altro", translation: "a single word" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "Che cosa significa «l'ultima corsa»?", options: ["L'ultimo viaggio della giornata", "Una gara di velocità", "Il primo tram del mattino"], answerIndex: 0, annotationId: "a1" },
@@ -241,10 +244,14 @@ export const IT_CATALOG: ContentItem[] = [
     modality: "read",
     body: "L'aperitivo è il momento che separa la fine del lavoro dalla cena. Nel tardo pomeriggio ci si siede al bar, si ordina qualcosa da bere e, spesso, arrivano piccoli stuzzichini: olive, patatine, tramezzini. Più che il cibo, conta il tempo: quello lento della conversazione, senza fretta. In alcune città l'aperitivo è diventato quasi un piccolo pasto, con buffet ricchi; in altre resta essenziale, poche cose ben fatte. In tutti i casi è un rito sociale prima che gastronomico: un modo per ritrovarsi, chiacchierare e lasciare che la giornata rallenti prima di sera.",
     annotations: [
-      { id: "a1", expression: "gli stuzzichini", meaning: "piccole cose da mangiare", translation: "little snacks / nibbles" },
+      { id: "a1", expression: "piccoli stuzzichini", meaning: "piccole cose da mangiare", translation: "little snacks / nibbles" },
       { id: "a2", expression: "senza fretta", meaning: "con calma, senza correre", translation: "without hurrying" },
       { id: "a3", expression: "un rito sociale", meaning: "un'abitudine condivisa che unisce le persone", translation: "a social ritual" },
       { id: "a4", expression: "ritrovarsi", meaning: "incontrarsi di nuovo, stare insieme", translation: "to get together" },
+      { id: "a5", expression: "tardo pomeriggio", meaning: "la parte finale del pomeriggio, verso sera", translation: "late afternoon" },
+      { id: "a6", expression: "qualcosa da bere", meaning: "una bevanda, di solito un drink", translation: "something to drink" },
+      { id: "a7", expression: "un piccolo pasto", meaning: "un pasto leggero, non abbondante", translation: "a small meal" },
+      { id: "a8", expression: "chiacchierare", meaning: "parlare in modo informale e rilassato", translation: "to chat" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "Che cosa sono «gli stuzzichini»?", options: ["Piccole cose da mangiare", "Bevande calde", "Grandi piatti"], answerIndex: 0, annotationId: "a1" },

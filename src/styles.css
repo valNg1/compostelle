@@ -842,6 +842,26 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   font-size: 15px;
 }
+.use__selfcheck--ok {
+  color: var(--accent);
+}
+.use__selfcheck--fix {
+  color: #e0b877;
+}
+.use__correction {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  background: var(--bg-elev);
+  border-radius: 8px;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 16px;
+}
+.use__correction strong {
+  color: var(--ink-dim);
+  font-weight: 600;
+  margin-right: 6px;
+}
 
 .tally {
   list-style: none;

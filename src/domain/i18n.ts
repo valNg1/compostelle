@@ -98,6 +98,10 @@ const EN: Dict = {
   "use.sample": "Sample answer:",
   "use.used": "Nice — you reused the expression.",
   "use.not_used": "Try using “{expr}” in your sentence.",
+  "use.valid": "Nice — the expression is used and your sentence is correct.",
+  "use.needs_correction":
+    "You used the expression, but the sentence needs a small fix. Here is a corrected version:",
+  "use.correction": "Suggested:",
   "use.scaffold_expr": "Expression to use:",
   "use.scaffold_start": "You can start with:",
 
@@ -181,6 +185,10 @@ const FR: Dict = {
   "use.sample": "Exemple de réponse :",
   "use.used": "Bravo — vous avez réutilisé l'expression.",
   "use.not_used": "Essayez d'utiliser « {expr} » dans votre phrase.",
+  "use.valid": "Bravo — l'expression est employée et votre phrase est correcte.",
+  "use.needs_correction":
+    "Vous avez employé l'expression, mais la phrase demande une correction. Voici une version corrigée :",
+  "use.correction": "Proposition :",
   "use.scaffold_expr": "Expression à utiliser :",
   "use.scaffold_start": "Vous pouvez commencer par :",
 

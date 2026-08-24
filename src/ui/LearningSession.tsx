@@ -11,9 +11,11 @@ import {
   recallOptions,
   usePromptText,
   selectAnnotations,
-  countSentences,
+  countWords,
+  evaluateUse,
   type Annotation,
   type LearningContent,
+  type UseEvaluation,
 } from "../domain/learning";
 import { nextState, type MemoryState } from "../domain/memory";
 import type { MemoryEvent } from "../application/memoryService";
@@ -68,7 +70,7 @@ export function LearningSession({
       selectAnnotations(
         content.annotations,
         declaredLevel,
-        countSentences(content.body),
+        countWords(content.body),
       ),
     [content, declaredLevel],
   );
@@ -139,11 +141,11 @@ export function LearningSession({
 
   // --- USE ---
   const [answer, setAnswer] = useState("");
-  const [checked, setChecked] = useState(false);
-  const used = checked && answerUsesKeyExpression(answer, content.use.keyExpressions);
+  const [evaluation, setEvaluation] = useState<UseEvaluation | null>(null);
   function checkUse() {
-    setChecked(true);
-    if (answerUsesKeyExpression(answer, content.use.keyExpressions)) {
+    const ev = evaluateUse(answer, content.use);
+    setEvaluation(ev);
+    if (ev.state !== "expression-missing") {
       const matched = annotations.filter((a) =>
         answerUsesKeyExpression(answer, [a.expression]),
       );
@@ -310,7 +312,7 @@ export function LearningSession({
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
         />
-        {!checked ? (
+        {evaluation === null ? (
           <button
             type="button"
             className="cta"
@@ -322,13 +324,29 @@ export function LearningSession({
         ) : (
           <>
             <div className="use__feedback" role="status" aria-live="polite">
-              <p className="use__selfcheck">
-                {used
-                  ? t("use.used", il)
-                  : t("use.not_used", il, {
-                      expr: content.use.keyExpressions[0] ?? "",
-                    })}
-              </p>
+              {evaluation.state === "expression-missing" && (
+                <p className="use__selfcheck use__selfcheck--miss">
+                  {t("use.not_used", il, {
+                    expr: content.use.keyExpressions[0] ?? "",
+                  })}
+                </p>
+              )}
+              {evaluation.state === "needs-correction" && (
+                <>
+                  <p className="use__selfcheck use__selfcheck--fix">
+                    {t("use.needs_correction", il)}
+                  </p>
+                  <p className="use__correction">
+                    <strong>{t("use.correction", il)}</strong>{" "}
+                    {evaluation.correction}
+                  </p>
+                </>
+              )}
+              {evaluation.state === "valid" && (
+                <p className="use__selfcheck use__selfcheck--ok">
+                  {t("use.valid", il)}
+                </p>
+              )}
               <p className="use__sample">
                 <strong>{t("use.sample", il)}</strong> {content.use.sampleAnswer}
               </p>

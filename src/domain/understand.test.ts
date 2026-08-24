@@ -2,7 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   selectAnnotations,
   countSentences,
-  targetAnnotationCount,
+  countWords,
+  targetHelpWords,
   annotationTranslation,
   recallPrompt,
   recallOptions,
@@ -37,38 +38,34 @@ const pool: Annotation[] = [
   ann("c1c", "C1"),
 ];
 
+// ~40-word text worth of help budget (single-word expressions → 1 word each).
+const WORDS = 40;
+
 describe("adaptive UNDERSTAND density", () => {
   it("gives beginners more annotations than advanced learners (same content)", () => {
-    const a2 = selectAnnotations(pool, "A2", 6).length;
-    const b2 = selectAnnotations(pool, "B2", 6).length;
-    const c1 = selectAnnotations(pool, "C1", 6).length;
+    const a2 = selectAnnotations(pool, "A2", WORDS).length;
+    const b2 = selectAnnotations(pool, "B2", WORDS).length;
+    const c1 = selectAnnotations(pool, "C1", WORDS).length;
     expect(a2).toBeGreaterThan(b2);
     expect(b2).toBeGreaterThan(c1);
   });
 
   it("never surfaces trivial (below-level) expressions to advanced learners", () => {
-    const c1 = selectAnnotations(pool, "C1", 6);
+    const c1 = selectAnnotations(pool, "C1", WORDS);
     expect(c1.every((a) => a.difficulty === "C1")).toBe(true);
-    const b2 = selectAnnotations(pool, "B2", 6);
+    const b2 = selectAnnotations(pool, "B2", WORDS);
     expect(b2.every((a) => a.difficulty === "B2" || a.difficulty === "C1")).toBe(true);
   });
 
-  it("keeps counts within reasonable, level-appropriate ranges", () => {
-    expect(selectAnnotations(pool, "B2", 6).length).toBeGreaterThanOrEqual(5);
-    expect(selectAnnotations(pool, "B2", 6).length).toBeLessThanOrEqual(7);
-    expect(selectAnnotations(pool, "C1", 6).length).toBeGreaterThanOrEqual(3);
-    expect(selectAnnotations(pool, "C1", 6).length).toBeLessThanOrEqual(5);
-  });
-
   it("preserves reading order in the selection", () => {
-    const sel = selectAnnotations(pool, "A2", 6);
+    const sel = selectAnnotations(pool, "A2", WORDS);
     const idx = sel.map((a) => pool.indexOf(a));
     expect(idx).toEqual([...idx].sort((x, y) => x - y));
   });
 
   it("treats UNKNOWN like an early learner (lots of guidance)", () => {
-    expect(selectAnnotations(pool, "UNKNOWN", 6).length).toBeGreaterThanOrEqual(
-      selectAnnotations(pool, "B1", 6).length,
+    expect(selectAnnotations(pool, "UNKNOWN", WORDS).length).toBeGreaterThanOrEqual(
+      selectAnnotations(pool, "B1", WORDS).length,
     );
   });
 
@@ -77,14 +74,13 @@ describe("adaptive UNDERSTAND density", () => {
       { id: "x", expression: "x", meaning: "", translation: "x" },
       { id: "y", expression: "y", meaning: "", translation: "y" },
     ];
-    expect(selectAnnotations(legacy, "C1", 6)).toHaveLength(2);
+    expect(selectAnnotations(legacy, "C1", WORDS)).toHaveLength(2);
   });
 
-  it("counts sentences and scales the target with content length", () => {
+  it("counts words/sentences and scales the help target with length", () => {
     expect(countSentences("Uno. Due! Tre?")).toBe(3);
-    expect(targetAnnotationCount("A1", 10)).toBeGreaterThan(
-      targetAnnotationCount("A1", 5),
-    );
+    expect(countWords("uno due tre")).toBe(3);
+    expect(targetHelpWords("A1", 100)).toBeGreaterThan(targetHelpWords("A1", 50));
   });
 });
 

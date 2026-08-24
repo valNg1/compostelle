@@ -143,6 +143,68 @@ export function answerUsesKeyExpression(
   );
 }
 
+// --- USE evaluation: expression + whole-sentence correctness (issue #5) ----
+
+/** Result of judging a whole sentence: correct?, plus a full corrected form. */
+export interface SentenceCorrection {
+  correct: boolean;
+  /** A complete, reformulated sentence (equal to the input when already correct). */
+  correction: string;
+}
+
+/**
+ * Port for grammar checking. A real implementation would call an LLM / grammar
+ * API (the project ships none — see `deterministicCorrector`). Kept synchronous
+ * to match the deterministic pedagogy; an async adapter can wrap it later.
+ */
+export type SentenceCorrector = (sentence: string) => SentenceCorrection;
+
+/**
+ * The three states surfaced to the UI:
+ *  - `expression-missing`: the target expression was not used;
+ *  - `needs-correction`: expression used but the sentence is not correct — a
+ *    full reformulated `correction` is proposed;
+ *  - `valid`: expression used and the whole sentence is correct.
+ */
+export type UseEvaluation =
+  | { state: "expression-missing" }
+  | { state: "needs-correction"; correction: string }
+  | { state: "valid" };
+
+/**
+ * Deterministic fallback corrector used when no grammar service is configured.
+ *
+ * IMPORTANT: this does NOT judge deep grammar — that genuinely requires an LLM
+ * or grammar API, which this project deliberately does not have. It only
+ * normalizes surface form (whitespace, capitalization, terminal punctuation)
+ * and proposes the tidied sentence. Inject a real `SentenceCorrector` into
+ * `evaluateUse` to get true grammatical evaluation + reformulation.
+ */
+export function deterministicCorrector(sentence: string): SentenceCorrection {
+  let s = sentence.trim().replace(/\s+/g, " ");
+  s = s.replace(/\s+([.,;:!?…])/g, "$1");
+  if (s.length > 0) s = s.charAt(0).toUpperCase() + s.slice(1);
+  if (s.length > 0 && !/[.!?…]$/.test(s)) s += ".";
+  return { correct: s === sentence.trim(), correction: s };
+}
+
+/**
+ * Evaluate a learner's USE answer in two stages: first that the target
+ * expression is present, then that the whole sentence is correct (delegated to
+ * the injected `corrector`). Returns one of three states for the UI.
+ */
+export function evaluateUse(
+  answer: string,
+  use: UsePrompt,
+  corrector: SentenceCorrector = deterministicCorrector,
+): UseEvaluation {
+  if (!answerUsesKeyExpression(answer, use.keyExpressions)) {
+    return { state: "expression-missing" };
+  }
+  const { correct, correction } = corrector(answer);
+  return correct ? { state: "valid" } : { state: "needs-correction", correction };
+}
+
 // --- Adaptive UNDERSTAND density (by declared level + content length) -----
 
 const LEVEL_RANK: Record<DeclaredLevel, number> = {
@@ -154,14 +216,20 @@ const LEVEL_RANK: Record<DeclaredLevel, number> = {
   C1: 5,
 };
 
-/** Target annotation count for a ~5-sentence text, by declared level. */
-const BASE_TARGET: Record<DeclaredLevel, number> = {
-  A1: 9,
-  A2: 8,
-  UNKNOWN: 8,
-  B1: 7,
-  B2: 6,
-  C1: 4,
+/**
+ * Share of a text's WORDS we aim to underline as contextual help (issue #6).
+ * Centred on ~20%, modulated by level so beginners get a little more guidance
+ * and advanced learners a little less. Density is measured in words covered by
+ * the selected expressions (multi-word idioms count for their length), so it
+ * matches "≈20% of the words of each text".
+ */
+export const HELP_RATIO: Record<DeclaredLevel, number> = {
+  A1: 0.24,
+  A2: 0.22,
+  UNKNOWN: 0.22,
+  B1: 0.2,
+  B2: 0.18,
+  C1: 0.16,
 };
 
 /** Rough sentence count of a body (deterministic). */
@@ -170,28 +238,33 @@ export function countSentences(body: string): number {
   return Math.max(1, parts.length);
 }
 
-/** Target number of annotations for a level and content length (~5 sentences = base). */
-export function targetAnnotationCount(
-  level: DeclaredLevel,
-  sentenceCount: number,
-): number {
-  const scaled = Math.round((BASE_TARGET[level] * sentenceCount) / 5);
-  return Math.max(1, scaled);
+/** Word count of a body/expression (deterministic, whitespace-based). */
+export function countWords(text: string): number {
+  return Math.max(1, text.trim().split(/\s+/).filter(Boolean).length);
+}
+
+/** Target number of help-words (~HELP_RATIO of the text) for a learner. */
+export function targetHelpWords(level: DeclaredLevel, wordCount: number): number {
+  return Math.max(1, Math.round(HELP_RATIO[level] * wordCount));
 }
 
 /**
- * Choose which annotations to surface for a learner. Advanced learners get
- * fewer, richer expressions (easy ones dropped); beginners get more guidance.
+ * Choose which annotations to surface for a learner, aiming for ~20% of the
+ * text's words underlined (issue #6). Advanced learners get fewer, richer
+ * expressions (easy ones dropped); beginners get more guidance.
+ *
  * Rule: an annotation is a candidate when its difficulty rank ≥ the learner's
- * rank (things at/above your level are what you may not know). The candidate
- * set is then capped to the level+length target, keeping the richest and
- * preserving reading order. Units without any `difficulty` tag are returned in
- * full (legacy behaviour).
+ * rank (things at/above your level are what you may not know). Candidates are
+ * added richest-first until the covered words reach the level's help target
+ * (≈HELP_RATIO × wordCount), then reading order is restored. The selection is
+ * naturally capped by the authored pool — it can never underline more than what
+ * was written (thin pools stay below 20%). Units without any `difficulty` tag
+ * are returned in full (legacy behaviour).
  */
 export function selectAnnotations(
   annotations: readonly Annotation[],
   level: DeclaredLevel,
-  sentenceCount: number,
+  wordCount: number,
 ): Annotation[] {
   const tagged = annotations.some((a) => a.difficulty !== undefined);
   if (!tagged) return [...annotations];
@@ -200,18 +273,23 @@ export function selectAnnotations(
   const candidates = annotations.filter(
     (a) => LEVEL_RANK[a.difficulty ?? "B1"] >= learnerRank,
   );
-  const cap = Math.min(
-    candidates.length,
-    targetAnnotationCount(level, sentenceCount),
-  );
   const richestFirst = [...candidates].sort(
     (a, b) => LEVEL_RANK[b.difficulty ?? "B1"] - LEVEL_RANK[a.difficulty ?? "B1"],
   );
-  const chosen = richestFirst.slice(0, cap);
+
+  const target = targetHelpWords(level, wordCount);
+  const chosen: Annotation[] = [];
+  let covered = 0;
+  for (const a of richestFirst) {
+    if (covered >= target) break;
+    chosen.push(a);
+    covered += countWords(a.expression);
+  }
+  const firstCandidate = richestFirst[0];
+  if (chosen.length === 0 && firstCandidate) chosen.push(firstCandidate);
+
   // Restore reading order for display.
-  return chosen.sort(
-    (a, b) => annotations.indexOf(a) - annotations.indexOf(b),
-  );
+  return chosen.sort((a, b) => annotations.indexOf(a) - annotations.indexOf(b));
 }
 
 /** A run of body text, optionally carrying the annotation it renders. */

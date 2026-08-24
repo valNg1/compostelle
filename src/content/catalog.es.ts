@@ -24,6 +24,9 @@ export const ES_CATALOG: ContentItem[] = [
       { id: "a2", expression: "trabajos en yeso", meaning: "decoración fina hecha con yeso", translation: "plasterwork" },
       { id: "a3", expression: "los patios con agua", meaning: "espacios abiertos con fuentes o estanques", translation: "courtyards with water" },
       { id: "a4", expression: "la vida cortesana", meaning: "la vida en la corte, de los reyes y nobles", translation: "court life" },
+      { id: "a5", expression: "la madera tallada", meaning: "madera trabajada con figuras y relieves", translation: "carved wood" },
+      { id: "a6", expression: "la dinastía nazarí", meaning: "la familia real musulmana que gobernó Granada", translation: "the Nasrid dynasty" },
+      { id: "a7", expression: "la conquista cristiana", meaning: "la toma de la ciudad por los reyes cristianos", translation: "the Christian conquest" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "¿Qué son «las fortalezas»?", options: ["Construcciones para defenderse", "Jardines pequeños", "Salas de música"], answerIndex: 0, annotationId: "a1" },
@@ -121,6 +124,9 @@ export const ES_CATALOG: ContentItem[] = [
       { id: "a2", expression: "alargando el café", meaning: "tomando el café despacio, sin terminar", translation: "lingering over the coffee" },
       { id: "a3", expression: "sin prisa", meaning: "con calma, sin correr", translation: "without hurrying" },
       { id: "a4", expression: "estar juntos", meaning: "pasar tiempo en compañía", translation: "being together" },
+      { id: "a5", expression: "el último plato", meaning: "el plato final de la comida", translation: "the last dish" },
+      { id: "a6", expression: "las reuniones familiares", meaning: "los encuentros con la familia", translation: "family gatherings" },
+      { id: "a7", expression: "la conversación tranquila", meaning: "una charla pausada y sin prisa", translation: "quiet conversation" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "¿Qué es «la sobremesa»?", options: ["El rato de charla después de comer", "El primer plato", "La cuenta del restaurante"], answerIndex: 0, annotationId: "a1" },
