@@ -27,6 +27,27 @@ L'identité est gérée par **Supabase Auth (email + password)** ; la **RLS est 
 en **cache-only** (localStorage) — aucun secret requis en dev/CI. Détails :
 [`supabase/README.md`](../../supabase/README.md).
 
+## Correction grammaticale USE (LanguageTool, issue #5)
+
+L'étape USE peut évaluer la **correction grammaticale de toute la phrase** et
+proposer une **version corrigée** via **[LanguageTool](https://languagetool.org)**
+(open-source, gratuit) auto-hébergé — aucune API payante, cohérent avec la
+pédagogie déterministe (D-16).
+
+1. Lancer une instance LanguageTool (ex. Docker) exposant `/v2/check` :
+   ```bash
+   docker run -d --name languagetool -p 8010:8010 erikvl87/languagetool
+   ```
+2. La rendre joignable en HTTPS (reverse proxy) puis renseigner
+   `VITE_LANGUAGETOOL_URL=https://…/v2/check` dans `.env` (et les variables
+   d'env de l'hébergeur).
+
+**Sans cette variable**, l'app reste fonctionnelle : l'étape USE utilise un
+**repli déterministe** (correction de surface : espaces, majuscule, ponctuation).
+En cas d'erreur réseau du service, le même repli s'applique automatiquement.
+Le contrat des 3 états (expression absente / à corriger / valide) est identique
+dans les deux modes ; seule la profondeur de l'analyse grammaticale change.
+
 ## Déploiement
 
 Cible : **`https://compostel.org`** (Vite SPA sur Vercel + Supabase). Le repo

@@ -1,8 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   evaluateUse,
+  evaluateUseAsync,
+  applyLanguageToolMatches,
   deterministicCorrector,
   type SentenceCorrector,
+  type AsyncSentenceCorrector,
 } from "./learning";
 import type { UsePrompt } from "./learning";
 
@@ -65,5 +68,57 @@ describe("deterministicCorrector (fallback when no grammar service is configured
     const r = deterministicCorrector("Prendo l'ultima corsa  del   tram .");
     expect(r.correct).toBe(false);
     expect(r.correction).toBe("Prendo l'ultima corsa del tram.");
+  });
+});
+
+describe("applyLanguageToolMatches (build the corrected sentence)", () => {
+  it("applies a single replacement", () => {
+    const out = applyLanguageToolMatches("prendo l'ultima corsa", [
+      { offset: 0, length: 6, replacements: [{ value: "Prendo" }] },
+    ]);
+    expect(out).toBe("Prendo l'ultima corsa");
+  });
+
+  it("applies several matches without shifting offsets (right-to-left)", () => {
+    const out = applyLanguageToolMatches("io magno la pizza", [
+      { offset: 0, length: 2, replacements: [{ value: "Io" }] },
+      { offset: 3, length: 5, replacements: [{ value: "mangio" }] },
+    ]);
+    expect(out).toBe("Io mangio la pizza");
+  });
+
+  it("skips matches that carry no replacement", () => {
+    const out = applyLanguageToolMatches("una frase", [
+      { offset: 0, length: 3, replacements: [] },
+    ]);
+    expect(out).toBe("una frase");
+  });
+});
+
+describe("evaluateUseAsync (network-backed corrector, e.g. LanguageTool)", () => {
+  const wrong: AsyncSentenceCorrector = async () => ({
+    correct: false,
+    correction: "Prendo l'ultima corsa del tram.",
+  });
+  const right: AsyncSentenceCorrector = async (s) => ({ correct: true, correction: s });
+
+  it("(a) expression-missing without even calling the corrector", async () => {
+    const spy = vi.fn(wrong);
+    const r = await evaluateUseAsync("Il gatto dorme.", use, "it", spy);
+    expect(r.state).toBe("expression-missing");
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("(b) needs-correction with the corrected sentence from the service", async () => {
+    const r = await evaluateUseAsync("prendo l'ultima corsa", use, "it", wrong);
+    expect(r).toEqual({
+      state: "needs-correction",
+      correction: "Prendo l'ultima corsa del tram.",
+    });
+  });
+
+  it("(c) valid when the service reports no error", async () => {
+    const r = await evaluateUseAsync("Prendo l'ultima corsa.", use, "it", right);
+    expect(r.state).toBe("valid");
   });
 });

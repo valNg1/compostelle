@@ -205,6 +205,56 @@ export function evaluateUse(
   return correct ? { state: "valid" } : { state: "needs-correction", correction };
 }
 
+/**
+ * Async corrector (network-backed), e.g. a self-hosted LanguageTool instance.
+ * Language-aware: the target language of the learner's sentence is passed
+ * through so the grammar service checks against the right rules.
+ */
+export type AsyncSentenceCorrector = (
+  sentence: string,
+  language: string,
+) => Promise<SentenceCorrection>;
+
+/** Async twin of {@link evaluateUse}; keeps the exact same 3-state contract. */
+export async function evaluateUseAsync(
+  answer: string,
+  use: UsePrompt,
+  language: string,
+  corrector: AsyncSentenceCorrector,
+): Promise<UseEvaluation> {
+  if (!answerUsesKeyExpression(answer, use.keyExpressions)) {
+    return { state: "expression-missing" };
+  }
+  const { correct, correction } = await corrector(answer, language);
+  return correct ? { state: "valid" } : { state: "needs-correction", correction };
+}
+
+/** A LanguageTool `/v2/check` match (only the fields we consume). */
+export interface LanguageToolMatch {
+  offset: number;
+  length: number;
+  replacements: { value: string }[];
+}
+
+/**
+ * Build a corrected sentence by applying each match's first replacement.
+ * Applied right-to-left so earlier offsets stay valid. Matches without a
+ * replacement are left untouched. Pure and deterministic.
+ */
+export function applyLanguageToolMatches(
+  sentence: string,
+  matches: readonly LanguageToolMatch[],
+): string {
+  const ordered = [...matches].sort((a, b) => b.offset - a.offset);
+  let out = sentence;
+  for (const m of ordered) {
+    const replacement = m.replacements[0]?.value;
+    if (replacement === undefined) continue;
+    out = out.slice(0, m.offset) + replacement + out.slice(m.offset + m.length);
+  }
+  return out;
+}
+
 // --- Adaptive UNDERSTAND density (by declared level + content length) -----
 
 const LEVEL_RANK: Record<DeclaredLevel, number> = {

@@ -13,12 +13,14 @@ import {
   selectAnnotations,
   countWords,
   evaluateUse,
+  evaluateUseAsync,
   type Annotation,
   type LearningContent,
   type UseEvaluation,
 } from "../domain/learning";
 import { nextState, type MemoryState } from "../domain/memory";
 import type { MemoryEvent } from "../application/memoryService";
+import { getSentenceCorrector } from "../persistence/languageToolCorrector";
 import { AnnotatedText } from "./AnnotatedText";
 
 type Phase = "read" | "recall" | "use" | "complete";
@@ -142,10 +144,13 @@ export function LearningSession({
   // --- USE ---
   const [answer, setAnswer] = useState("");
   const [evaluation, setEvaluation] = useState<UseEvaluation | null>(null);
-  function checkUse() {
-    const ev = evaluateUse(answer, content.use);
-    setEvaluation(ev);
-    if (ev.state !== "expression-missing") {
+  const [checking, setChecking] = useState(false);
+  // Grammar corrector (self-hosted LanguageTool) when configured, else null.
+  const corrector = useMemo(() => getSentenceCorrector(), []);
+
+  async function checkUse() {
+    // Memory credit depends only on whether the expression was used.
+    if (answerUsesKeyExpression(answer, content.use.keyExpressions)) {
       const matched = annotations.filter((a) =>
         answerUsesKeyExpression(answer, [a.expression]),
       );
@@ -160,6 +165,23 @@ export function LearningSession({
       for (const a of (targets.length > 0 ? targets : annotations.slice(0, 1))) {
         record(a.expression, "used");
       }
+    }
+
+    // Grammar: use LanguageTool when available, fall back to the deterministic
+    // surface corrector on absence or any network error.
+    if (corrector) {
+      setChecking(true);
+      try {
+        setEvaluation(
+          await evaluateUseAsync(answer, content.use, content.language, corrector),
+        );
+      } catch {
+        setEvaluation(evaluateUse(answer, content.use));
+      } finally {
+        setChecking(false);
+      }
+    } else {
+      setEvaluation(evaluateUse(answer, content.use));
     }
   }
 
@@ -316,10 +338,10 @@ export function LearningSession({
           <button
             type="button"
             className="cta"
-            disabled={answer.trim().length === 0}
+            disabled={answer.trim().length === 0 || checking}
             onClick={checkUse}
           >
-            {t("use.check", il)}
+            {checking ? t("use.checking", il) : t("use.check", il)}
           </button>
         ) : (
           <>
