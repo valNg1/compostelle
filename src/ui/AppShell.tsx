@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { levelBadge, type LanguageJourney } from "../domain/journey";
 import { languageLabel, type Language } from "../domain/language";
 import { t, type InterfaceLanguage } from "../domain/i18n";
@@ -6,6 +6,7 @@ import type { MemoryItem, MemorySummary } from "../domain/memory";
 import type { LearningActivity } from "../domain/activity";
 import {
   selectUnitForTheme,
+  selectNextUnitForTheme,
   unitTopics,
   type LearningUnit,
   type Theme,
@@ -19,6 +20,7 @@ import { HomeDashboard } from "./HomeDashboard";
 import { MyJourney } from "./MyJourney";
 import { MySpace } from "./MySpace";
 import { BrandLogo } from "./BrandLogo";
+import { ResumeChoice } from "./ResumeChoice";
 
 type Section = "home" | "learn" | "journey" | "me";
 const SECTIONS: Section[] = ["home", "learn", "journey", "me"];
@@ -35,6 +37,8 @@ interface AppShellProps {
   memory: MemorySummary;
   memoryItems: MemoryItem[];
   activities: LearningActivity[];
+  /** Ids of Learning Units the learner has already completed (this language). */
+  completedUnitIds: string[];
   interfaceLanguage: InterfaceLanguage;
   userEmail: string | null;
   onSetInterfaceLanguage: (language: InterfaceLanguage) => void;
@@ -61,6 +65,7 @@ export function AppShell({
   memory,
   memoryItems,
   activities,
+  completedUnitIds,
   interfaceLanguage,
   userEmail,
   onSetInterfaceLanguage,
@@ -72,6 +77,15 @@ export function AppShell({
   const il = interfaceLanguage;
   const [section, setSection] = useState<Section>(sectionFromHash);
   const [unit, setUnit] = useState<LearningUnit | null>(null);
+  const [replay, setReplay] = useState(false);
+  const [theme, setTheme] = useState<Theme>("surprise_me");
+  // When arriving on an already-completed lesson, offer the resume choice.
+  const [resume, setResume] = useState<LearningUnit | null>(null);
+
+  const completedIds = useMemo(
+    () => new Set(completedUnitIds),
+    [completedUnitIds],
+  );
 
   useEffect(() => {
     const onHash = () => setSection(sectionFromHash());
@@ -81,31 +95,63 @@ export function AppShell({
 
   function go(next: Section) {
     setUnit(null);
+    setResume(null);
     setSection(next);
     if (globalThis.location) globalThis.location.hash = `#/${next}`;
   }
 
-  // LEARN session takes over the whole screen.
+  function launchUnit(next: LearningUnit, isReplay: boolean) {
+    setResume(null);
+    setReplay(isReplay);
+    setUnit(next);
+  }
+
+  /** Continue with the next not-yet-completed lesson of the current theme. */
+  function continueLearning() {
+    const next = selectNextUnitForTheme(
+      CATALOG,
+      journey.language,
+      theme,
+      completedIds,
+    );
+    if (next) launchUnit(next, false);
+    else go("journey");
+  }
+
+  // LEARN session takes over the whole screen. Keyed by unit id so switching
+  // to another lesson (continue / replay) mounts a fresh session.
   if (section === "learn" && unit) {
     return (
       <LearningSession
+        key={`${unit.id}:${replay ? "replay" : "play"}`}
         content={unit}
         declaredLevel={journey.declaredLevel}
         interfaceLanguage={il}
+        replay={replay}
+        memoryItems={memoryItems}
         onExit={() => setUnit(null)}
         onFinish={onFinishSession}
         onContinue={() => {
           setUnit(null);
           go("journey");
         }}
+        onReplay={() => launchUnit(unit, true)}
+        onNextLesson={continueLearning}
         onBackToStart={() => setUnit(null)}
       />
     );
   }
 
-  function startTheme(theme: Theme) {
-    const selected = selectUnitForTheme(CATALOG, journey.language, theme);
-    if (selected) setUnit(selected);
+  function startTheme(nextTheme: Theme) {
+    setTheme(nextTheme);
+    const selected = selectUnitForTheme(CATALOG, journey.language, nextTheme);
+    if (!selected) return;
+    if (completedIds.has(selected.id)) {
+      // Already completed → ask whether to redo or move on.
+      setResume(selected);
+    } else {
+      launchUnit(selected, false);
+    }
   }
 
   return (
@@ -157,14 +203,30 @@ export function AppShell({
             onViewJourney={() => go("journey")}
           />
         )}
-        {section === "learn" && (
-          <Start
-            journey={journey}
-            topics={unitTopics(CATALOG, journey.language)}
-            interfaceLanguage={il}
-            onStart={startTheme}
-          />
-        )}
+        {section === "learn" &&
+          (resume ? (
+            <ResumeChoice
+              unitTitle={resume.title}
+              hasNext={
+                selectNextUnitForTheme(
+                  CATALOG,
+                  journey.language,
+                  theme,
+                  completedIds,
+                ) !== null
+              }
+              interfaceLanguage={il}
+              onReplay={() => launchUnit(resume, true)}
+              onContinue={continueLearning}
+            />
+          ) : (
+            <Start
+              journey={journey}
+              topics={unitTopics(CATALOG, journey.language)}
+              interfaceLanguage={il}
+              onStart={startTheme}
+            />
+          ))}
         {section === "journey" && (
           <MyJourney
             journey={journey}

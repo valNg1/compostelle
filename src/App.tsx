@@ -80,6 +80,7 @@ export function App() {
   const [memory, setMemory] = useState<MemorySummary>(EMPTY_SUMMARY);
   const [memoryItems, setMemoryItems] = useState<MemoryItem[]>([]);
   const [activities, setActivities] = useState<LearningActivity[]>([]);
+  const [completedUnitIds, setCompletedUnitIds] = useState<string[]>([]);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [interfaceLanguage, setInterfaceLanguage] = useState<InterfaceLanguage>(
     DEFAULT_INTERFACE_LANGUAGE,
@@ -184,14 +185,17 @@ export function App() {
   useEffect(() => {
     if (!activityService || current === null) {
       setActivities([]);
+      setCompletedUnitIds([]);
       return;
     }
     let active = true;
     activityService
-      .list(current, 5)
+      .list(current, 50)
       .catch(() => [])
       .then((list) => {
-        if (active) setActivities(list);
+        if (!active) return;
+        setActivities(list.slice(0, 5));
+        setCompletedUnitIds([...new Set(list.map((a) => a.learningUnitId))]);
       });
     return () => {
       active = false;
@@ -251,10 +255,13 @@ export function App() {
             recalled: result.recalled,
             used: result.used,
           },
-          5,
+          50,
         )
         .then((list) => {
-          if (language === current) setActivities(list);
+          if (language === current) {
+            setActivities(list.slice(0, 5));
+            setCompletedUnitIds([...new Set(list.map((a) => a.learningUnitId))]);
+          }
         })
         .catch(() => {});
     }
@@ -314,6 +321,7 @@ export function App() {
         memory={memory}
         memoryItems={memoryItems}
         activities={activities}
+        completedUnitIds={completedUnitIds}
         interfaceLanguage={interfaceLanguage}
         userEmail={userEmail}
         onSetInterfaceLanguage={handleSetInterfaceLanguage}

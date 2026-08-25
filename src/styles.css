@@ -1170,3 +1170,31 @@ body {
     display: none;
   }
 }
+
+/* ── Resume choice + end-of-lesson actions (issue #7) ────────────── */
+.resume {
+  width: 100%;
+  max-width: var(--maxw);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+.resume__lesson {
+  margin: 0;
+  font-size: 20px;
+  color: var(--ink-dim);
+}
+.resume__actions,
+.complete__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 4px;
+}
+.resume__note {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: var(--ink-dim);
+}

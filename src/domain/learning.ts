@@ -8,6 +8,7 @@
 
 import type { DeclaredLevel } from "./journey";
 import type { InterfaceLanguage } from "./i18n";
+import type { MemoryItem, MemoryState } from "./memory";
 
 /** A word/expression worth understanding, glossed for the reader. */
 export interface Annotation {
@@ -141,6 +142,42 @@ export function answerUsesKeyExpression(
   return keyExpressions.some((k) =>
     normalized.includes(k.trim().toLowerCase()),
   );
+}
+
+// --- Replay: prioritise previously-failed recall items (issue #7) ----------
+
+/** Replay priority by memory state: failed first, then still-learning, then rest. */
+const REPLAY_RANK: Record<MemoryState, number> = {
+  TO_REVIEW: 0,
+  LEARNING: 1,
+  NEW: 2,
+  ACQUIRED: 2,
+};
+
+/**
+ * Reorder a unit's recall items so the expressions the learner previously
+ * failed (TO_REVIEW) come first, then those still being learned (LEARNING),
+ * then the rest — stably. Every item is kept (reinjected, never dropped), so a
+ * replay revisits the whole lesson but leads with the weak spots.
+ */
+export function prioritizeRecallForReplay(
+  recall: readonly RecallItem[],
+  annotations: readonly Annotation[],
+  memoryItems: readonly MemoryItem[],
+): RecallItem[] {
+  const stateByExpression = new Map(memoryItems.map((m) => [m.expression, m.state]));
+  const expressionById = new Map(annotations.map((a) => [a.id, a.expression]));
+  const rankOf = (item: RecallItem): number => {
+    const expression = item.annotationId
+      ? expressionById.get(item.annotationId)
+      : undefined;
+    const state = expression ? stateByExpression.get(expression) : undefined;
+    return state ? REPLAY_RANK[state] : 2;
+  };
+  return recall
+    .map((item, index) => ({ item, index, rank: rankOf(item) }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index)
+    .map((entry) => entry.item);
 }
 
 // --- USE evaluation: expression + whole-sentence correctness (issue #5) ----

@@ -72,6 +72,25 @@ export function selectUnitForTheme(
   return units[0] ?? null;
 }
 
+/**
+ * Pick the NEXT Learning Unit to play for a theme, skipping lessons the learner
+ * has already completed (issue #7). Candidates are the theme's playable units
+ * (or, for `surprise_me` or an empty theme, all playable units); returns the
+ * first one not in `completedIds`, or `null` when every candidate is done.
+ */
+export function selectNextUnitForTheme(
+  catalog: readonly ContentItem[],
+  language: Language,
+  theme: Theme,
+  completedIds: ReadonlySet<string>,
+): LearningUnit | null {
+  const all = playableUnits(catalog, language);
+  const inTheme =
+    theme !== "surprise_me" ? all.filter((u) => u.category === theme) : all;
+  const candidates = inTheme.length > 0 ? inTheme : all;
+  return candidates.find((u) => !completedIds.has(u.id)) ?? null;
+}
+
 // --- AI pipeline contract (documented, not implemented) ------------------
 
 /** What the future AI generator receives. */

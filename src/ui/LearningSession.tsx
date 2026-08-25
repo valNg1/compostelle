@@ -14,11 +14,12 @@ import {
   countWords,
   evaluateUse,
   evaluateUseAsync,
+  prioritizeRecallForReplay,
   type Annotation,
   type LearningContent,
   type UseEvaluation,
 } from "../domain/learning";
-import { nextState, type MemoryState } from "../domain/memory";
+import { nextState, type MemoryItem, type MemoryState } from "../domain/memory";
 import type { MemoryEvent } from "../application/memoryService";
 import { getSentenceCorrector } from "../persistence/languageToolCorrector";
 import { AnnotatedText } from "./AnnotatedText";
@@ -37,9 +38,17 @@ interface LearningSessionProps {
   content: ContentItem & LearningContent;
   declaredLevel: DeclaredLevel;
   interfaceLanguage: InterfaceLanguage;
+  /** Replaying an already-completed lesson: prioritise previously-failed items. */
+  replay?: boolean;
+  /** Learner memory (this language) — drives replay prioritisation. */
+  memoryItems?: MemoryItem[];
   onExit: () => void;
   onFinish: (events: MemoryEvent[], result: SessionResult) => void;
   onContinue: () => void;
+  /** Redo the same lesson (issue #7). */
+  onReplay?: () => void;
+  /** Move on to a new lesson of the same theme (issue #7). */
+  onNextLesson?: () => void;
   onBackToStart: () => void;
 }
 
@@ -59,9 +68,13 @@ export function LearningSession({
   content,
   declaredLevel,
   interfaceLanguage,
+  replay = false,
+  memoryItems = [],
   onExit,
   onFinish,
   onContinue,
+  onReplay,
+  onNextLesson,
   onBackToStart,
 }: LearningSessionProps) {
   const il = interfaceLanguage;
@@ -81,14 +94,17 @@ export function LearningSession({
     [annotations],
   );
 
-  // Recall tests only what was shown (or global comprehension), max 3.
-  const recallItems = useMemo(
-    () =>
-      content.recall
-        .filter((r) => !r.annotationId || selectedIds.has(r.annotationId))
-        .slice(0, 3),
-    [content.recall, selectedIds],
-  );
+  // Recall tests only what was shown (or global comprehension), max 3. On a
+  // replay, previously-failed items are prioritised into that top slice.
+  const recallItems = useMemo(() => {
+    const eligible = content.recall.filter(
+      (r) => !r.annotationId || selectedIds.has(r.annotationId),
+    );
+    const ordered = replay
+      ? prioritizeRecallForReplay(eligible, content.annotations, memoryItems)
+      : eligible;
+    return ordered.slice(0, 3);
+  }, [content.recall, content.annotations, selectedIds, replay, memoryItems]);
 
   const [phase, setPhase] = useState<Phase>("read");
   const [events, setEvents] = useState<MemoryEvent[]>(() =>
@@ -409,7 +425,19 @@ export function LearningSession({
         <li>{t("complete.used", il, { n: usedCount })}</li>
         <li>{t("complete.to_review", il, { n: toReview })}</li>
       </ul>
-      <button type="button" className="cta" onClick={onContinue}>
+      <div className="complete__actions">
+        {onNextLesson && (
+          <button type="button" className="cta" onClick={onNextLesson}>
+            {t("complete.next", il)}
+          </button>
+        )}
+        {onReplay && (
+          <button type="button" className="cta cta--ghost" onClick={onReplay}>
+            {t("complete.replay", il)}
+          </button>
+        )}
+      </div>
+      <button type="button" className="link" onClick={onContinue}>
         {t("complete.continue", il)}
       </button>
       <button type="button" className="link" onClick={onBackToStart}>

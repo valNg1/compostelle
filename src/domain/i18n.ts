@@ -113,6 +113,14 @@ const EN: Dict = {
   "complete.used": "{n} used",
   "complete.to_review": "{n} to review",
   "complete.continue": "Continue your journey",
+  "complete.next": "Continue learning",
+  "complete.replay": "Redo this lesson",
+  "resume.eyebrow": "Already done",
+  "resume.title": "You've already completed this lesson.",
+  "resume.replay": "Redo the lesson",
+  "resume.continue": "Continue learning",
+  "resume.all_done":
+    "You've finished every lesson in this theme. Redo this one, or pick another theme.",
   "complete.back": "Back to Start",
 
   "journey.eyebrow": "My Journey",
@@ -201,6 +209,14 @@ const FR: Dict = {
   "complete.used": "{n} utilisée(s)",
   "complete.to_review": "{n} à revoir",
   "complete.continue": "Continuer votre parcours",
+  "complete.next": "Poursuivre l'apprentissage",
+  "complete.replay": "Refaire cette leçon",
+  "resume.eyebrow": "Déjà terminée",
+  "resume.title": "Vous avez déjà terminé cette leçon.",
+  "resume.replay": "Refaire la leçon",
+  "resume.continue": "Poursuivre l'apprentissage",
+  "resume.all_done":
+    "Vous avez terminé toutes les leçons de ce thème. Refaites celle-ci, ou choisissez un autre thème.",
   "complete.back": "Retour au départ",
 
   "journey.eyebrow": "Mon parcours",
