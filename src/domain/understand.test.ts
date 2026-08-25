@@ -42,19 +42,21 @@ const pool: Annotation[] = [
 const WORDS = 40;
 
 describe("adaptive UNDERSTAND density", () => {
-  it("gives beginners more annotations than advanced learners (same content)", () => {
+  it("keeps density near ~20% for every level, never starving advanced learners", () => {
     const a2 = selectAnnotations(pool, "A2", WORDS).length;
     const b2 = selectAnnotations(pool, "B2", WORDS).length;
     const c1 = selectAnnotations(pool, "C1", WORDS).length;
-    expect(a2).toBeGreaterThan(b2);
-    expect(b2).toBeGreaterThan(c1);
+    // Beginners get a little more, but advanced learners stay around the target.
+    expect(a2).toBeGreaterThanOrEqual(b2);
+    expect(b2).toBeGreaterThanOrEqual(c1);
+    expect(c1 / WORDS).toBeGreaterThanOrEqual(0.18); // no collapse for C1
   });
 
-  it("never surfaces trivial (below-level) expressions to advanced learners", () => {
+  it("leads with the richest expressions for advanced learners", () => {
+    // Advanced learners still see the hardest vocabulary first (then backfill).
     const c1 = selectAnnotations(pool, "C1", WORDS);
-    expect(c1.every((a) => a.difficulty === "C1")).toBe(true);
-    const b2 = selectAnnotations(pool, "B2", WORDS);
-    expect(b2.every((a) => a.difficulty === "B2" || a.difficulty === "C1")).toBe(true);
+    const c1Items = c1.filter((a) => a.difficulty === "C1").length;
+    expect(c1Items).toBe(3); // every C1 expression is surfaced
   });
 
   it("preserves reading order in the selection", () => {
@@ -71,8 +73,8 @@ describe("adaptive UNDERSTAND density", () => {
 
   it("returns all annotations for legacy units with no difficulty tags", () => {
     const legacy: Annotation[] = [
-      { id: "x", expression: "x", meaning: "", translation: "x" },
-      { id: "y", expression: "y", meaning: "", translation: "y" },
+      { id: "alfa", expression: "alfa", meaning: "", translation: "alfa" },
+      { id: "beta", expression: "beta", meaning: "", translation: "beta" },
     ];
     expect(selectAnnotations(legacy, "C1", WORDS)).toHaveLength(2);
   });

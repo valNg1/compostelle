@@ -252,6 +252,7 @@ export const IT_CATALOG: ContentItem[] = [
       { id: "a6", expression: "qualcosa da bere", meaning: "una bevanda, di solito un drink", translation: "something to drink" },
       { id: "a7", expression: "un piccolo pasto", meaning: "un pasto leggero, non abbondante", translation: "a small meal" },
       { id: "a8", expression: "chiacchierare", meaning: "parlare in modo informale e rilassato", translation: "to chat" },
+      { id: "a9", expression: "conversazione", meaning: "lo scambio di parole tra persone", translation: "conversation" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "Che cosa sono «gli stuzzichini»?", options: ["Piccole cose da mangiare", "Bevande calde", "Grandi piatti"], answerIndex: 0, annotationId: "a1" },

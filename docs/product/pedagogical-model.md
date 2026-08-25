@@ -48,21 +48,21 @@ Un seul modèle, pas deux modèles contradictoires.
 Exemple : `targetLanguage = it`, `interfaceLanguage = fr` → contenu italien, mais
 traductions/consignes/feedback en français.
 
-## UNDERSTAND — densité adaptative (D-20)
+## UNDERSTAND — densité d'aide ~20% des mots (D-20, affiné D-22)
 
-Le nombre **et** la difficulté des expressions annotées dépendent du
-`declaredLevel` et de la longueur du texte. Cible indicative (texte ~5 phrases) :
+L'aide contextuelle souligne en moyenne **~20% des mots** de chaque texte, à
+**tous les niveaux** (issue #6). Le `declaredLevel` détermine **quelles**
+expressions passent en tête — les plus riches (à/au-dessus du niveau) d'abord,
+pour que l'avancé rencontre le vocabulaire difficile en premier — pas **combien** :
+les expressions plus faciles **complètent** jusqu'à ~20% pour ne jamais
+sous-annoter un texte.
 
-| Niveau | Annotations |
-|--------|-------------|
-| A1 | 8–10 |
-| A2 | 7–9 |
-| B1 | 6–8 |
-| B2 | 5–7 |
-| C1 | 3–5 |
-
-Débutant → plus d'aide ; avancé → moins d'annotations mais plus riches (idiomes,
-collocations), **jamais** de mots triviaux au-dessus du niveau. Pas de quota rigide.
+Priorité au **vocabulaire réel** : un mot-outil isolé (article, préposition,
+conjonction — `stopwords.ts`) n'est jamais souligné ; les idiomes multi-mots
+restent éligibles. La densité est **plafonnée par le vocabulaire rédigé** dans la
+Learning Unit : atteindre 20% sur un texte peu annoté (ou généré) suppose
+d'enrichir les annotations (ou, à terme, un dictionnaire/LLM pour gloser les mots
+supplémentaires — absent aujourd'hui).
 
 ## Les étapes de LEARN
 

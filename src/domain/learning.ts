@@ -9,6 +9,7 @@
 import type { DeclaredLevel } from "./journey";
 import type { InterfaceLanguage } from "./i18n";
 import type { MemoryItem, MemoryState } from "./memory";
+import { isFunctionWordOnly } from "./stopwords";
 
 /** A word/expression worth understanding, glossed for the reader. */
 export interface Annotation {
@@ -305,18 +306,19 @@ const LEVEL_RANK: Record<DeclaredLevel, number> = {
 
 /**
  * Share of a text's WORDS we aim to underline as contextual help (issue #6).
- * Centred on ~20%, modulated by level so beginners get a little more guidance
- * and advanced learners a little less. Density is measured in words covered by
- * the selected expressions (multi-word idioms count for their length), so it
- * matches "≈20% of the words of each text".
+ * Floored at ~20% for EVERY level: beginners get a little more, but advanced
+ * learners are never starved below the target (that was the cause of texts
+ * feeling under-annotated). Level changes WHICH expressions lead, not how many.
+ * Density is measured in words covered by the selected expressions (multi-word
+ * idioms count for their length), matching "≈20% of the words of each text".
  */
 export const HELP_RATIO: Record<DeclaredLevel, number> = {
-  A1: 0.24,
+  A1: 0.22,
   A2: 0.22,
   UNKNOWN: 0.22,
   B1: 0.2,
-  B2: 0.18,
-  C1: 0.16,
+  B2: 0.2,
+  C1: 0.2,
 };
 
 /** Rough sentence count of a body (deterministic). */
@@ -337,42 +339,55 @@ export function targetHelpWords(level: DeclaredLevel, wordCount: number): number
 
 /**
  * Choose which annotations to surface for a learner, aiming for ~20% of the
- * text's words underlined (issue #6). Advanced learners get fewer, richer
- * expressions (easy ones dropped); beginners get more guidance.
+ * text's words underlined (issue #6).
  *
- * Rule: an annotation is a candidate when its difficulty rank ≥ the learner's
- * rank (things at/above your level are what you may not know). Candidates are
- * added richest-first until the covered words reach the level's help target
- * (≈HELP_RATIO × wordCount), then reading order is restored. The selection is
- * naturally capped by the authored pool — it can never underline more than what
- * was written (thin pools stay below 20%). Units without any `difficulty` tag
- * are returned in full (legacy behaviour).
+ * - **Content words only**: pure function words (a lone article/preposition/
+ *   conjunction) are never underlined — the help budget goes to vocabulary and
+ *   idioms. Multi-word idioms are always eligible.
+ * - **Level sets order, not quantity**: expressions at/above the learner's
+ *   level lead (richest first), so advanced learners meet the hardest vocabulary
+ *   first; below-level expressions then BACKFILL up to the ~20% target so the
+ *   text is never under-annotated for advanced learners.
+ * - **Capped by the authored pool**: the selection can never underline more than
+ *   what was written, so thin pools stay below 20% (reaching 20% there needs
+ *   more authored glosses — see the issue #6 note).
+ *
+ * Units without any `difficulty` tag return all their content-word annotations
+ * (legacy behaviour).
  */
 export function selectAnnotations(
   annotations: readonly Annotation[],
   level: DeclaredLevel,
   wordCount: number,
 ): Annotation[] {
-  const tagged = annotations.some((a) => a.difficulty !== undefined);
-  if (!tagged) return [...annotations];
+  const contentful = annotations.filter((a) => !isFunctionWordOnly(a.expression));
+  const tagged = contentful.some((a) => a.difficulty !== undefined);
+  if (!tagged) return contentful;
 
   const learnerRank = LEVEL_RANK[level];
-  const candidates = annotations.filter(
+  const richestFirst = (list: Annotation[]) =>
+    [...list].sort(
+      (a, b) => LEVEL_RANK[b.difficulty ?? "B1"] - LEVEL_RANK[a.difficulty ?? "B1"],
+    );
+  // At/above level first (what the learner most needs), then below-level as
+  // backfill — both ordered richest-first.
+  const atOrAbove = contentful.filter(
     (a) => LEVEL_RANK[a.difficulty ?? "B1"] >= learnerRank,
   );
-  const richestFirst = [...candidates].sort(
-    (a, b) => LEVEL_RANK[b.difficulty ?? "B1"] - LEVEL_RANK[a.difficulty ?? "B1"],
+  const below = contentful.filter(
+    (a) => LEVEL_RANK[a.difficulty ?? "B1"] < learnerRank,
   );
+  const ordered = [...richestFirst(atOrAbove), ...richestFirst(below)];
 
   const target = targetHelpWords(level, wordCount);
   const chosen: Annotation[] = [];
   let covered = 0;
-  for (const a of richestFirst) {
+  for (const a of ordered) {
     if (covered >= target) break;
     chosen.push(a);
     covered += countWords(a.expression);
   }
-  const firstCandidate = richestFirst[0];
+  const firstCandidate = ordered[0];
   if (chosen.length === 0 && firstCandidate) chosen.push(firstCandidate);
 
   // Restore reading order for display.
