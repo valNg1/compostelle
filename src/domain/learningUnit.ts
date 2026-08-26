@@ -91,6 +91,27 @@ export function selectNextUnitForTheme(
   return candidates.find((u) => !completedIds.has(u.id)) ?? null;
 }
 
+/**
+ * Pick the next lesson to actually OPEN when the learner asks to continue
+ * (issue #8). Prefers a not-yet-completed lesson of the chosen theme, but when
+ * that theme is exhausted it falls back to ANY not-yet-completed playable
+ * lesson (across themes) so "continue learning" always opens something new.
+ * Returns `null` only when every playable lesson of the language is completed —
+ * the caller then shows a clear "no more lessons" message, never a blank screen.
+ */
+export function selectNextLesson(
+  catalog: readonly ContentItem[],
+  language: Language,
+  theme: Theme,
+  completedIds: ReadonlySet<string>,
+): LearningUnit | null {
+  const inTheme = selectNextUnitForTheme(catalog, language, theme, completedIds);
+  if (inTheme) return inTheme;
+  return (
+    playableUnits(catalog, language).find((u) => !completedIds.has(u.id)) ?? null
+  );
+}
+
 // --- AI pipeline contract (documented, not implemented) ------------------
 
 /** What the future AI generator receives. */

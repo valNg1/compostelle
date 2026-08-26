@@ -121,6 +121,12 @@ const EN: Dict = {
   "resume.continue": "Continue learning",
   "resume.all_done":
     "You've finished every lesson in this theme. Redo this one, or pick another theme.",
+  "nomore.eyebrow": "All caught up",
+  "nomore.title": "You've completed every lesson for now.",
+  "nomore.body":
+    "There's no new lesson left to open in this language yet. Pick another theme to redo a lesson, or check your journey.",
+  "nomore.browse": "Pick another theme",
+  "nomore.journey": "View my journey",
   "complete.back": "Back to Start",
 
   "journey.eyebrow": "My Journey",
@@ -217,6 +223,12 @@ const FR: Dict = {
   "resume.continue": "Poursuivre l'apprentissage",
   "resume.all_done":
     "Vous avez terminé toutes les leçons de ce thème. Refaites celle-ci, ou choisissez un autre thème.",
+  "nomore.eyebrow": "Tout est à jour",
+  "nomore.title": "Vous avez terminé toutes les leçons pour l'instant.",
+  "nomore.body":
+    "Il n'y a plus de nouvelle leçon à ouvrir dans cette langue pour le moment. Choisissez un autre thème pour refaire une leçon, ou consultez votre parcours.",
+  "nomore.browse": "Choisir un autre thème",
+  "nomore.journey": "Voir mon parcours",
   "complete.back": "Retour au départ",
 
   "journey.eyebrow": "Mon parcours",

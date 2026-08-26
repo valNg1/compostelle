@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import type { ContentItem } from "./content";
-import { selectNextUnitForTheme, type LearningUnit } from "./learningUnit";
+import {
+  selectNextUnitForTheme,
+  selectNextLesson,
+  type LearningUnit,
+} from "./learningUnit";
 import {
   prioritizeRecallForReplay,
   type Annotation,
@@ -62,6 +66,36 @@ describe("selectNextUnitForTheme (issue #7 — do not reserve a completed lesson
       new Set(["h1", "h2"]),
     );
     expect(next?.id).toBe("t1");
+  });
+});
+
+describe("selectNextLesson (issue #8 — 'continue' must open a NEW lesson)", () => {
+  it("opens the next uncompleted lesson of the chosen theme", () => {
+    const next = selectNextLesson(catalog, "it", "history", new Set(["h1"]));
+    expect(next?.id).toBe("h2");
+  });
+
+  it("falls back ACROSS themes when the chosen theme is exhausted (the #8 bug)", () => {
+    // history fully done, but travel still has t1 → continue must open t1,
+    // not silently return null / a blank screen.
+    const next = selectNextLesson(catalog, "it", "history", new Set(["h1", "h2"]));
+    expect(next?.id).toBe("t1");
+  });
+
+  it("returns null only when EVERY playable lesson is completed", () => {
+    const next = selectNextLesson(
+      catalog,
+      "it",
+      "history",
+      new Set(["h1", "h2", "t1"]),
+    );
+    expect(next).toBeNull();
+  });
+
+  it("never reopens a lesson already in the completed set", () => {
+    const next = selectNextLesson(catalog, "it", "surprise_me", new Set(["h1", "h2"]));
+    expect(next?.id).toBe("t1");
+    expect(["h1", "h2"]).not.toContain(next?.id);
   });
 });
 

@@ -6,7 +6,7 @@ import type { MemoryItem, MemorySummary } from "../domain/memory";
 import type { LearningActivity } from "../domain/activity";
 import {
   selectUnitForTheme,
-  selectNextUnitForTheme,
+  selectNextLesson,
   unitTopics,
   type LearningUnit,
   type Theme,
@@ -21,6 +21,7 @@ import { MyJourney } from "./MyJourney";
 import { MySpace } from "./MySpace";
 import { BrandLogo } from "./BrandLogo";
 import { ResumeChoice } from "./ResumeChoice";
+import { NoMoreLessons } from "./NoMoreLessons";
 
 type Section = "home" | "learn" | "journey" | "me";
 const SECTIONS: Section[] = ["home", "learn", "journey", "me"];
@@ -81,11 +82,25 @@ export function AppShell({
   const [theme, setTheme] = useState<Theme>("surprise_me");
   // When arriving on an already-completed lesson, offer the resume choice.
   const [resume, setResume] = useState<LearningUnit | null>(null);
+  // Set when "continue" finds no lesson left to open (issue #8).
+  const [noMore, setNoMore] = useState(false);
 
   const completedIds = useMemo(
     () => new Set(completedUnitIds),
     [completedUnitIds],
   );
+
+  /**
+   * The next lesson "continue" should open. Excludes the just-finished / resumed
+   * unit locally so a slow durable write (Supabase) can't make us reopen it
+   * (issue #8), and falls back across themes when the current theme is done.
+   */
+  function nextLesson(): LearningUnit | null {
+    const done = new Set(completedIds);
+    if (unit) done.add(unit.id);
+    if (resume) done.add(resume.id);
+    return selectNextLesson(CATALOG, journey.language, theme, done);
+  }
 
   useEffect(() => {
     const onHash = () => setSection(sectionFromHash());
@@ -96,26 +111,33 @@ export function AppShell({
   function go(next: Section) {
     setUnit(null);
     setResume(null);
+    setNoMore(false);
     setSection(next);
     if (globalThis.location) globalThis.location.hash = `#/${next}`;
   }
 
   function launchUnit(next: LearningUnit, isReplay: boolean) {
     setResume(null);
+    setNoMore(false);
     setReplay(isReplay);
     setUnit(next);
   }
 
-  /** Continue with the next not-yet-completed lesson of the current theme. */
+  /**
+   * Continue with a NEW lesson (issue #8): open the next eligible lesson, or —
+   * when every playable lesson is completed — show a clear message instead of a
+   * blank screen / silent navigation.
+   */
   function continueLearning() {
-    const next = selectNextUnitForTheme(
-      CATALOG,
-      journey.language,
-      theme,
-      completedIds,
-    );
-    if (next) launchUnit(next, false);
-    else go("journey");
+    const next = nextLesson();
+    if (next) {
+      launchUnit(next, false);
+    } else {
+      setUnit(null);
+      setResume(null);
+      setSection("learn");
+      setNoMore(true);
+    }
   }
 
   // LEARN session takes over the whole screen. Keyed by unit id so switching
@@ -144,6 +166,7 @@ export function AppShell({
 
   function startTheme(nextTheme: Theme) {
     setTheme(nextTheme);
+    setNoMore(false);
     const selected = selectUnitForTheme(CATALOG, journey.language, nextTheme);
     if (!selected) return;
     if (completedIds.has(selected.id)) {
@@ -204,17 +227,16 @@ export function AppShell({
           />
         )}
         {section === "learn" &&
-          (resume ? (
+          (noMore ? (
+            <NoMoreLessons
+              interfaceLanguage={il}
+              onBrowseThemes={() => setNoMore(false)}
+              onViewJourney={() => go("journey")}
+            />
+          ) : resume ? (
             <ResumeChoice
               unitTitle={resume.title}
-              hasNext={
-                selectNextUnitForTheme(
-                  CATALOG,
-                  journey.language,
-                  theme,
-                  completedIds,
-                ) !== null
-              }
+              hasNext={nextLesson() !== null}
               interfaceLanguage={il}
               onReplay={() => launchUnit(resume, true)}
               onContinue={continueLearning}
