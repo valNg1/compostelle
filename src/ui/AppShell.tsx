@@ -22,6 +22,15 @@ import { MySpace } from "./MySpace";
 import { BrandLogo } from "./BrandLogo";
 import { ResumeChoice } from "./ResumeChoice";
 import { NoMoreLessons } from "./NoMoreLessons";
+import { Progression } from "./Progression";
+import { UnitQuiz } from "./UnitQuiz";
+import type { UnitProgressRecord, UnitSignals } from "../domain/progression";
+import {
+  SUBLEVEL_A1_1,
+  A1_1_UNITS,
+  exampleUnit,
+  type ExampleUnit,
+} from "../content/sublevels";
 
 type Section = "home" | "learn" | "journey" | "me";
 const SECTIONS: Section[] = ["home", "learn", "journey", "me"];
@@ -40,6 +49,9 @@ interface AppShellProps {
   activities: LearningActivity[];
   /** Ids of Learning Units the learner has already completed (this language). */
   completedUnitIds: string[];
+  /** Per-unit progression rows (composite scores) for this language. */
+  unitProgress: UnitProgressRecord[];
+  onQuizComplete: (unitId: string, sublevelId: string, signals: UnitSignals) => void;
   interfaceLanguage: InterfaceLanguage;
   userEmail: string | null;
   onSetInterfaceLanguage: (language: InterfaceLanguage) => void;
@@ -67,6 +79,8 @@ export function AppShell({
   memoryItems,
   activities,
   completedUnitIds,
+  unitProgress,
+  onQuizComplete,
   interfaceLanguage,
   userEmail,
   onSetInterfaceLanguage,
@@ -84,6 +98,8 @@ export function AppShell({
   const [resume, setResume] = useState<LearningUnit | null>(null);
   // Set when "continue" finds no lesson left to open (issue #8).
   const [noMore, setNoMore] = useState(false);
+  // Example progression unit being played (quiz), full-screen.
+  const [quizUnit, setQuizUnit] = useState<ExampleUnit | null>(null);
 
   const completedIds = useMemo(
     () => new Set(completedUnitIds),
@@ -138,6 +154,22 @@ export function AppShell({
       setSection("learn");
       setNoMore(true);
     }
+  }
+
+  // A progression quiz takes over the whole screen.
+  if (quizUnit) {
+    return (
+      <UnitQuiz
+        key={quizUnit.id}
+        unit={quizUnit}
+        interfaceLanguage={il}
+        onComplete={(unitId, sublevelId, signals) => {
+          onQuizComplete(unitId, sublevelId, signals);
+          setQuizUnit(null);
+        }}
+        onExit={() => setQuizUnit(null)}
+      />
+    );
   }
 
   // LEARN session takes over the whole screen. Keyed by unit id so switching
@@ -250,13 +282,25 @@ export function AppShell({
             />
           ))}
         {section === "journey" && (
-          <MyJourney
-            journey={journey}
-            memory={memory}
-            items={memoryItems}
-            activities={activities}
-            interfaceLanguage={il}
-          />
+          <>
+            <MyJourney
+              journey={journey}
+              memory={memory}
+              items={memoryItems}
+              activities={activities}
+              interfaceLanguage={il}
+            />
+            {journey.language === SUBLEVEL_A1_1.language && (
+              <Progression
+                level={SUBLEVEL_A1_1.level}
+                sublevel={SUBLEVEL_A1_1}
+                units={A1_1_UNITS}
+                progress={unitProgress}
+                interfaceLanguage={il}
+                onPlayUnit={(id) => setQuizUnit(exampleUnit(id) ?? null)}
+              />
+            )}
+          </>
         )}
         {section === "me" && (
           <MySpace

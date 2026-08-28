@@ -11,16 +11,19 @@ import { JourneyService } from "../application/journeyService";
 import { MemoryService } from "../application/memoryService";
 import { PreferencesService } from "../application/preferencesService";
 import { ActivityService } from "../application/activityService";
+import { ProgressionService } from "../application/progressionService";
 import { LocalJourneyCache } from "./localJourneyCache";
 import { LocalMemoryCache } from "./localMemoryCache";
 import { LocalPreferencesCache } from "./localPreferencesCache";
 import { LocalActivityCache } from "./localActivityCache";
+import { LocalProgressionCache } from "./localProgressionCache";
 import { getSupabaseClient } from "./supabaseClient";
 import { SupabaseAuthService } from "./supabaseAuth";
 import { SupabaseJourneyRepository } from "./supabaseJourneyRepository";
 import { SupabaseMemoryRepository } from "./supabaseMemoryRepository";
 import { SupabasePreferencesRepository } from "./supabasePreferencesRepository";
 import { SupabaseActivityRepository } from "./supabaseActivityRepository";
+import { SupabaseProgressionRepository } from "./supabaseProgressionRepository";
 
 /** The Supabase auth service, or `null` when Supabase is unconfigured. */
 export function getAuthService(): AuthService | null {
@@ -60,4 +63,12 @@ export function createActivityService(userId: string): ActivityService {
   const cache = new LocalActivityCache(userId);
   const durable = client ? new SupabaseActivityRepository(client) : null;
   return new ActivityService(durable, cache, userId);
+}
+
+/** Build a progression service scoped to `userId` (sub-level unit scores). */
+export function createProgressionService(userId: string): ProgressionService {
+  const client = getSupabaseClient();
+  const cache = new LocalProgressionCache(userId);
+  const durable = client ? new SupabaseProgressionRepository(client) : null;
+  return new ProgressionService(durable, cache, userId);
 }

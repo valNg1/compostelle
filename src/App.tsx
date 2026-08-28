@@ -11,12 +11,15 @@ import type { JourneyService } from "./application/journeyService";
 import type { MemoryService, MemoryEvent } from "./application/memoryService";
 import type { PreferencesService } from "./application/preferencesService";
 import type { ActivityService } from "./application/activityService";
+import type { ProgressionService } from "./application/progressionService";
+import type { UnitProgressRecord, UnitSignals } from "./domain/progression";
 import {
   getAuthService,
   createJourneyService,
   createMemoryService,
   createPreferencesService,
   createActivityService,
+  createProgressionService,
 } from "./persistence/createJourneyService";
 import { getLocalUserId } from "./persistence/localJourneyCache";
 import { Onboarding } from "./ui/Onboarding";
@@ -74,6 +77,9 @@ export function App() {
     useState<PreferencesService | null>(null);
   const [activityService, setActivityService] =
     useState<ActivityService | null>(null);
+  const [progressionService, setProgressionService] =
+    useState<ProgressionService | null>(null);
+  const [unitProgress, setUnitProgress] = useState<UnitProgressRecord[]>([]);
   const [journeys, setJourneys] = useState<LanguageJourney[]>([]);
   const [current, setCurrent] = useState<Language | null>(null);
   const [adding, setAdding] = useState(false);
@@ -139,6 +145,7 @@ export function App() {
     const prefs = createPreferencesService(userId);
     setPreferencesService(prefs);
     setActivityService(createActivityService(userId));
+    setProgressionService(createProgressionService(userId));
     prefs
       .load()
       .then((p) => {
@@ -186,6 +193,7 @@ export function App() {
     if (!activityService || current === null) {
       setActivities([]);
       setCompletedUnitIds([]);
+      setUnitProgress([]);
       return;
     }
     let active = true;
@@ -197,10 +205,16 @@ export function App() {
         setActivities(list.slice(0, 5));
         setCompletedUnitIds([...new Set(list.map((a) => a.learningUnitId))]);
       });
+    progressionService
+      ?.list(current)
+      .catch(() => [])
+      .then((rows) => {
+        if (active) setUnitProgress(rows);
+      });
     return () => {
       active = false;
     };
-  }, [activityService, current]);
+  }, [activityService, progressionService, current]);
 
   if (!ready) return null;
 
@@ -267,6 +281,20 @@ export function App() {
     }
   }
 
+  function handleQuizComplete(
+    unitId: string,
+    sublevelId: string,
+    signals: UnitSignals,
+  ) {
+    if (!progressionService || current === null) return;
+    void progressionService
+      .record(current, sublevelId, unitId, signals)
+      .then((rows) => {
+        if (current !== null) setUnitProgress(rows);
+      })
+      .catch(() => {});
+  }
+
   async function handleSignOut() {
     setJourneys([]);
     setCurrent(null);
@@ -322,6 +350,8 @@ export function App() {
         memoryItems={memoryItems}
         activities={activities}
         completedUnitIds={completedUnitIds}
+        unitProgress={unitProgress}
+        onQuizComplete={handleQuizComplete}
         interfaceLanguage={interfaceLanguage}
         userEmail={userEmail}
         onSetInterfaceLanguage={handleSetInterfaceLanguage}
