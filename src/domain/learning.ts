@@ -212,16 +212,78 @@ export interface SentenceCorrection {
  */
 export type SentenceCorrector = (sentence: string) => SentenceCorrection;
 
+/** A word-level diff segment between the learner's sentence and the correction. */
+export interface DiffSegment {
+  text: string;
+  type: "same" | "add" | "remove";
+}
+
+/**
+ * Normalize a sentence for MEANINGFUL comparison (issue #10): case-, accent-,
+ * whitespace- and punctuation-insensitive. Used to avoid proposing a correction
+ * when the "fix" only differs cosmetically from what the learner wrote.
+ */
+export function normalizeForCompare(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[.,;:!?…]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** Word-level diff (LCS) so the UI can show WHAT changed, not an opaque swap. */
+export function diffWords(a: string, b: string): DiffSegment[] {
+  const aw = a.trim().split(/\s+/).filter(Boolean);
+  const bw = b.trim().split(/\s+/).filter(Boolean);
+  const eq = (x: string, y: string) => normalizeForCompare(x) === normalizeForCompare(y);
+  const n = aw.length;
+  const m = bw.length;
+  const dp: number[][] = Array.from({ length: n + 1 }, () =>
+    new Array<number>(m + 1).fill(0),
+  );
+  for (let i = n - 1; i >= 0; i--) {
+    const row = dp[i]!;
+    const next = dp[i + 1]!;
+    for (let j = m - 1; j >= 0; j--) {
+      row[j] = eq(aw[i]!, bw[j]!)
+        ? next[j + 1]! + 1
+        : Math.max(next[j]!, row[j + 1]!);
+    }
+  }
+  const out: DiffSegment[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < n && j < m) {
+    if (eq(aw[i]!, bw[j]!)) {
+      out.push({ text: bw[j]!, type: "same" });
+      i++;
+      j++;
+    } else if (dp[i + 1]![j]! >= dp[i]![j + 1]!) {
+      out.push({ text: aw[i]!, type: "remove" });
+      i++;
+    } else {
+      out.push({ text: bw[j]!, type: "add" });
+      j++;
+    }
+  }
+  while (i < n) out.push({ text: aw[i++]!, type: "remove" });
+  while (j < m) out.push({ text: bw[j++]!, type: "add" });
+  return out;
+}
+
 /**
  * The three states surfaced to the UI:
  *  - `expression-missing`: the target expression was not used;
- *  - `needs-correction`: expression used but the sentence is not correct — a
- *    full reformulated `correction` is proposed;
- *  - `valid`: expression used and the whole sentence is correct.
+ *  - `needs-correction`: expression used but the sentence is genuinely wrong —
+ *    a corrected `correction` is proposed, with a word-level `diff`;
+ *  - `valid`: expression used and the sentence is correct (or differs only
+ *    cosmetically from the correction).
  */
 export type UseEvaluation =
   | { state: "expression-missing" }
-  | { state: "needs-correction"; correction: string }
+  | { state: "needs-correction"; correction: string; diff: DiffSegment[] }
   | { state: "valid" };
 
 /**
@@ -254,8 +316,27 @@ export function evaluateUse(
   if (!answerUsesKeyExpression(answer, use.keyExpressions)) {
     return { state: "expression-missing" };
   }
-  const { correct, correction } = corrector(answer);
-  return correct ? { state: "valid" } : { state: "needs-correction", correction };
+  return decideCorrection(answer, corrector(answer));
+}
+
+/**
+ * Shared decision (issue #10): only surface a correction when it differs
+ * MEANINGFULLY from what the learner wrote (case/accent/space/punctuation
+ * differences are not errors). Otherwise the answer is valid.
+ */
+function decideCorrection(
+  answer: string,
+  { correct, correction }: SentenceCorrection,
+): UseEvaluation {
+  if (correct) return { state: "valid" };
+  if (normalizeForCompare(answer) === normalizeForCompare(correction)) {
+    return { state: "valid" };
+  }
+  return {
+    state: "needs-correction",
+    correction,
+    diff: diffWords(answer.trim(), correction),
+  };
 }
 
 /**
@@ -278,8 +359,7 @@ export async function evaluateUseAsync(
   if (!answerUsesKeyExpression(answer, use.keyExpressions)) {
     return { state: "expression-missing" };
   }
-  const { correct, correction } = await corrector(answer, language);
-  return correct ? { state: "valid" } : { state: "needs-correction", correction };
+  return decideCorrection(answer, await corrector(answer, language));
 }
 
 /** A LanguageTool `/v2/check` match (only the fields we consume). */

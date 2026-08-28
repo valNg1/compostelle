@@ -4,6 +4,8 @@ import {
   evaluateUseAsync,
   applyLanguageToolMatches,
   deterministicCorrector,
+  normalizeForCompare,
+  diffWords,
   type SentenceCorrector,
   type AsyncSentenceCorrector,
 } from "./learning";
@@ -71,6 +73,65 @@ describe("deterministicCorrector (fallback when no grammar service is configured
   });
 });
 
+describe("no correction without a real diff (issue #10)", () => {
+  const cosmetic: SentenceCorrector = () => ({
+    correct: false,
+    correction: "Prendo l'ultima corsa.", // only case + trailing period differ
+  });
+  const realFix: SentenceCorrector = () => ({
+    correct: false,
+    correction: "Io mangio l'ultima corsa.",
+  });
+
+  it("does NOT propose a correction when the only difference is case/punctuation", () => {
+    const r = evaluateUse("prendo l'ultima corsa", use, cosmetic);
+    expect(r.state).toBe("valid");
+  });
+
+  it("does NOT flag a correct sentence via the deterministic fallback (the #10 bug)", () => {
+    // Default corrector only tidies surface form → must validate, not 'correct'.
+    expect(evaluateUse("prendo l'ultima corsa", use).state).toBe("valid");
+    expect(evaluateUse("Prendo l'ultima corsa.", use).state).toBe("valid");
+  });
+
+  it("ignores accent-only differences", () => {
+    const accents: SentenceCorrector = () => ({
+      correct: false,
+      correction: "Pérdo l'ultima corsa",
+    });
+    // "perdo" vs "pérdo" — accent only → treated as equivalent, no correction
+    expect(evaluateUse("perdo l'ultima corsa", use, accents).state).toBe("valid");
+  });
+
+  it("DOES propose a correction (with a diff) when the sentence is really wrong", () => {
+    const r = evaluateUse("io magno l'ultima corsa", use, realFix);
+    expect(r.state).toBe("needs-correction");
+    if (r.state === "needs-correction") {
+      expect(r.correction).toBe("Io mangio l'ultima corsa.");
+      const changed = r.diff.filter((d) => d.type !== "same");
+      expect(changed.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("normalizeForCompare + diffWords (issue #10)", () => {
+  it("normalizes case, accents, whitespace and trailing punctuation", () => {
+    expect(normalizeForCompare("  Perdó  l'ultima  corsa. ")).toBe(
+      normalizeForCompare("perdo l'ultima corsa"),
+    );
+  });
+
+  it("marks the changed word as removed/added and keeps the rest", () => {
+    const diff = diffWords("io magno la pizza", "io mangio la pizza");
+    const removed = diff.filter((d) => d.type === "remove").map((d) => d.text);
+    const added = diff.filter((d) => d.type === "add").map((d) => d.text);
+    const same = diff.filter((d) => d.type === "same").map((d) => d.text);
+    expect(removed).toContain("magno");
+    expect(added).toContain("mangio");
+    expect(same).toEqual(expect.arrayContaining(["io", "la", "pizza"]));
+  });
+});
+
 describe("applyLanguageToolMatches (build the corrected sentence)", () => {
   it("applies a single replacement", () => {
     const out = applyLanguageToolMatches("prendo l'ultima corsa", [
@@ -111,10 +172,11 @@ describe("evaluateUseAsync (network-backed corrector, e.g. LanguageTool)", () =>
 
   it("(b) needs-correction with the corrected sentence from the service", async () => {
     const r = await evaluateUseAsync("prendo l'ultima corsa", use, "it", wrong);
-    expect(r).toEqual({
-      state: "needs-correction",
-      correction: "Prendo l'ultima corsa del tram.",
-    });
+    expect(r.state).toBe("needs-correction");
+    if (r.state === "needs-correction") {
+      expect(r.correction).toBe("Prendo l'ultima corsa del tram.");
+      expect(r.diff.some((d) => d.type !== "same")).toBe(true);
+    }
   });
 
   it("(c) valid when the service reports no error", async () => {

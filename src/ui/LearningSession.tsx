@@ -386,8 +386,19 @@ export function LearningSession({
                     {t("use.needs_correction", il)}
                   </p>
                   <p className="use__correction">
-                    <strong>{t("use.correction", il)}</strong>{" "}
-                    {evaluation.correction}
+                    {evaluation.diff.map((d, i) =>
+                      d.type === "same" ? (
+                        <span key={i}>{d.text} </span>
+                      ) : d.type === "add" ? (
+                        <span key={i} className="diff diff--add">
+                          {d.text}{" "}
+                        </span>
+                      ) : (
+                        <span key={i} className="diff diff--remove">
+                          {d.text}{" "}
+                        </span>
+                      ),
+                    )}
                   </p>
                 </>
               )}

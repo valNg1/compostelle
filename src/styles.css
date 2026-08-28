@@ -1245,3 +1245,14 @@ body {
   gap: 14px;
   margin-top: 4px;
 }
+
+/* ── USE correction diff (issue #10) ─────────────────────────────── */
+.diff--add {
+  color: var(--accent);
+  font-weight: 600;
+}
+.diff--remove {
+  color: #c98a8a;
+  text-decoration: line-through;
+  opacity: 0.75;
+}
