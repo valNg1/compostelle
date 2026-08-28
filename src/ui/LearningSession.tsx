@@ -33,6 +33,12 @@ export interface SessionResult {
   unitTitle: string;
   recalled: number;
   used: number;
+  /** Progression mapping: the sub-level this lesson counts toward, if any. */
+  sublevelId?: string;
+  /** reuse signal ∈ [0,1]: fraction of key expressions reused in USE. */
+  reuse: number;
+  /** corrections signal ∈ [0,1]: 1 unless a real grammar correction was needed. */
+  corrections: number;
 }
 
 interface LearningSessionProps {
@@ -209,11 +215,23 @@ export function LearningSession({
     const usedCount = new Set(
       events.filter((e) => e.signal === "used").map((e) => e.expression),
     ).size;
+    // Progression signals (model B): reuse from the USE step, corrections from
+    // the grammar evaluation. Quiz is absent for a LEARN article → caps at 0.60.
+    const keys = content.use.keyExpressions;
+    const reuse =
+      keys.length === 0
+        ? 0
+        : keys.filter((k) => answerUsesKeyExpression(answer, [k])).length /
+          keys.length;
+    const corrections = evaluation?.state === "needs-correction" ? 0 : 1;
     onFinish(events, {
       learningUnitId: content.id,
       unitTitle: content.title,
       recalled,
       used: usedCount,
+      sublevelId: content.sublevelId,
+      reuse,
+      corrections,
     });
     setPhase("complete");
   }

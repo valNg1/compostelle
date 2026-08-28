@@ -73,6 +73,12 @@ export interface ContentItem {
   annotations?: Annotation[];
   recall?: RecallItem[];
   use?: UsePrompt;
+  /**
+   * Progression mapping (model B): the sub-level this LEARN lesson counts toward.
+   * Completing it records a `unit_progress` row (scored on reuse + corrections,
+   * no quiz → caps at 0.60). Absent = the lesson does not feed progression.
+   */
+  sublevelId?: string;
 }
 
 /** Find a content item by id, or `null` if it does not exist. */

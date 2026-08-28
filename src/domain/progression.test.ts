@@ -41,6 +41,23 @@ describe("unitScore — weighted composite (issue: composite acquisition)", () =
   });
 });
 
+describe("model B — partial scoring for a unit WITHOUT quiz (LEARN article)", () => {
+  it("scores a bare article on reuse + corrections and caps at 0.60 (= threshold)", () => {
+    // no quiz signal → 0.40*reuse + 0.20*corrections, NOT re-normalized
+    expect(unitScore({ reuse: 1, corrections: 1 })).toBeCloseTo(0.6, 5);
+    expect(unitScore({ reuse: 1, corrections: 1 })).toBeCloseTo(PASS, 5);
+  });
+
+  it("a perfect bare article (0.60) reaches the lowered threshold", () => {
+    expect(unitScore({ reuse: 1, corrections: 1 })).toBeGreaterThanOrEqual(PASS);
+  });
+
+  it("a unit WITH quiz keeps the full formula", () => {
+    expect(unitScore({ quiz: 1, reuse: 1, corrections: 1 })).toBeCloseTo(1, 5);
+    expect(unitScore({ quiz: 0.5, reuse: 0.5, corrections: 0.5 })).toBeCloseTo(0.5, 5);
+  });
+});
+
 describe("scoreQuiz — quiz signal from 5 questions", () => {
   const qs: QuizQuestion[] = Array.from({ length: 5 }, (_, i) => ({
     id: `q${i}`,
@@ -73,13 +90,14 @@ function units(scores: number[], completed = true): UnitProgress[] {
   return scores.map((s, i) => ({ unitId: `u${i}`, completed, score: s }));
 }
 
-describe("isSublevelAcquired — all units done AND mean >= 0.80", () => {
+describe("isSublevelAcquired — all units done AND mean >= PASS_THRESHOLD", () => {
   it("acquired when all 5 units completed and mean reaches the threshold", () => {
     expect(isSublevelAcquired(units([0.9, 0.85, 0.8, 0.8, 0.9]))).toBe(true);
   });
 
   it("NOT acquired when the mean is below the threshold", () => {
-    expect(isSublevelAcquired(units([0.9, 0.6, 0.8, 0.7, 0.9]))).toBe(false);
+    // mean 0.46 < 0.60
+    expect(isSublevelAcquired(units([0.5, 0.4, 0.6, 0.3, 0.5]))).toBe(false);
   });
 
   it("NOT acquired when not every unit is completed, even if the mean is high", () => {
@@ -89,12 +107,12 @@ describe("isSublevelAcquired — all units done AND mean >= 0.80", () => {
 });
 
 describe("failingUnits — targeted retry redoes ONLY units below the threshold", () => {
-  it("returns exactly the completed units under the threshold", () => {
+  it("returns exactly the completed units under the threshold (0.60)", () => {
     const u: UnitProgress[] = [
       { unitId: "a", completed: true, score: 0.9 },
       { unitId: "b", completed: true, score: 0.5 },
-      { unitId: "c", completed: true, score: 0.79 },
-      { unitId: "d", completed: true, score: 0.8 },
+      { unitId: "c", completed: true, score: 0.55 },
+      { unitId: "d", completed: true, score: 0.6 }, // exactly at threshold → passes
     ];
     expect(failingUnits(u)).toEqual(["b", "c"]);
   });
@@ -116,7 +134,8 @@ describe("sublevelStatus + unlocking", () => {
     expect(sublevelStatus(units([0.9, 0.9], true), true)).toBe("in-progress");
   });
   it("retry when all units done but the composite is below the threshold", () => {
-    expect(sublevelStatus(units([0.9, 0.5, 0.8, 0.7, 0.9]), true)).toBe("retry");
+    // mean 0.46 < 0.60
+    expect(sublevelStatus(units([0.5, 0.4, 0.6, 0.3, 0.5]), true)).toBe("retry");
   });
   it("acquired when all units done and threshold reached", () => {
     expect(sublevelStatus(units([0.9, 0.85, 0.8, 0.8, 0.9]), true)).toBe("acquired");
@@ -138,7 +157,7 @@ describe("sublevelStatus + unlocking", () => {
 describe("config sanity", () => {
   it("weights sum to 1 and threshold/counts are as specified", () => {
     expect(W.quiz + W.reuse + W.corrections).toBeCloseTo(1, 5);
-    expect(PASS).toBe(0.8);
+    expect(PASS).toBe(0.6);
     expect(N).toBe(5);
     expect(PROGRESSION_CONFIG.QUIZ_QUESTIONS_PER_UNIT).toBe(5);
   });

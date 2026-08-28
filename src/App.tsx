@@ -279,6 +279,19 @@ export function App() {
         })
         .catch(() => {});
     }
+    // Fusion LEARN → progression (model B): a LEARN lesson mapped to a sub-level
+    // records a unit_progress scored on reuse + corrections (no quiz).
+    if (progressionService && result.sublevelId) {
+      void progressionService
+        .record(language, result.sublevelId, result.learningUnitId, {
+          reuse: result.reuse,
+          corrections: result.corrections,
+        })
+        .then((rows) => {
+          if (language === current) setUnitProgress(rows);
+        })
+        .catch(() => {});
+    }
   }
 
   function handleQuizComplete(

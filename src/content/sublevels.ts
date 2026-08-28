@@ -12,6 +12,9 @@
  */
 
 import type { QuizQuestion } from "../domain/progression";
+import type { Language } from "../domain/language";
+import { isPlayable } from "../domain/learning";
+import { CATALOG } from "./catalog";
 
 /** A minimal, quiz-driven learning unit inside a sub-level. */
 export interface ExampleUnit {
@@ -136,4 +139,61 @@ export const EXAMPLE_SUBLEVELS: Sublevel[] = [SUBLEVEL_A1_1];
 
 export function exampleUnit(unitId: string): ExampleUnit | undefined {
   return A1_1_UNITS.find((u) => u.id === unitId);
+}
+
+// --- Unified progression registry (quiz units + LEARN article units) --------
+
+/** A unit shown in the progression view, from either a quiz or a LEARN lesson. */
+export interface ProgressionUnitRef {
+  unitId: string;
+  title: string;
+  /** true = 5-question quiz unit; false = LEARN article (model B, caps at 0.60). */
+  hasQuiz: boolean;
+}
+
+export interface ProgressionSublevel {
+  id: string;
+  level: string;
+  index: number;
+  title: string;
+  language: Language;
+  units: ProgressionUnitRef[];
+}
+
+/** LEARN articles mapped to a sub-level (model B), in catalog order. */
+function articleUnits(sublevelId: string, language: Language): ProgressionUnitRef[] {
+  return CATALOG.filter(
+    (c) => c.language === language && c.sublevelId === sublevelId && isPlayable(c),
+  ).map((c) => ({ unitId: c.id, title: c.title, hasQuiz: false }));
+}
+
+/**
+ * All progression sub-levels for a language. A1.1 = quiz units; A1.2 = the LEARN
+ * articles tagged with that sub-level (fed by completing the LEARN loop). One
+ * view, one composite — whatever the unit's source.
+ */
+export function progressionSublevels(language: Language): ProgressionSublevel[] {
+  if (language !== "it") return [];
+  return [
+    {
+      id: SUBLEVEL_A1_1.id,
+      level: SUBLEVEL_A1_1.level,
+      index: SUBLEVEL_A1_1.index,
+      title: SUBLEVEL_A1_1.title,
+      language: "it",
+      units: A1_1_UNITS.map((u) => ({
+        unitId: u.id,
+        title: u.title,
+        hasQuiz: true,
+      })),
+    },
+    {
+      id: "A1.2",
+      level: "A1",
+      index: 2,
+      title: "First readings",
+      language: "it",
+      units: articleUnits("A1.2", "it"),
+    },
+  ];
 }

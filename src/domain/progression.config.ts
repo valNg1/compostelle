@@ -28,7 +28,9 @@ export interface ProgressionConfig {
 export const PROGRESSION_CONFIG: ProgressionConfig = {
   SUBLEVELS_PER_LEVEL: 3,
   UNITS_PER_SUBLEVEL: 5,
-  PASS_THRESHOLD: 0.8,
+  // Lowered to 0.60 so a bare LEARN article (no quiz → caps at reuse 0.40 +
+  // corrections 0.20 = 0.60, model B) can pass — encouraging real usage.
+  PASS_THRESHOLD: 0.6,
   WEIGHTS: { quiz: 0.4, reuse: 0.4, corrections: 0.2 },
   QUIZ_QUESTIONS_PER_UNIT: 5,
 };

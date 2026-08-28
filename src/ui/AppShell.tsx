@@ -8,6 +8,7 @@ import {
   selectUnitForTheme,
   selectNextLesson,
   unitTopics,
+  toLearningUnit,
   type LearningUnit,
   type Theme,
 } from "../domain/learningUnit";
@@ -26,8 +27,7 @@ import { Progression } from "./Progression";
 import { UnitQuiz } from "./UnitQuiz";
 import type { UnitProgressRecord, UnitSignals } from "../domain/progression";
 import {
-  SUBLEVEL_A1_1,
-  A1_1_UNITS,
+  progressionSublevels,
   exampleUnit,
   type ExampleUnit,
 } from "../content/sublevels";
@@ -196,6 +196,19 @@ export function AppShell({
     );
   }
 
+  /** Play/redo a progression unit: a quiz unit runs the quiz; a LEARN article
+   * unit launches its lesson (which, on completion, records progression). */
+  function playProgressionUnit(unitId: string) {
+    const quiz = exampleUnit(unitId);
+    if (quiz) {
+      setQuizUnit(quiz);
+      return;
+    }
+    const article = CATALOG.find((c) => c.id === unitId);
+    const learnUnit = article ? toLearningUnit(article) : null;
+    if (learnUnit) launchUnit(learnUnit, false);
+  }
+
   function startTheme(nextTheme: Theme) {
     setTheme(nextTheme);
     setNoMore(false);
@@ -290,14 +303,13 @@ export function AppShell({
               activities={activities}
               interfaceLanguage={il}
             />
-            {journey.language === SUBLEVEL_A1_1.language && (
+            {progressionSublevels(journey.language).length > 0 && (
               <Progression
-                level={SUBLEVEL_A1_1.level}
-                sublevel={SUBLEVEL_A1_1}
-                units={A1_1_UNITS}
+                level="A1"
+                sublevels={progressionSublevels(journey.language)}
                 progress={unitProgress}
                 interfaceLanguage={il}
-                onPlayUnit={(id) => setQuizUnit(exampleUnit(id) ?? null)}
+                onPlayUnit={playProgressionUnit}
               />
             )}
           </>

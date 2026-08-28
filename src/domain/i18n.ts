@@ -139,6 +139,8 @@ const EN: Dict = {
   "progress.status_locked": "Locked",
   "progress.play": "Play",
   "progress.redo": "Redo",
+  "progress.no_quiz": "no quiz — scored on reuse + corrections",
+  "progress.locked_hint": "Acquire the previous sub-level to unlock this one.",
   "quiz.finish": "Finish unit",
   "complete.back": "Back to Start",
 
@@ -254,6 +256,8 @@ const FR: Dict = {
   "progress.status_locked": "Verrouillé",
   "progress.play": "Jouer",
   "progress.redo": "Refaire",
+  "progress.no_quiz": "sans quiz — noté sur réutilisation + corrections",
+  "progress.locked_hint": "Acquérez le sous-jalon précédent pour débloquer celui-ci.",
   "quiz.finish": "Terminer l'unité",
   "complete.back": "Retour au départ",
 

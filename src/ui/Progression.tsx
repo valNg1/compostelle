@@ -1,6 +1,7 @@
 /*
  * COMPOSTEL — progression view: sub-levels, readable per-unit and per-sub-level
- * scores, acquisition status and targeted retry (only the units below threshold).
+ * scores, acquisition status and targeted retry. Units come from BOTH sources —
+ * quiz units and LEARN articles (model B) — feeding one composite, one view.
  */
 
 import { t, type InterfaceLanguage } from "../domain/i18n";
@@ -10,17 +11,15 @@ import {
   sublevelStatus,
   isSublevelAcquired,
   failingUnits,
-  sublevelIdsForLevel,
   isSublevelUnlocked,
   type UnitProgressRecord,
   type SublevelStatus,
 } from "../domain/progression";
-import type { Sublevel, ExampleUnit } from "../content/sublevels";
+import type { ProgressionSublevel } from "../content/sublevels";
 
 interface ProgressionProps {
-  level: string; // e.g. "A1"
-  sublevel: Sublevel; // the one complete example sub-level (A1.1)
-  units: ExampleUnit[];
+  level: string;
+  sublevels: ProgressionSublevel[];
   progress: UnitProgressRecord[];
   interfaceLanguage: InterfaceLanguage;
   onPlayUnit: (unitId: string) => void;
@@ -34,28 +33,26 @@ function statusLabel(status: SublevelStatus, il: InterfaceLanguage): string {
 
 export function Progression({
   level,
-  sublevel,
-  units,
+  sublevels,
   progress,
   interfaceLanguage: il,
   onPlayUnit,
 }: ProgressionProps) {
   const byUnit = new Map(progress.map((r) => [r.unitId, r]));
-  const unitProgress = units.map((u) => {
-    const r = byUnit.get(u.id);
-    return { unitId: u.id, completed: r?.completed ?? false, score: r?.score ?? 0 };
+
+  const perSublevel = sublevels.map((sl) => {
+    const unitProgress = sl.units.map((u) => {
+      const r = byUnit.get(u.unitId);
+      return { unitId: u.unitId, completed: r?.completed ?? false, score: r?.score ?? 0 };
+    });
+    return {
+      sl,
+      unitProgress,
+      acquired: isSublevelAcquired(unitProgress, sl.units.length),
+      allArticles: sl.units.every((u) => !u.hasQuiz),
+    };
   });
-
-  const acquired = isSublevelAcquired(unitProgress);
-  const composite = sublevelScore(
-    unitProgress.filter((u) => u.completed).map((u) => u.score),
-  );
-  const status = sublevelStatus(unitProgress, true);
-  const failing = new Set(failingUnits(unitProgress));
-
-  // Structure of the whole level (only A1.1 has content; the rest are locked).
-  const ids = sublevelIdsForLevel(level);
-  const acquiredFlags = ids.map((id) => (id === sublevel.id ? acquired : false));
+  const acquiredFlags = perSublevel.map((p) => p.acquired);
 
   return (
     <section className="prog" aria-labelledby="prog-title">
@@ -68,62 +65,68 @@ export function Progression({
         })}
       </p>
 
-      {ids.map((id, i) => {
-        if (id !== sublevel.id) {
-          const unlocked = isSublevelUnlocked(i, acquiredFlags);
-          return (
-            <div key={id} className="sublevel sublevel--locked">
-              <div className="sublevel__head">
-                <span className="sublevel__id">{id}</span>
-                <span className="badge">
-                  {statusLabel(unlocked ? "in-progress" : "locked", il)}
-                </span>
-              </div>
-              <p className="sublevel__note">{t("progress.soon", il)}</p>
-            </div>
-          );
-        }
+      {perSublevel.map(({ sl, unitProgress, allArticles }, i) => {
+        // Article sub-levels mirror the always-open LEARN loop; quiz sub-levels
+        // follow the unlock chain.
+        const unlocked = allArticles || isSublevelUnlocked(i, acquiredFlags);
+        const status = sublevelStatus(unitProgress, unlocked, sl.units.length);
+        const composite = sublevelScore(
+          unitProgress.filter((u) => u.completed).map((u) => u.score),
+        );
+        const failing = new Set(failingUnits(unitProgress));
+
         return (
-          <div key={id} className={`sublevel sublevel--${status}`}>
+          <div key={sl.id} className={`sublevel sublevel--${status}`}>
             <div className="sublevel__head">
               <span className="sublevel__id">
-                {id} · {sublevel.title}
+                {sl.id} · {sl.title}
               </span>
               <span className={`badge badge--${status}`}>
-                {statusLabel(status, il)} · {pct(composite)}
+                {statusLabel(status, il)}
+                {status !== "locked" ? ` · ${pct(composite)}` : ""}
               </span>
             </div>
 
-            {status === "retry" && (
-              <p className="sublevel__note sublevel__note--retry">
-                {t("progress.retry_hint", il)}
-              </p>
+            {status === "locked" ? (
+              <p className="sublevel__note">{t("progress.locked_hint", il)}</p>
+            ) : (
+              <>
+                {status === "retry" && (
+                  <p className="sublevel__note sublevel__note--retry">
+                    {t("progress.retry_hint", il)}
+                  </p>
+                )}
+                <ul className="unitlist">
+                  {sl.units.map((u) => {
+                    const p = byUnit.get(u.unitId);
+                    const done = p?.completed ?? false;
+                    const needsRetry = failing.has(u.unitId);
+                    return (
+                      <li key={u.unitId} className="unitrow">
+                        <div className="unitrow__main">
+                          <span className="unitrow__title">{u.title}</span>
+                          {!u.hasQuiz && (
+                            <span className="unitrow__tag">
+                              {t("progress.no_quiz", il)}
+                            </span>
+                          )}
+                          <span className="unitrow__score">
+                            {done ? pct(p!.score) : "—"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className={"chip" + (needsRetry ? " chip--on" : "")}
+                          onClick={() => onPlayUnit(u.unitId)}
+                        >
+                          {done ? t("progress.redo", il) : t("progress.play", il)}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
             )}
-
-            <ul className="unitlist">
-              {units.map((u) => {
-                const p = byUnit.get(u.id);
-                const done = p?.completed ?? false;
-                const needsRetry = failing.has(u.id);
-                return (
-                  <li key={u.id} className="unitrow">
-                    <div className="unitrow__main">
-                      <span className="unitrow__title">{u.title}</span>
-                      <span className="unitrow__score">
-                        {done ? pct(p!.score) : "—"}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className={"chip" + (needsRetry ? " chip--on" : "")}
-                      onClick={() => onPlayUnit(u.id)}
-                    >
-                      {done ? t("progress.redo", il) : t("progress.play", il)}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
           </div>
         );
       })}

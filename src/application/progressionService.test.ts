@@ -61,13 +61,13 @@ describe("end-to-end chain: play units → score → acquire / retry / unlock", 
   it("acquires A1.1 only after all 5 units pass, retrying the weak ones", async () => {
     const svc = new ProgressionService(null, new MapCache(), "u");
     const units = ["u1", "u2", "u3", "u4", "u5"];
-    // First pass: u2 and u4 are weak (below 0.8).
+    // First pass: u2 and u4 are weak (below the 0.60 threshold); mean 0.57 < 0.60.
     const firstPass: Record<string, number> = {
-      u1: 0.9,
-      u2: 0.5,
-      u3: 0.85,
-      u4: 0.6,
-      u5: 0.9,
+      u1: 0.7,
+      u2: 0.4,
+      u3: 0.7,
+      u4: 0.4,
+      u5: 0.65,
     };
     for (const id of units) {
       const s = firstPass[id]!;
