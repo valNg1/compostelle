@@ -239,26 +239,37 @@ export function LearningSession({
           />
         </div>
 
-        {active && (
-          <aside className="understand" aria-live="polite">
-            <button
-              type="button"
-              className="understand__close"
-              aria-label="Close"
-              onClick={() => setActive(null)}
-            >
-              ×
-            </button>
-            <p className="understand__expr">{active.expression}</p>
-            <p className="understand__translation">
-              {annotationTranslation(active, il)}
-            </p>
-            <p className="understand__meaning">{active.meaning}</p>
-            {active.example && (
-              <p className="understand__example">“{active.example}”</p>
-            )}
-          </aside>
-        )}
+        {active &&
+          (() => {
+            const translation = annotationTranslation(active, il).trim();
+            const meaning = active.meaning.trim();
+            const hasDefinition = Boolean(translation || meaning);
+            return (
+              <aside className="understand" aria-live="polite">
+                <button
+                  type="button"
+                  className="understand__close"
+                  aria-label="Close"
+                  onClick={() => setActive(null)}
+                >
+                  ×
+                </button>
+                <p className="understand__expr">{active.expression}</p>
+                {translation && (
+                  <p className="understand__translation">{translation}</p>
+                )}
+                {meaning && <p className="understand__meaning">{meaning}</p>}
+                {!hasDefinition && (
+                  <p className="understand__meaning understand__meaning--empty">
+                    {t("understand.no_definition", il)}
+                  </p>
+                )}
+                {active.example && (
+                  <p className="understand__example">“{active.example}”</p>
+                )}
+              </aside>
+            );
+          })()}
 
         <button type="button" className="cta" onClick={() => setPhase("recall")}>
           {t("ls.continue", il)}

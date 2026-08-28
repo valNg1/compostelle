@@ -45,6 +45,21 @@ export function annotationTranslation(
   );
 }
 
+/**
+ * The best available definition for a highlighted expression (issue #12):
+ * the target-language meaning if present, else the interface-language
+ * translation. Returns "" only when neither exists — the UI then shows an
+ * explicit fallback so a highlighted word is never a dead end.
+ */
+export function annotationDefinition(
+  annotation: Annotation,
+  interfaceLanguage: InterfaceLanguage,
+): string {
+  const meaning = annotation.meaning?.trim();
+  if (meaning) return meaning;
+  return annotationTranslation(annotation, interfaceLanguage)?.trim() ?? "";
+}
+
 /** Kinds of short recall interaction. */
 export type RecallKind = "meaning" | "gap" | "comprehension";
 

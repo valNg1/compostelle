@@ -85,6 +85,7 @@ const EN: Dict = {
   "me.reset_password": "Reset password · soon",
 
   "ls.hint": "Tap the highlighted expressions to understand them.",
+  "understand.no_definition": "Definition coming soon for this expression.",
   "ls.continue": "Continue",
 
   "recall.eyebrow": "Recall",
@@ -187,6 +188,7 @@ const FR: Dict = {
   "me.reset_password": "Réinitialiser le mot de passe · bientôt",
 
   "ls.hint": "Touchez les expressions surlignées pour les comprendre.",
+  "understand.no_definition": "Définition bientôt disponible pour cette expression.",
   "ls.continue": "Continuer",
 
   "recall.eyebrow": "Rappel",
