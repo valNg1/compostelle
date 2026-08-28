@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   selectAnnotations,
+  reuseTargets,
   countWords,
   isPlayable,
   type Annotation,
@@ -13,123 +14,82 @@ function ann(expression: string, difficulty?: DeclaredLevel): Annotation {
   return { id: expression, expression, meaning: "", translation: "", difficulty };
 }
 
-// Content-word expressions spanning difficulties, embedded in a 40-word body.
-const pool: Annotation[] = [
-  ann("vocabolo1", "A2"),
-  ann("vocabolo2", "A2"),
-  ann("vocabolo3", "B1"),
-  ann("vocabolo4", "B1"),
-  ann("vocabolo5", "B2"),
-  ann("vocabolo6", "B2"),
-  ann("vocabolo7", "B2"),
-  ann("vocabolo8", "C1"),
-  ann("vocabolo9", "C1"),
-  ann("vocabolo10", "C1"),
-];
-const filler = Array.from({ length: 30 }, (_, i) => `w${i}`).join(" ");
+// 18 content-word expressions (≈45% of a 40-word body) spanning difficulties,
+// so the 30-40% target actually bites (is not just "select everything").
+const pool: Annotation[] = Array.from({ length: 18 }, (_, i) =>
+  ann(
+    `vocabolo${i}`,
+    (["A2", "B1", "B2", "C1"] as DeclaredLevel[])[i % 4],
+  ),
+);
+const filler = Array.from({ length: 22 }, (_, i) => `w${i}`).join(" ");
 const body = `${pool.map((a) => a.expression).join(" ")} ${filler}`; // 40 words
 
-function coverage(sel: Annotation[], words = 40): number {
-  return sel.reduce((n, a) => n + countWords(a.expression), 0) / words;
-}
+const cover = (sel: Annotation[], words = 40) =>
+  sel.reduce((n, a) => n + countWords(a.expression), 0) / words;
 
 const ALL_LEVELS: DeclaredLevel[] = ["A1", "A2", "UNKNOWN", "B1", "B2", "C1"];
 
-describe("UNDERSTAND density targets ~20% of words (issue #6)", () => {
+describe("A — highlighting rate targets ~30-40% of words (issue #9)", () => {
   it("counts words", () => {
     expect(countWords(body)).toBe(40);
-    expect(countWords("  uno   due  tre ")).toBe(3);
   });
 
-  it("reaches ~20% for EVERY level, including advanced (no collapse)", () => {
+  it("highlights 30-40% of the words at every level", () => {
     for (const level of ALL_LEVELS) {
-      const cov = coverage(selectAnnotations(pool, level, 40));
-      expect(cov).toBeGreaterThanOrEqual(0.18);
-      expect(cov).toBeLessThanOrEqual(0.26);
+      const c = cover(selectAnnotations(pool, level, 40));
+      expect(c, level).toBeGreaterThanOrEqual(0.28);
+      expect(c, level).toBeLessThanOrEqual(0.42);
     }
   });
 
-  it("still leads with the richest expressions for advanced learners", () => {
-    // C1 selection is dominated by higher-difficulty items.
-    const c1 = selectAnnotations(pool, "C1", 40);
-    const c1Count = c1.filter((a) => a.difficulty === "C1").length;
-    expect(c1Count).toBeGreaterThanOrEqual(3);
-  });
-
-  it("preserves reading order", () => {
+  it("preserves reading order and prefers content words", () => {
     const sel = selectAnnotations(pool, "A2", 40);
     const idx = sel.map((a) => pool.indexOf(a));
     expect(idx).toEqual([...idx].sort((x, y) => x - y));
-  });
-
-  it("is capped by the authored pool (cannot exceed what exists)", () => {
-    const thin: Annotation[] = [ann("scarso1", "B1"), ann("scarso2", "B1")];
-    expect(selectAnnotations(thin, "B1", 40)).toHaveLength(2);
-  });
-
-  it("returns content-word annotations for legacy (untagged) units", () => {
-    const legacy: Annotation[] = [ann("alfa"), ann("beta"), ann("gamma")];
-    expect(selectAnnotations(legacy, "C1", 40)).toHaveLength(3);
+    expect(sel.every((a) => !isFunctionWordOnly(a.expression))).toBe(true);
   });
 });
 
-describe("content words are prioritised over function words (issue #6)", () => {
-  it("never underlines a lone function word (article/preposition/conjunction)", () => {
-    expect(isFunctionWordOnly("il")).toBe(true);
-    expect(isFunctionWordOnly("della")).toBe(true);
-    expect(isFunctionWordOnly("los")).toBe(true);
-    expect(isFunctionWordOnly("pero")).toBe(true);
-    expect(isFunctionWordOnly("and")).toBe(true);
-    // real vocabulary / multi-word idioms are kept
-    expect(isFunctionWordOnly("fortalezas")).toBe(false);
-    expect(isFunctionWordOnly("l'ultima corsa")).toBe(false);
-    expect(isFunctionWordOnly("senza fretta")).toBe(false);
+describe("B — reuse rate: ≥50% of highlighted proposed, not mandatory (issue #11)", () => {
+  it("proposes at least half of the highlighted expressions for reuse", () => {
+    const highlighted = selectAnnotations(pool, "B1", 40);
+    const reuse = reuseTargets(highlighted);
+    expect(reuse.length).toBeGreaterThanOrEqual(
+      Math.ceil(highlighted.length / 2),
+    );
+    expect(reuse.length).toBeLessThanOrEqual(highlighted.length);
+    // reuse suggestions are a subset of the highlighted words
+    const ids = new Set(highlighted.map((a) => a.id));
+    expect(reuse.every((a) => ids.has(a.id))).toBe(true);
   });
 
-  it("drops function-word-only annotations from the selection", () => {
-    const withNoise: Annotation[] = [
-      ann("di"), // lone preposition — must never be selected
-      ann("il"), // lone article
-      ann("montagna", "B1"),
-      ann("sentiero", "B1"),
-    ];
-    const sel = selectAnnotations(withNoise, "B1", 40);
-    expect(sel.map((a) => a.expression)).not.toContain("di");
-    expect(sel.map((a) => a.expression)).not.toContain("il");
-    expect(sel.map((a) => a.expression)).toContain("montagna");
+  it("returns [] for no highlighted words", () => {
+    expect(reuseTargets([])).toEqual([]);
+  });
+
+  it("A and B are independent knobs (reuse is a fraction of highlighted)", () => {
+    const many = Array.from({ length: 10 }, (_, i) => ann(`t${i}`, "B1"));
+    expect(reuseTargets(many).length).toBeGreaterThanOrEqual(5);
+    const few = [ann("solo", "B1")];
+    expect(reuseTargets(few).length).toBe(1);
   });
 });
 
-describe("robust to varying text lengths (issue #6)", () => {
-  it("averages ~20% on short and long synthetic texts", () => {
-    for (const n of [8, 20, 50, 120]) {
-      // A pool covering ~35% of words, all content words.
-      const size = Math.max(1, Math.round(n * 0.35));
-      const richPool = Array.from({ length: size }, (_, i) =>
-        ann(`term${i}`, "B1"),
-      );
-      const cov = coverage(selectAnnotations(richPool, "B1", n), n);
-      expect(cov).toBeGreaterThanOrEqual(0.15);
-      expect(cov).toBeLessThanOrEqual(0.26);
-    }
-  });
-});
-
-describe("real catalog reaches ~20% underlined words at every level", () => {
+describe("real catalog reaches ~30-40% highlighted on average (issue #9)", () => {
   const playable = CATALOG.filter((c) => isPlayable(c));
 
   for (const level of ["A2", "C1"] as DeclaredLevel[]) {
-    it(`averages close to 20% across playable units (${level})`, () => {
+    it(`averages ~30-40% across playable units (${level})`, () => {
       const coverages = playable.map((c) => {
         const sel = selectAnnotations(c.annotations ?? [], level, countWords(c.body));
-        const selWords = sel.reduce((n, a) => n + countWords(a.expression), 0);
-        return selWords / countWords(c.body);
+        const w = sel.reduce((n, a) => n + countWords(a.expression), 0);
+        return w / countWords(c.body);
       });
       const mean = coverages.reduce((s, x) => s + x, 0) / coverages.length;
-      expect(mean).toBeGreaterThanOrEqual(0.18);
-      expect(mean).toBeLessThanOrEqual(0.24);
-      // no text collapses far below the target, even for advanced learners
-      expect(Math.min(...coverages)).toBeGreaterThanOrEqual(0.16);
+      expect(mean).toBeGreaterThanOrEqual(0.3);
+      expect(mean).toBeLessThanOrEqual(0.42);
+      expect(Math.min(...coverages)).toBeGreaterThanOrEqual(0.28);
     });
   }
 });

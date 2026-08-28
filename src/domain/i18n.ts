@@ -105,6 +105,7 @@ const EN: Dict = {
     "You used the expression, but the sentence needs a small fix. Here is a corrected version:",
   "use.correction": "Suggested:",
   "use.scaffold_expr": "Expression to use:",
+  "use.reuse_hint": "Expressions you can reuse (optional):",
   "use.scaffold_start": "You can start with:",
 
   "complete.eyebrow": "Session complete",
@@ -208,6 +209,7 @@ const FR: Dict = {
     "Vous avez employé l'expression, mais la phrase demande une correction. Voici une version corrigée :",
   "use.correction": "Proposition :",
   "use.scaffold_expr": "Expression à utiliser :",
+  "use.reuse_hint": "Expressions que vous pouvez réutiliser (facultatif) :",
   "use.scaffold_start": "Vous pouvez commencer par :",
 
   "complete.eyebrow": "Session terminée",

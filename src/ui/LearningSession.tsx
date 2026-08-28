@@ -11,6 +11,7 @@ import {
   recallOptions,
   usePromptText,
   selectAnnotations,
+  reuseTargets,
   countWords,
   evaluateUse,
   evaluateUseAsync,
@@ -331,6 +332,9 @@ export function LearningSession({
 
   if (phase === "use") {
     const showScaffold = LOWER_LEVELS.has(declaredLevel);
+    // Parameter B (issue #11): offer ≥50% of the highlighted expressions as
+    // optional reuse suggestions — reusing them is never required.
+    const reuseSuggestions = reuseTargets(annotations).map((a) => a.expression);
     return (
       <section className="step" aria-labelledby="ls-use-title">
         <p className="onboarding__eyebrow">{t("use.eyebrow", il)}</p>
@@ -351,6 +355,18 @@ export function LearningSession({
             </p>
           )}
         </div>
+        {reuseSuggestions.length > 0 && (
+          <div className="reuse">
+            <p className="reuse__label">{t("use.reuse_hint", il)}</p>
+            <div className="chips chips--static">
+              {reuseSuggestions.map((expr) => (
+                <span key={expr} className="chip">
+                  {expr}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
         <label className="field__label" htmlFor="use-answer">
           {t("use.your_sentence", il)}
         </label>

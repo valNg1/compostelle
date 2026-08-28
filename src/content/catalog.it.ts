@@ -32,6 +32,10 @@ export const IT_CATALOG: ContentItem[] = [
       { id: "a5", expression: "cappotto grigio", meaning: "un soprabito di colore grigio", translation: "grey overcoat" },
       { id: "a6", expression: "a ogni fermata", meaning: "a ciascuna sosta del tram", translation: "at every stop" },
       { id: "a7", expression: "una sola parola", meaning: "un'unica parola, nient'altro", translation: "a single word" },
+      { id: "a8", expression: "le carrozze", meaning: "i vagoni del tram", translation: "the tram cars" },
+      { id: "a9", expression: "i finestrini", meaning: "i vetri laterali del tram", translation: "the windows" },
+      { id: "a10", expression: "il suo riflesso", meaning: "la sua immagine sul vetro", translation: "her reflection" },
+      { id: "a11", expression: "il sedile", meaning: "il posto dove ci si siede", translation: "the seat" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "Che cosa significa «l'ultima corsa»?", options: ["L'ultimo viaggio della giornata", "Una gara di velocità", "Il primo tram del mattino"], answerIndex: 0, annotationId: "a1" },
@@ -80,6 +84,9 @@ export const IT_CATALOG: ContentItem[] = [
       { id: "vivace", expression: "vivace e popolosa", difficulty: "C1", meaning: "piena di vita e di abitanti", translation: "lively and populous", translations: { en: "lively and populous", fr: "vivante et peuplée" } },
       { id: "protetti", expression: "rimasero protetti per secoli", difficulty: "C1", meaning: "restarono al sicuro per centinaia di anni", translation: "stayed protected for centuries", translations: { en: "stayed protected for centuries", fr: "sont restés protégés pendant des siècles" } },
       { id: "fermata", expression: "fermata nel tempo", difficulty: "C1", meaning: "rimasta uguale, come bloccata", translation: "frozen in time", translations: { en: "frozen in time", fr: "figée dans le temps" }, example: "Un piccolo borgo può sembrare fermato nel tempo." },
+      { id: "citta-romana", expression: "la città romana", difficulty: "A2", meaning: "la città degli antichi Romani", translation: "the Roman city", translations: { en: "the Roman city", fr: "la cité romaine" } },
+      { id: "strato", expression: "uno spesso strato", difficulty: "B1", meaning: "un livello alto e denso di materiale", translation: "a thick layer", translations: { en: "a thick layer", fr: "une épaisse couche" } },
+      { id: "scavi", expression: "gli scavi", difficulty: "B2", meaning: "i lavori per riportare alla luce la città", translation: "the excavations", translations: { en: "the excavations", fr: "les fouilles" } },
     ],
     // Recall tests the richest expressions (C1 → selected at every level) plus a
     // comprehension target. Instructions/options are interface-language; the gap
@@ -253,6 +260,10 @@ export const IT_CATALOG: ContentItem[] = [
       { id: "a7", expression: "un piccolo pasto", meaning: "un pasto leggero, non abbondante", translation: "a small meal" },
       { id: "a8", expression: "chiacchierare", meaning: "parlare in modo informale e rilassato", translation: "to chat" },
       { id: "a9", expression: "conversazione", meaning: "lo scambio di parole tra persone", translation: "conversation" },
+      { id: "a10", expression: "la fine del lavoro", meaning: "il momento in cui si smette di lavorare", translation: "the end of work" },
+      { id: "a11", expression: "buffet ricchi", meaning: "tavoli con molto cibo da servirsi", translation: "lavish buffets" },
+      { id: "a12", expression: "poche cose ben fatte", meaning: "pochi elementi ma di buona qualità", translation: "a few well-made things" },
+      { id: "a13", expression: "il cibo", meaning: "le cose da mangiare", translation: "the food" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "Che cosa sono «gli stuzzichini»?", options: ["Piccole cose da mangiare", "Bevande calde", "Grandi piatti"], answerIndex: 0, annotationId: "a1" },

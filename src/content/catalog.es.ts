@@ -27,6 +27,10 @@ export const ES_CATALOG: ContentItem[] = [
       { id: "a5", expression: "la madera tallada", meaning: "madera trabajada con figuras y relieves", translation: "carved wood" },
       { id: "a6", expression: "la dinastía nazarí", meaning: "la familia real musulmana que gobernó Granada", translation: "the Nasrid dynasty" },
       { id: "a7", expression: "la conquista cristiana", meaning: "la toma de la ciudad por los reyes cristianos", translation: "the Christian conquest" },
+      { id: "a8", expression: "un conjunto de palacios", meaning: "un grupo de edificios reales", translation: "a set of palaces" },
+      { id: "a9", expression: "sus salas", meaning: "las habitaciones grandes del palacio", translation: "its halls" },
+      { id: "a10", expression: "los monumentos más visitados", meaning: "los lugares que más gente va a ver", translation: "the most visited monuments" },
+      { id: "a11", expression: "sus jardines", meaning: "los espacios verdes del recinto", translation: "its gardens" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "¿Qué son «las fortalezas»?", options: ["Construcciones para defenderse", "Jardines pequeños", "Salas de música"], answerIndex: 0, annotationId: "a1" },
@@ -59,6 +63,9 @@ export const ES_CATALOG: ContentItem[] = [
       { id: "recorrido", expression: "a lo largo del recorrido", difficulty: "B2", meaning: "durante todo el camino", translation: "along the way", translations: { en: "along the way", fr: "tout au long du parcours" } },
       { id: "llegar", expression: "lo importante no es llegar", difficulty: "C1", meaning: "el destino no es lo esencial", translation: "what matters is not arriving", translations: { en: "what matters is not arriving", fr: "l'important n'est pas d'arriver" } },
       { id: "propio", expression: "el propio camino", difficulty: "C1", meaning: "el viaje en sí mismo", translation: "the journey itself", translations: { en: "the journey itself", fr: "le chemin lui-même" } },
+      { id: "edad-media", expression: "la Edad Media", difficulty: "A2", meaning: "el periodo histórico medieval", translation: "the Middle Ages", translations: { en: "the Middle Ages", fr: "le Moyen Âge" } },
+      { id: "peregrinacion", expression: "una peregrinación religiosa", difficulty: "B2", meaning: "un viaje a un lugar sagrado por fe", translation: "a religious pilgrimage", translations: { en: "a religious pilgrimage", fr: "un pèlerinage religieux" } },
+      { id: "deseo", expression: "el deseo de caminar", difficulty: "B1", meaning: "las ganas de andar y moverse", translation: "the desire to walk", translations: { en: "the desire to walk", fr: "le désir de marcher" } },
     ],
     recall: [
       {
@@ -127,6 +134,9 @@ export const ES_CATALOG: ContentItem[] = [
       { id: "a5", expression: "el último plato", meaning: "el plato final de la comida", translation: "the last dish" },
       { id: "a6", expression: "las reuniones familiares", meaning: "los encuentros con la familia", translation: "family gatherings" },
       { id: "a7", expression: "la conversación tranquila", meaning: "una charla pausada y sin prisa", translation: "quiet conversation" },
+      { id: "a8", expression: "sentada a la mesa", meaning: "en su sitio, alrededor de la mesa", translation: "seated at the table" },
+      { id: "a9", expression: "los fines de semana", meaning: "el sábado y el domingo", translation: "weekends" },
+      { id: "a10", expression: "los momentos más valiosos", meaning: "los ratos que más se aprecian", translation: "the most valuable moments" },
     ],
     recall: [
       { id: "r1", kind: "meaning", prompt: "¿Qué es «la sobremesa»?", options: ["El rato de charla después de comer", "El primer plato", "La cuenta del restaurante"], answerIndex: 0, annotationId: "a1" },

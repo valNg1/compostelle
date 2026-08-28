@@ -400,20 +400,21 @@ const LEVEL_RANK: Record<DeclaredLevel, number> = {
 };
 
 /**
- * Share of a text's WORDS we aim to underline as contextual help (issue #6).
- * Floored at ~20% for EVERY level: beginners get a little more, but advanced
- * learners are never starved below the target (that was the cause of texts
- * feeling under-annotated). Level changes WHICH expressions lead, not how many.
+ * Share of a text's WORDS we aim to underline as contextual help — parameter A,
+ * "highlighting rate" (issue #9). Targets ~30-40% at every level: beginners get
+ * a little more, advanced learners a little less, but never starved. Level
+ * changes WHICH expressions lead, not how many. (Reuse rate — parameter B — is
+ * a separate knob, see `reuseTargets`.)
  * Density is measured in words covered by the selected expressions (multi-word
  * idioms count for their length), matching "≈20% of the words of each text".
  */
 export const HELP_RATIO: Record<DeclaredLevel, number> = {
-  A1: 0.22,
-  A2: 0.22,
-  UNKNOWN: 0.22,
-  B1: 0.2,
-  B2: 0.2,
-  C1: 0.2,
+  A1: 0.4,
+  A2: 0.38,
+  UNKNOWN: 0.38,
+  B1: 0.35,
+  B2: 0.32,
+  C1: 0.3,
 };
 
 /** Rough sentence count of a body (deterministic). */
@@ -487,6 +488,19 @@ export function selectAnnotations(
 
   // Restore reading order for display.
   return chosen.sort((a, b) => annotations.indexOf(a) - annotations.indexOf(b));
+}
+
+/**
+ * Reuse suggestions (issue #11, parameter B): at least half of the highlighted
+ * expressions, offered to the learner as words they CAN reuse in production —
+ * never mandatory (validation stays possible without reusing them all). This is
+ * a knob independent from the highlighting rate (parameter A). Reading order is
+ * preserved.
+ */
+export function reuseTargets(highlighted: readonly Annotation[]): Annotation[] {
+  if (highlighted.length === 0) return [];
+  const atLeastHalf = Math.ceil(highlighted.length / 2);
+  return highlighted.slice(0, atLeastHalf);
 }
 
 /** A run of body text, optionally carrying the annotation it renders. */
