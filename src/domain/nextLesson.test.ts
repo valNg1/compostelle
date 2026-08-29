@@ -99,6 +99,39 @@ describe("selectNextLesson (issue #8 — 'continue' must open a NEW lesson)", ()
   });
 });
 
+describe("issue #13 — a completed lesson is never re-proposed by 'continue'", () => {
+  const themes: (Parameters<typeof selectNextLesson>[2])[] = [
+    "history",
+    "travel",
+    "surprise_me",
+  ];
+
+  it("after completing a lesson, 'continue' never returns THAT lesson", () => {
+    // Reproduces #13: the just-completed lesson must not come back.
+    for (const done of ["h1", "h2", "t1"]) {
+      for (const theme of themes) {
+        const next = selectNextLesson(catalog, "it", theme, new Set([done]));
+        expect(next?.id, `${theme} after ${done}`).not.toBe(done);
+      }
+    }
+  });
+
+  it("never returns ANY completed lesson, whatever the theme", () => {
+    const completed = new Set(["h1", "t1"]);
+    for (const theme of themes) {
+      const next = selectNextLesson(catalog, "it", theme, completed);
+      expect(next).not.toBeNull();
+      expect(completed.has(next!.id), theme).toBe(false);
+    }
+  });
+
+  it("when EVERYTHING is completed, returns null (UI shows 'no more lessons')", () => {
+    for (const theme of themes) {
+      expect(selectNextLesson(catalog, "it", theme, new Set(["h1", "h2", "t1"]))).toBeNull();
+    }
+  });
+});
+
 describe("prioritizeRecallForReplay (issue #7 — replay favours failed items)", () => {
   const annotations: Annotation[] = [
     { id: "a1", expression: "uno", meaning: "", translation: "" },
