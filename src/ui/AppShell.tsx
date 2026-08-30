@@ -27,7 +27,7 @@ import { Progression } from "./Progression";
 import { UnitQuiz } from "./UnitQuiz";
 import type { UnitProgressRecord, UnitSignals } from "../domain/progression";
 import {
-  progressionSublevels,
+  sublevelsForLevel,
   exampleUnit,
   type ExampleUnit,
 } from "../content/sublevels";
@@ -303,15 +303,13 @@ export function AppShell({
               activities={activities}
               interfaceLanguage={il}
             />
-            {progressionSublevels(journey.language).length > 0 && (
-              <Progression
-                level="A1"
-                sublevels={progressionSublevels(journey.language)}
-                progress={unitProgress}
-                interfaceLanguage={il}
-                onPlayUnit={playProgressionUnit}
-              />
-            )}
+            <Progression
+              level={journey.declaredLevel}
+              sublevels={sublevelsForLevel(journey.language, journey.declaredLevel)}
+              progress={unitProgress}
+              interfaceLanguage={il}
+              onPlayUnit={playProgressionUnit}
+            />
           </>
         )}
         {section === "me" && (

@@ -1396,3 +1396,30 @@ body {
   color: var(--ink-dim);
   opacity: 0.85;
 }
+
+/* ── Quiz recap (issue #16) ──────────────────────────────────────── */
+.quiz--recap {
+  gap: 10px;
+}
+.recap__q {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+.recap__q--ok {
+  border-color: rgba(228, 197, 144, 0.35);
+}
+.recap__q--ko {
+  border-color: #6b4a4a;
+}
+.recap__q .quiz__prompt {
+  font-size: 15px;
+}
+.recap__answer {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 15px;
+}

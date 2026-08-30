@@ -3,12 +3,14 @@ import { PROGRESSION_CONFIG } from "./progression.config";
 import {
   unitScore,
   scoreQuiz,
+  quizPrompt,
+  quizOptions,
+  wrongQuizIndices,
   sublevelScore,
   isSublevelAcquired,
   failingUnits,
   sublevelStatus,
   sublevelIdsForLevel,
-  isSublevelUnlocked,
   type UnitProgress,
   type QuizQuestion,
 } from "./progression";
@@ -71,9 +73,35 @@ describe("scoreQuiz — quiz signal from 5 questions", () => {
   it("counts skipped answers as wrong", () => {
     expect(scoreQuiz(qs, [0, null, undefined, 0, 0])).toBeCloseTo(0.6, 5);
   });
+  it("lists the wrong-answer indices for replay (issue #16)", () => {
+    expect(wrongQuizIndices(qs, [0, 1, 0, 1, 0])).toEqual([1, 3]);
+    expect(wrongQuizIndices(qs, [0, 0, 0, 0, 0])).toEqual([]);
+    expect(wrongQuizIndices(qs, [null, 0, undefined, 0, 0])).toEqual([0, 2]);
+  });
+
   it("is 1 for all correct and 0 for none", () => {
     expect(scoreQuiz(qs, [0, 0, 0, 0, 0])).toBe(1);
     expect(scoreQuiz(qs, [1, 1, 1, 1, 1])).toBe(0);
+  });
+});
+
+describe("quiz prompt/options follow the interaction language (issue #14)", () => {
+  const q: QuizQuestion = {
+    id: "q",
+    prompt: "How do you say hello?",
+    promptI18n: { fr: "Comment dit-on bonjour ?" },
+    options: ["Grazie", "Ciao"],
+    optionsI18n: { fr: ["Grazie", "Ciao"] },
+    answerIndex: 1,
+  };
+  it("uses the interaction-language prompt when present", () => {
+    expect(quizPrompt(q, "fr")).toBe("Comment dit-on bonjour ?");
+  });
+  it("falls back to English when no override for the language", () => {
+    expect(quizPrompt(q, "en")).toBe("How do you say hello?");
+    const bare: QuizQuestion = { id: "b", prompt: "Base", options: ["a"], answerIndex: 0 };
+    expect(quizPrompt(bare, "fr")).toBe("Base");
+    expect(quizOptions(bare, "fr")).toEqual(["a"]);
   });
 });
 
@@ -127,25 +155,23 @@ describe("failingUnits — targeted retry redoes ONLY units below the threshold"
 });
 
 describe("sublevelStatus + unlocking", () => {
-  it("locked until unlocked", () => {
-    expect(sublevelStatus(units([]), false)).toBe("locked");
-  });
   it("in-progress while units remain to complete", () => {
-    expect(sublevelStatus(units([0.9, 0.9], true), true)).toBe("in-progress");
+    expect(sublevelStatus(units([0.9, 0.9]))).toBe("in-progress");
   });
   it("retry when all units done but the composite is below the threshold", () => {
     // mean 0.46 < 0.60
-    expect(sublevelStatus(units([0.5, 0.4, 0.6, 0.3, 0.5]), true)).toBe("retry");
+    expect(sublevelStatus(units([0.5, 0.4, 0.6, 0.3, 0.5]))).toBe("retry");
   });
   it("acquired when all units done and threshold reached", () => {
-    expect(sublevelStatus(units([0.9, 0.85, 0.8, 0.8, 0.9]), true)).toBe("acquired");
+    expect(sublevelStatus(units([0.9, 0.85, 0.8, 0.8, 0.9]))).toBe("acquired");
   });
 
-  it("next sub-level unlocks only once the previous is acquired", () => {
-    const acquired = [true, false, false];
-    expect(isSublevelUnlocked(0, acquired)).toBe(true); // first always open
-    expect(isSublevelUnlocked(1, acquired)).toBe(true); // prev acquired
-    expect(isSublevelUnlocked(2, acquired)).toBe(false); // prev not acquired
+  it("free access (issue #15): status never 'locked', independent of any order", () => {
+    // A later step's status depends only on its OWN units, never on a previous
+    // step being acquired — nothing is gated.
+    const s = sublevelStatus(units([0.9, 0.85, 0.8, 0.8, 0.9]));
+    expect(s).not.toBe("locked");
+    expect(s).toBe("acquired");
   });
 
   it("names sub-levels A1.1 … A1.3", () => {

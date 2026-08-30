@@ -4,6 +4,7 @@ import {
   SUBLEVEL_A1_1,
   exampleUnit,
   progressionSublevels,
+  sublevelsForLevel,
 } from "./sublevels";
 import { PROGRESSION_CONFIG } from "../domain/progression.config";
 import { unitScore, isSublevelAcquired } from "../domain/progression";
@@ -55,6 +56,19 @@ describe("fusion LEARN → progression registry (model B)", () => {
 
   it("returns nothing for a language without example content", () => {
     expect(progressionSublevels("es")).toEqual([]);
+  });
+
+  it("issue #17: filters to the chosen CEFR level, never falling back", () => {
+    // A1 learner sees A1 content
+    expect(sublevelsForLevel("it", "A1").map((s) => s.id)).toEqual(["A1.1", "A1.2"]);
+    // B2 learner sees NO A1 content (empty → UI shows "coming soon")
+    expect(sublevelsForLevel("it", "B2")).toEqual([]);
+    expect(sublevelsForLevel("it", "B2").some((s) => s.level === "A1")).toBe(false);
+    // UNKNOWN maps to A1 (beginner start), not a fallback from a higher level
+    expect(sublevelsForLevel("it", "UNKNOWN").map((s) => s.id)).toEqual([
+      "A1.1",
+      "A1.2",
+    ]);
   });
 
   it("a bare article unit (no quiz) can acquire its sub-level at 0.60", () => {

@@ -9,6 +9,7 @@
 
 import { PROGRESSION_CONFIG, type ProgressionWeights } from "./progression.config";
 import type { Language } from "./language";
+import type { InterfaceLanguage } from "./i18n";
 
 /** The three normalized signals for a unit; any may be missing (counts as 0). */
 export interface UnitSignals {
@@ -40,9 +41,28 @@ export function unitScore(
 /** A single multiple-choice quiz question attached to a unit. */
 export interface QuizQuestion {
   id: string;
+  /** Base prompt (English). Prefer `promptI18n` for the interaction language. */
   prompt: string;
+  /** Interaction-language prompt override, e.g. `{ fr }` (issue #14). */
+  promptI18n?: Partial<Record<InterfaceLanguage, string>>;
+  /** Base options (English). Prefer `optionsI18n`. */
   options: string[];
+  /** Interaction-language options override (issue #14). Same order/answerIndex. */
+  optionsI18n?: Partial<Record<InterfaceLanguage, string[]>>;
   answerIndex: number;
+}
+
+/**
+ * Resolve a quiz prompt in the interaction (interface) language — issue #14:
+ * feedback/labels follow the chosen interaction language, not English.
+ */
+export function quizPrompt(q: QuizQuestion, language: InterfaceLanguage): string {
+  return q.promptI18n?.[language] ?? q.promptI18n?.en ?? q.prompt;
+}
+
+/** Resolve quiz options in the interaction language (issue #14), falling back to English. */
+export function quizOptions(q: QuizQuestion, language: InterfaceLanguage): string[] {
+  return q.optionsI18n?.[language] ?? q.optionsI18n?.en ?? q.options;
 }
 
 /**
@@ -60,6 +80,18 @@ export function scoreQuiz(
     if (answers[i] === q.answerIndex) correct++;
   });
   return correct / questions.length;
+}
+
+/** Indices of the questions answered wrongly (issue #16 — replay the wrong ones). */
+export function wrongQuizIndices(
+  questions: readonly QuizQuestion[],
+  answers: readonly (number | null | undefined)[],
+): number[] {
+  const out: number[] = [];
+  questions.forEach((q, i) => {
+    if (answers[i] !== q.answerIndex) out.push(i);
+  });
+  return out;
 }
 
 /** Mean of unit scores (0 for an empty sub-level). */
@@ -114,22 +146,22 @@ export function failingUnits(
     .map((u) => u.unitId);
 }
 
-export type SublevelStatus = "acquired" | "retry" | "in-progress" | "locked";
+export type SublevelStatus = "acquired" | "retry" | "in-progress";
 
 /**
- * Status of a sub-level for the UI:
- *  - `locked`: not unlocked yet (previous sub-level not acquired);
+ * Status of a sub-level, as a NON-BLOCKING indicator (issue #15 — free access):
  *  - `acquired`: all units done and threshold reached;
- *  - `retry`: all units done but composite below threshold → targeted retry;
+ *  - `retry`: all units done but composite below threshold (suggest replay);
  *  - `in-progress`: units still to complete.
+ *
+ * Nothing is ever "locked": a sub-level's status depends only on its own units,
+ * never on any other sub-level being acquired first.
  */
 export function sublevelStatus(
   units: readonly UnitProgress[],
-  unlocked: boolean,
   expectedUnitCount: number = PROGRESSION_CONFIG.UNITS_PER_SUBLEVEL,
   threshold: number = PROGRESSION_CONFIG.PASS_THRESHOLD,
 ): SublevelStatus {
-  if (!unlocked) return "locked";
   if (isSublevelAcquired(units, expectedUnitCount, threshold)) return "acquired";
   const completed = units.filter((u) => u.completed).length;
   if (completed >= expectedUnitCount) return "retry";
@@ -142,13 +174,4 @@ export function sublevelIdsForLevel(
   count: number = PROGRESSION_CONFIG.SUBLEVELS_PER_LEVEL,
 ): string[] {
   return Array.from({ length: count }, (_, i) => `${level}.${i + 1}`);
-}
-
-/** A sub-level is unlocked if it is the first, or the previous one is acquired. */
-export function isSublevelUnlocked(
-  index: number,
-  acquiredByIndex: readonly boolean[],
-): boolean {
-  if (index <= 0) return true;
-  return acquiredByIndex[index - 1] === true;
 }
