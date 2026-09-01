@@ -4,6 +4,7 @@ import {
   evaluateUseAsync,
   applyLanguageToolMatches,
   deterministicCorrector,
+  validFeedbackKey,
   normalizeForCompare,
   diffWords,
   type SentenceCorrector,
@@ -111,6 +112,15 @@ describe("no correction without a real diff (issue #10)", () => {
       const changed = r.diff.filter((d) => d.type !== "same");
       expect(changed.length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("validFeedbackKey — correction transparency (issue #19)", () => {
+  it("does NOT claim grammar correctness without a grammar service", () => {
+    expect(validFeedbackKey(false)).toBe("use.valid_expr_only");
+  });
+  it("uses the full 'sentence correct' message when a grammar service is configured", () => {
+    expect(validFeedbackKey(true)).toBe("use.valid");
   });
 });
 

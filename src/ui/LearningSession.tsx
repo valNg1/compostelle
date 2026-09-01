@@ -10,6 +10,7 @@ import {
   recallPrompt,
   recallOptions,
   usePromptText,
+  validFeedbackKey,
   selectAnnotations,
   reuseTargets,
   countWords,
@@ -438,7 +439,7 @@ export function LearningSession({
               )}
               {evaluation.state === "valid" && (
                 <p className="use__selfcheck use__selfcheck--ok">
-                  {t("use.valid", il)}
+                  {t(validFeedbackKey(corrector !== null), il)}
                 </p>
               )}
               <p className="use__sample">

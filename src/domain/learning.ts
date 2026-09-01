@@ -340,6 +340,16 @@ function decideCorrection(
 }
 
 /**
+ * i18n key for a "valid" USE result (issue #19 — correction transparency).
+ * Without a real grammar service configured, the deterministic fallback only
+ * checked that the target expression was used — NOT the whole sentence's
+ * grammar — so the message must not claim grammatical correctness.
+ */
+export function validFeedbackKey(grammarConfigured: boolean): string {
+  return grammarConfigured ? "use.valid" : "use.valid_expr_only";
+}
+
+/**
  * Async corrector (network-backed), e.g. a self-hosted LanguageTool instance.
  * Language-aware: the target language of the learner's sentence is passed
  * through so the grammar service checks against the right rules.
