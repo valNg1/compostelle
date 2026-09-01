@@ -24,6 +24,8 @@ import { BrandLogo } from "./BrandLogo";
 import { ResumeChoice } from "./ResumeChoice";
 import { NoMoreLessons } from "./NoMoreLessons";
 import { Progression } from "./Progression";
+import { JourneyActions } from "./JourneyActions";
+import { journeyActions } from "../domain/journeyActions";
 import { UnitQuiz } from "./UnitQuiz";
 import type { UnitProgressRecord, UnitSignals } from "../domain/progression";
 import {
@@ -147,6 +149,10 @@ export function AppShell({
   function continueLearning() {
     const next = nextLesson();
     if (next) {
+      // Ensure LEARN is the active section so the session shows (e.g. when
+      // triggered from the journey actions, issue #18).
+      setSection("learn");
+      if (globalThis.location) globalThis.location.hash = "#/learn";
       launchUnit(next, false);
     } else {
       setUnit(null);
@@ -294,24 +300,51 @@ export function AppShell({
               onStart={startTheme}
             />
           ))}
-        {section === "journey" && (
-          <>
-            <MyJourney
-              journey={journey}
-              memory={memory}
-              items={memoryItems}
-              activities={activities}
-              interfaceLanguage={il}
-            />
-            <Progression
-              level={journey.declaredLevel}
-              sublevels={sublevelsForLevel(journey.language, journey.declaredLevel)}
-              progress={unitProgress}
-              interfaceLanguage={il}
-              onPlayUnit={playProgressionUnit}
-            />
-          </>
-        )}
+        {section === "journey" &&
+          (() => {
+            const levelSublevels = sublevelsForLevel(
+              journey.language,
+              journey.declaredLevel,
+            );
+            const hasContent = levelSublevels.length > 0;
+            const canContinue =
+              selectNextLesson(
+                CATALOG,
+                journey.language,
+                "surprise_me",
+                completedIds,
+              ) !== null;
+            const canRedo = completedUnitIds.length > 0;
+            return (
+              <>
+                <MyJourney
+                  journey={journey}
+                  memory={memory}
+                  items={memoryItems}
+                  activities={activities}
+                  interfaceLanguage={il}
+                />
+                <JourneyActions
+                  actions={journeyActions({ canContinue, canRedo })}
+                  hasContent={hasContent}
+                  level={journey.declaredLevel}
+                  interfaceLanguage={il}
+                  onStart={onAddLanguage}
+                  onContinue={continueLearning}
+                  onRedo={() => go("learn")}
+                />
+                {hasContent && (
+                  <Progression
+                    level={journey.declaredLevel}
+                    sublevels={levelSublevels}
+                    progress={unitProgress}
+                    interfaceLanguage={il}
+                    onPlayUnit={playProgressionUnit}
+                  />
+                )}
+              </>
+            );
+          })()}
         {section === "me" && (
           <MySpace
             journeys={journeys}
