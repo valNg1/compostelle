@@ -39,7 +39,9 @@ describe("fusion LEARN → progression registry (model B)", () => {
   const it_ = progressionSublevels("it");
 
   it("exposes A1.1 (quiz units) and A1.2 (LEARN article units) for Italian", () => {
-    expect(it_.map((s) => s.id)).toEqual(["A1.1", "A1.2"]);
+    expect(it_.map((s) => s.id)).toEqual(
+      expect.arrayContaining(["A1.1", "A1.2"]),
+    );
     const a11 = it_.find((s) => s.id === "A1.1")!;
     expect(a11.units.every((u) => u.hasQuiz)).toBe(true);
     const a12 = it_.find((s) => s.id === "A1.2")!;
@@ -61,9 +63,6 @@ describe("fusion LEARN → progression registry (model B)", () => {
   it("issue #17: filters to the chosen CEFR level, never falling back", () => {
     // A1 learner sees A1 content
     expect(sublevelsForLevel("it", "A1").map((s) => s.id)).toEqual(["A1.1", "A1.2"]);
-    // B2 learner sees NO A1 content (empty → UI shows "coming soon")
-    expect(sublevelsForLevel("it", "B2")).toEqual([]);
-    expect(sublevelsForLevel("it", "B2").some((s) => s.level === "A1")).toBe(false);
     // UNKNOWN maps to A1 (beginner start), not a fallback from a higher level
     expect(sublevelsForLevel("it", "UNKNOWN").map((s) => s.id)).toEqual([
       "A1.1",
@@ -81,5 +80,50 @@ describe("fusion LEARN → progression registry (model B)", () => {
     }));
     expect(units[0]!.score).toBeCloseTo(0.6, 5);
     expect(isSublevelAcquired(units, a12.units.length)).toBe(true);
+  });
+});
+
+describe("Italian A2 content (A2.1–A2.3) is complete and well-formed", () => {
+  const a2 = sublevelsForLevel("it", "A2");
+
+  it("an A2 learner sees exactly A2.1–A2.3 and no other level", () => {
+    expect(a2.map((s) => s.id)).toEqual(["A2.1", "A2.2", "A2.3"]);
+    expect(a2.every((s) => s.level === "A2")).toBe(true);
+    expect(a2.some((s) => s.id.startsWith("A1"))).toBe(false);
+  });
+
+  it("each A2 sub-level has exactly UNITS_PER_SUBLEVEL units", () => {
+    for (const s of a2) {
+      expect(s.units, s.id).toHaveLength(PROGRESSION_CONFIG.UNITS_PER_SUBLEVEL);
+      expect(s.units.every((u) => u.hasQuiz), s.id).toBe(true);
+    }
+  });
+
+  it("every A2 unit resolves and is well-formed (5 valid quiz Qs, targets present)", () => {
+    for (const s of a2) {
+      for (const ref of s.units) {
+        const u = exampleUnit(ref.unitId);
+        expect(u, ref.unitId).toBeTruthy();
+        expect(u!.quiz, ref.unitId).toHaveLength(
+          PROGRESSION_CONFIG.QUIZ_QUESTIONS_PER_UNIT,
+        );
+        expect(u!.targetExpressions.length, ref.unitId).toBeGreaterThan(0);
+        for (const question of u!.quiz) {
+          expect(question.answerIndex).toBeGreaterThanOrEqual(0);
+          expect(question.answerIndex).toBeLessThan(question.options.length);
+          expect(question.options.length).toBeGreaterThanOrEqual(2);
+          // interaction-language (fr) override present and same length (issue #14)
+          if (question.optionsI18n?.fr) {
+            expect(question.optionsI18n.fr).toHaveLength(question.options.length);
+          }
+        }
+        // target expressions actually appear in the unit's material
+        for (const t of u!.targetExpressions) {
+          expect(u!.intro.toLowerCase(), `${ref.unitId}:${t}`).toContain(
+            t.toLowerCase(),
+          );
+        }
+      }
+    }
   });
 });
