@@ -3,7 +3,38 @@ import {
   t,
   isInterfaceLanguage,
   INTERFACE_LANGUAGES,
+  sublevelLabel,
+  levelName,
 } from "./i18n";
+
+describe("competence labels (issue #22)", () => {
+  it("resolves a sub-level to its competence label in the interaction language", () => {
+    expect(sublevelLabel("A1.1", "fr")).toBe("Débutant complet");
+    expect(sublevelLabel("A1.2", "fr")).toBe("Faux débutant");
+    expect(sublevelLabel("A2.1", "fr")).toBe("Comprendre le quotidien");
+    expect(sublevelLabel("A1.1", "en")).toBe("Absolute beginner");
+  });
+
+  it("defines labels for B1/B2 too (future content, trivial to add)", () => {
+    expect(sublevelLabel("B1.1", "fr")).toBeTruthy();
+    expect(sublevelLabel("B2.3", "en")).toBeTruthy();
+  });
+
+  it("returns undefined for an unknown sub-level (UI falls back cleanly)", () => {
+    expect(sublevelLabel("Z9.9", "fr")).toBeUndefined();
+  });
+
+  it("names the parent level in clear language", () => {
+    expect(levelName("A1", "fr")).toBe("Débutant");
+    expect(levelName("A2", "en")).toBe("Elementary");
+    expect(levelName("ZZ", "fr")).toBeUndefined();
+  });
+
+  it("does not change the technical identifiers", () => {
+    // The label is display-only; the code A1.1 is unchanged elsewhere.
+    expect(sublevelLabel("A1.1", "fr")).not.toBe("A1.1");
+  });
+});
 
 describe("i18n (interface language chrome)", () => {
   it("translates a key in FR and EN", () => {

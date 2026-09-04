@@ -7,7 +7,7 @@
  * level is shown (issue #17).
  */
 
-import { t, type InterfaceLanguage } from "../domain/i18n";
+import { t, sublevelLabel, levelName, type InterfaceLanguage } from "../domain/i18n";
 import { PROGRESSION_CONFIG } from "../domain/progression.config";
 import {
   sublevelScore,
@@ -45,7 +45,10 @@ export function Progression({
   return (
     <section className="prog" aria-labelledby="prog-title">
       <h2 id="prog-title" className="prog__title">
-        {t("progress.title", il)} · {level}
+        {t("progress.title", il)}
+        {" · "}
+        {levelName(level, il) ?? level}
+        <span className="prog__code"> · {level}</span>
       </h2>
 
       {sublevels.length === 0 ? (
@@ -73,7 +76,10 @@ export function Progression({
         return (
           <div key={sl.id} className={`sublevel sublevel--${status}`}>
             <div className="sublevel__head">
-              <span className="sublevel__id">{sl.title}</span>
+              <span className="sublevel__id">
+                {sublevelLabel(sl.id, il) ?? sl.title}
+                <span className="sublevel__code"> · {sl.id}</span>
+              </span>
               <span className={`badge badge--${status}`}>
                 {statusLabel(status, il)} · {pct(composite)}
               </span>

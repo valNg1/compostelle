@@ -32,7 +32,8 @@ describe("<JourneyActions> (issue #18 / #20 — always an action)", () => {
         onRedo={noop}
       />,
     );
-    expect(html).toMatch(/B2/); // "content coming for level B2"
+    // #22: the note shows the clear level name, not the raw code
+    expect(html).toMatch(/Upper intermediate/);
     expect((html.match(/<button/g) ?? []).length).toBeGreaterThanOrEqual(1);
   });
 });

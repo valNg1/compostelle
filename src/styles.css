@@ -1442,3 +1442,12 @@ body {
   flex-wrap: wrap;
   gap: 12px;
 }
+
+/* ── Competence labels: discreet CEFR code (issue #22) ───────────── */
+.prog__code,
+.sublevel__code {
+  color: var(--ink-dim);
+  font-weight: 400;
+  font-size: 0.85em;
+  opacity: 0.75;
+}

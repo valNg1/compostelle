@@ -6,7 +6,7 @@
  * content for this level yet" empty state.
  */
 
-import { t, type InterfaceLanguage } from "../domain/i18n";
+import { t, levelName, type InterfaceLanguage } from "../domain/i18n";
 import type { JourneyAction } from "../domain/journeyActions";
 
 interface JourneyActionsProps {
@@ -38,7 +38,11 @@ export function JourneyActions({
   return (
     <section className="jactions" aria-label={t("action.aria", il)}>
       {!hasContent && (
-        <p className="jactions__note">{t("progress.empty", il, { level })}</p>
+        <p className="jactions__note">
+          {t("progress.empty", il, {
+            level: levelName(level, il) ?? level,
+          })}
+        </p>
       )}
       <div className="jactions__row">
         {actions.map((a, i) => (

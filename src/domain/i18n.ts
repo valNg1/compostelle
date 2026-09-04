@@ -167,6 +167,24 @@ const EN: Dict = {
 
   "recall.meaning_q": "What does “{expr}” mean here?",
   "recall.gap_q": "Complete in the target language:",
+
+  // Competence-oriented labels (issue #22) — display only; codes stay internal.
+  "level.name.A1": "Beginner",
+  "level.name.A2": "Elementary",
+  "level.name.B1": "Intermediate",
+  "level.name.B2": "Upper intermediate",
+  "sublevel.A1.1": "Absolute beginner",
+  "sublevel.A1.2": "False beginner",
+  "sublevel.A1.3": "First exchanges",
+  "sublevel.A2.1": "Understanding daily life",
+  "sublevel.A2.2": "Expressing yourself simply",
+  "sublevel.A2.3": "Consolidation",
+  "sublevel.B1.1": "Everyday autonomy",
+  "sublevel.B1.2": "Opinions & stories",
+  "sublevel.B1.3": "Consolidation",
+  "sublevel.B2.1": "Nuanced expression",
+  "sublevel.B2.2": "Complex topics",
+  "sublevel.B2.3": "Consolidation",
 };
 
 const FR: Dict = {
@@ -293,6 +311,24 @@ const FR: Dict = {
 
   "recall.meaning_q": "Que signifie « {expr} » ici ?",
   "recall.gap_q": "Complétez dans la langue cible :",
+
+  // Libellés orientés compétence (issue #22) — affichage seulement.
+  "level.name.A1": "Débutant",
+  "level.name.A2": "Élémentaire",
+  "level.name.B1": "Intermédiaire",
+  "level.name.B2": "Intermédiaire avancé",
+  "sublevel.A1.1": "Débutant complet",
+  "sublevel.A1.2": "Faux débutant",
+  "sublevel.A1.3": "Premiers échanges",
+  "sublevel.A2.1": "Comprendre le quotidien",
+  "sublevel.A2.2": "S'exprimer simplement",
+  "sublevel.A2.3": "Consolidation",
+  "sublevel.B1.1": "Autonomie au quotidien",
+  "sublevel.B1.2": "Opinions & récits",
+  "sublevel.B1.3": "Consolidation",
+  "sublevel.B2.1": "Expression nuancée",
+  "sublevel.B2.2": "Sujets complexes",
+  "sublevel.B2.3": "Consolidation",
 };
 
 const DICTS: Partial<Record<InterfaceLanguage, Dict>> = { en: EN, fr: FR };
@@ -311,4 +347,29 @@ export function t(
     }
   }
   return value;
+}
+
+/**
+ * Competence-oriented display label for a sub-level (issue #22), e.g.
+ * `A1.2` → "Faux débutant". Returns `undefined` when no label is defined, so the
+ * UI can fall back cleanly (never a broken/empty screen). Display only — the
+ * technical id (A1.2) is unchanged everywhere else.
+ */
+export function sublevelLabel(
+  sublevelId: string,
+  language: InterfaceLanguage,
+): string | undefined {
+  const key = `sublevel.${sublevelId}`;
+  const dict = DICTS[language] ?? EN;
+  return dict[key] ?? EN[key];
+}
+
+/** Clear-language name of a parent CEFR level (issue #22), e.g. `A2` → "Élémentaire". */
+export function levelName(
+  level: string,
+  language: InterfaceLanguage,
+): string | undefined {
+  const key = `level.name.${level}`;
+  const dict = DICTS[language] ?? EN;
+  return dict[key] ?? EN[key];
 }
