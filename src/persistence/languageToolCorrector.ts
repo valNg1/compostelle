@@ -12,9 +12,18 @@
 
 import {
   applyLanguageToolMatches,
+  issueTypesFromMatches,
   type AsyncSentenceCorrector,
   type LanguageToolMatch,
 } from "../domain/learning";
+
+/**
+ * Free public LanguageTool API (issue #21) — no key, no infra. Used by default
+ * when no self-hosted VITE_LANGUAGETOOL_URL is provided. It sends permissive
+ * CORS headers, so a direct browser call works; the request is a "simple"
+ * form-urlencoded POST (no preflight).
+ */
+export const PUBLIC_LANGUAGETOOL_URL = "https://api.languagetool.org/v2/check";
 
 export interface LanguageToolOptions {
   /** Full URL of the check endpoint, e.g. https://lt.example/v2/check */
@@ -55,18 +64,20 @@ export function createLanguageToolCorrector({
     return {
       correct: matches.length === 0,
       correction: applyLanguageToolMatches(sentence, matches),
+      issueTypes: issueTypesFromMatches(matches),
     };
   };
 }
 
 /**
- * Build the app's grammar corrector from the environment, or return `null` when
- * no LanguageTool endpoint is configured (the UI then falls back to the
- * deterministic surface corrector).
+ * Build the app's grammar corrector (issue #21): a self-hosted
+ * `VITE_LANGUAGETOOL_URL` if provided (it primes), otherwise the free PUBLIC
+ * LanguageTool API by default. Never returns null now — grammar checking is on
+ * by default; the UI still falls back to the deterministic corrector on any
+ * network/rate-limit error (and shows the honest #19 message).
  */
-export function getSentenceCorrector(): AsyncSentenceCorrector | null {
+export function getSentenceCorrector(): AsyncSentenceCorrector {
   const env = import.meta.env as Record<string, string | undefined>;
-  const url = env.VITE_LANGUAGETOOL_URL;
-  if (!url) return null;
+  const url = env.VITE_LANGUAGETOOL_URL || PUBLIC_LANGUAGETOOL_URL;
   return createLanguageToolCorrector({ endpoint: url });
 }

@@ -5,7 +5,19 @@ import {
   INTERFACE_LANGUAGES,
   sublevelLabel,
   levelName,
+  issueLabel,
 } from "./i18n";
+
+describe("issue-type labels follow the interaction language (issue #21 / #14)", () => {
+  it("resolves known LanguageTool issue types", () => {
+    expect(issueLabel("misspelling", "fr")).toBe("Orthographe");
+    expect(issueLabel("grammar", "en")).toBe("Grammar");
+  });
+  it("falls back to the generic 'Other' label for unknown types (never a raw key)", () => {
+    expect(issueLabel("some-weird-type", "fr")).toBe("Autre");
+    expect(issueLabel("some-weird-type", "en")).toBe("Other");
+  });
+});
 
 describe("competence labels (issue #22)", () => {
   it("resolves a sub-level to its competence label in the interaction language", () => {

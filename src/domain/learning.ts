@@ -203,6 +203,12 @@ export interface SentenceCorrection {
   correct: boolean;
   /** A complete, reformulated sentence (equal to the input when already correct). */
   correction: string;
+  /**
+   * Nature of the detected issues (issue #21), e.g. "grammar", "misspelling",
+   * "typographical". Interaction-language LABELS are resolved in the UI. Empty /
+   * absent for the deterministic fallback (it doesn't identify issue types).
+   */
+  issueTypes?: string[];
 }
 
 /**
@@ -283,7 +289,13 @@ export function diffWords(a: string, b: string): DiffSegment[] {
  */
 export type UseEvaluation =
   | { state: "expression-missing" }
-  | { state: "needs-correction"; correction: string; diff: DiffSegment[] }
+  | {
+      state: "needs-correction";
+      correction: string;
+      diff: DiffSegment[];
+      /** Error natures to explain in the interaction language (issue #21). */
+      issueTypes: string[];
+    }
   | { state: "valid" };
 
 /**
@@ -326,7 +338,7 @@ export function evaluateUse(
  */
 function decideCorrection(
   answer: string,
-  { correct, correction }: SentenceCorrection,
+  { correct, correction, issueTypes }: SentenceCorrection,
 ): UseEvaluation {
   if (correct) return { state: "valid" };
   if (normalizeForCompare(answer) === normalizeForCompare(correction)) {
@@ -336,6 +348,7 @@ function decideCorrection(
     state: "needs-correction",
     correction,
     diff: diffWords(answer.trim(), correction),
+    issueTypes: issueTypes ?? [],
   };
 }
 
@@ -377,6 +390,24 @@ export interface LanguageToolMatch {
   offset: number;
   length: number;
   replacements: { value: string }[];
+  /** Rule metadata; `issueType` describes the error nature (issue #21). */
+  rule?: { issueType?: string };
+}
+
+/** Distinct issue types across matches, in first-seen order (issue #21). */
+export function issueTypesFromMatches(
+  matches: readonly LanguageToolMatch[],
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const m of matches) {
+    const t = m.rule?.issueType;
+    if (t && !seen.has(t)) {
+      seen.add(t);
+      out.push(t);
+    }
+  }
+  return out;
 }
 
 /**

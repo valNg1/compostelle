@@ -1451,3 +1451,11 @@ body {
   font-size: 0.85em;
   opacity: 0.75;
 }
+
+/* ── Correction issue nature (issue #21) ─────────────────────────── */
+.use__issue {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  color: var(--ink-dim);
+}

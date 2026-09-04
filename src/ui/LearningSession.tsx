@@ -3,7 +3,7 @@ import type { ContentItem } from "../domain/content";
 import { CATEGORY_LABELS } from "../domain/content";
 import type { DeclaredLevel } from "../domain/journey";
 import type { InterfaceLanguage } from "../domain/i18n";
-import { t } from "../domain/i18n";
+import { t, issueLabel } from "../domain/i18n";
 import {
   answerUsesKeyExpression,
   annotationTranslation,
@@ -169,7 +169,10 @@ export function LearningSession({
   const [answer, setAnswer] = useState("");
   const [evaluation, setEvaluation] = useState<UseEvaluation | null>(null);
   const [checking, setChecking] = useState(false);
-  // Grammar corrector (self-hosted LanguageTool) when configured, else null.
+  // Whether the last check actually ran full grammar checking (LanguageTool
+  // succeeded) vs fell back to the deterministic corrector (issue #19 / #21).
+  const [grammarChecked, setGrammarChecked] = useState(false);
+  // Grammar corrector: LanguageTool (public API by default, issue #21).
   const corrector = useMemo(() => getSentenceCorrector(), []);
 
   async function checkUse() {
@@ -191,21 +194,24 @@ export function LearningSession({
       }
     }
 
-    // Grammar: use LanguageTool when available, fall back to the deterministic
-    // surface corrector on absence or any network error.
-    if (corrector) {
-      setChecking(true);
-      try {
-        setEvaluation(
-          await evaluateUseAsync(answer, content.use, content.language, corrector),
-        );
-      } catch {
-        setEvaluation(evaluateUse(answer, content.use));
-      } finally {
-        setChecking(false);
-      }
-    } else {
+    // Grammar: LanguageTool (public API), falling back to the deterministic
+    // corrector on any network / rate-limit error (issue #21). grammarChecked
+    // reflects whether full grammar checking actually ran (issue #19).
+    setChecking(true);
+    try {
+      const ev = await evaluateUseAsync(
+        answer,
+        content.use,
+        content.language,
+        corrector,
+      );
+      setEvaluation(ev);
+      setGrammarChecked(true);
+    } catch {
       setEvaluation(evaluateUse(answer, content.use));
+      setGrammarChecked(false);
+    } finally {
+      setChecking(false);
     }
   }
 
@@ -435,11 +441,19 @@ export function LearningSession({
                       ),
                     )}
                   </p>
+                  {evaluation.issueTypes.length > 0 && (
+                    <p className="use__issue">
+                      {t("use.issue_nature", il)}{" "}
+                      {evaluation.issueTypes
+                        .map((type) => issueLabel(type, il))
+                        .join(", ")}
+                    </p>
+                  )}
                 </>
               )}
               {evaluation.state === "valid" && (
                 <p className="use__selfcheck use__selfcheck--ok">
-                  {t(validFeedbackKey(corrector !== null), il)}
+                  {t(validFeedbackKey(grammarChecked), il)}
                 </p>
               )}
               <p className="use__sample">

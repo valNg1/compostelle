@@ -5,6 +5,7 @@ import {
   applyLanguageToolMatches,
   deterministicCorrector,
   validFeedbackKey,
+  issueTypesFromMatches,
   normalizeForCompare,
   diffWords,
   type SentenceCorrector,
@@ -111,6 +112,33 @@ describe("no correction without a real diff (issue #10)", () => {
       expect(r.correction).toBe("Io mangio l'ultima corsa.");
       const changed = r.diff.filter((d) => d.type !== "same");
       expect(changed.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("explicit correction — issue types (issue #21)", () => {
+  it("extracts distinct issue types from LanguageTool matches, first-seen order", () => {
+    expect(
+      issueTypesFromMatches([
+        { offset: 0, length: 1, replacements: [], rule: { issueType: "grammar" } },
+        { offset: 2, length: 1, replacements: [], rule: { issueType: "misspelling" } },
+        { offset: 4, length: 1, replacements: [], rule: { issueType: "grammar" } },
+        { offset: 6, length: 1, replacements: [] }, // no rule → ignored
+      ]),
+    ).toEqual(["grammar", "misspelling"]);
+    expect(issueTypesFromMatches([])).toEqual([]);
+  });
+
+  it("carries the issue types through to the needs-correction state", async () => {
+    const corrector: AsyncSentenceCorrector = async () => ({
+      correct: false,
+      correction: "Io mangio l'ultima corsa.",
+      issueTypes: ["grammar", "misspelling"],
+    });
+    const r = await evaluateUseAsync("io magno l'ultima corsa", use, "it", corrector);
+    expect(r.state).toBe("needs-correction");
+    if (r.state === "needs-correction") {
+      expect(r.issueTypes).toEqual(["grammar", "misspelling"]);
     }
   });
 });

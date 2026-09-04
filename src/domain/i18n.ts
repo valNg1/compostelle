@@ -105,6 +105,16 @@ const EN: Dict = {
   "use.needs_correction":
     "You used the expression, but the sentence needs a small fix. Here is a corrected version:",
   "use.correction": "Suggested:",
+  "use.issue_nature": "Nature:",
+  "issue.misspelling": "Spelling",
+  "issue.grammar": "Grammar",
+  "issue.typographical": "Typography",
+  "issue.whitespace": "Spacing",
+  "issue.punctuation": "Punctuation",
+  "issue.style": "Style",
+  "issue.duplication": "Repetition",
+  "issue.uncategorized": "Other",
+  "issue.other": "Other",
   "use.scaffold_expr": "Expression to use:",
   "use.reuse_hint": "Expressions you can reuse (optional):",
   "use.scaffold_start": "You can start with:",
@@ -249,6 +259,16 @@ const FR: Dict = {
   "use.needs_correction":
     "Vous avez employé l'expression, mais la phrase demande une correction. Voici une version corrigée :",
   "use.correction": "Proposition :",
+  "use.issue_nature": "Nature :",
+  "issue.misspelling": "Orthographe",
+  "issue.grammar": "Grammaire",
+  "issue.typographical": "Typographie",
+  "issue.whitespace": "Espaces",
+  "issue.punctuation": "Ponctuation",
+  "issue.style": "Style",
+  "issue.duplication": "Répétition",
+  "issue.uncategorized": "Autre",
+  "issue.other": "Autre",
   "use.scaffold_expr": "Expression à utiliser :",
   "use.reuse_hint": "Expressions que vous pouvez réutiliser (facultatif) :",
   "use.scaffold_start": "Vous pouvez commencer par :",
@@ -372,4 +392,18 @@ export function levelName(
   const key = `level.name.${level}`;
   const dict = DICTS[language] ?? EN;
   return dict[key] ?? EN[key];
+}
+
+/**
+ * Interaction-language label for a LanguageTool issue type (issue #21 / #14),
+ * e.g. `misspelling` → "Orthographe". Unknown types fall back to the generic
+ * "Other" label — never a raw key.
+ */
+export function issueLabel(
+  issueType: string,
+  language: InterfaceLanguage,
+): string {
+  const dict = DICTS[language] ?? EN;
+  const key = `issue.${issueType}`;
+  return dict[key] ?? EN[key] ?? dict["issue.other"] ?? EN["issue.other"] ?? issueType;
 }
