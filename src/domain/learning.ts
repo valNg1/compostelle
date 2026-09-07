@@ -363,6 +363,78 @@ export function validFeedbackKey(grammarConfigured: boolean): string {
 }
 
 /**
+ * One correction to explain to the learner. `nature` is LanguageTool's
+ * issueType (grammar / typographical / …); the UI maps it to a plain-language
+ * label via i18n (`issueLabel`). See troubleshooting/compostelle-reuse-feedback.
+ */
+export interface ReuseCorrection {
+  nature: string;
+}
+
+/**
+ * Structured, learner-facing Reuse feedback — built purely from an existing
+ * {@link UseEvaluation}. No new engine, no network: a deterministic view over
+ * what `evaluateUse(Async)` already computes.
+ *
+ * `idiomaticAlternative` is deliberately optional and is NOT produced by the
+ * current grammar engine: LanguageTool applies grammar-rule replacements; it
+ * cannot rewrite an already-correct sentence into a more natural, native-like
+ * one. Producing that requires a generative model, which this project does not
+ * currently have. The field is the seam for that future iteration and stays
+ * `undefined` until a generative corrector is introduced (documented, not yet
+ * added). See troubleshooting/compostelle-reuse-feedback.
+ */
+export interface ReuseFeedback {
+  /** High-level verdict, mapped to an i18n message by the UI. */
+  assessment: "correct" | "understandable" | "expression-missing";
+  /**
+   * Minimal corrected sentence: the learner's own sentence when it is valid,
+   * otherwise the grammar-corrected version. Never invents meaning.
+   */
+  correctedSentence: string;
+  /** The main corrections to explain (empty when the sentence is valid). */
+  mainCorrections: ReuseCorrection[];
+  /** Native-like reformulation — requires a generative model; `undefined` today. */
+  idiomaticAlternative?: string;
+  /** Whether the learner is invited to try again. */
+  retrySuggested: boolean;
+}
+
+/**
+ * Turn the 3-state {@link UseEvaluation} into the structured feedback the Reuse
+ * result screen renders (assessment + corrected sentence + main corrections +
+ * optional retry). Pure and deterministic; adds no new dependency.
+ */
+export function reuseFeedback(
+  answer: string,
+  evaluation: UseEvaluation,
+): ReuseFeedback {
+  switch (evaluation.state) {
+    case "expression-missing":
+      return {
+        assessment: "expression-missing",
+        correctedSentence: answer.trim(),
+        mainCorrections: [],
+        retrySuggested: true,
+      };
+    case "needs-correction":
+      return {
+        assessment: "understandable",
+        correctedSentence: evaluation.correction,
+        mainCorrections: evaluation.issueTypes.map((nature) => ({ nature })),
+        retrySuggested: true,
+      };
+    case "valid":
+      return {
+        assessment: "correct",
+        correctedSentence: answer.trim(),
+        mainCorrections: [],
+        retrySuggested: false,
+      };
+  }
+}
+
+/**
  * Async corrector (network-backed), e.g. a self-hosted LanguageTool instance.
  * Language-aware: the target language of the learner's sentence is passed
  * through so the grammar service checks against the right rules.

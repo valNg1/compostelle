@@ -16,6 +16,7 @@ import {
   countWords,
   evaluateUse,
   evaluateUseAsync,
+  reuseFeedback,
   prioritizeRecallForReplay,
   type Annotation,
   type LearningContent,
@@ -174,6 +175,17 @@ export function LearningSession({
   const [grammarChecked, setGrammarChecked] = useState(false);
   // Grammar corrector: LanguageTool (public API by default, issue #21).
   const corrector = useMemo(() => getSentenceCorrector(), []);
+  // Structured Reuse feedback derived from the evaluation (troubleshooting:
+  // compostelle-reuse-feedback): assessment + corrected sentence + retry.
+  const feedback = evaluation ? reuseFeedback(answer, evaluation) : null;
+  const assessmentKey =
+    feedback === null
+      ? ""
+      : feedback.assessment === "correct"
+        ? "use.assessment_correct"
+        : feedback.assessment === "understandable"
+          ? "use.assessment_understandable"
+          : "use.assessment_missing";
 
   async function checkUse() {
     // Memory credit depends only on whether the expression was used.
@@ -414,6 +426,13 @@ export function LearningSession({
         ) : (
           <>
             <div className="use__feedback" role="status" aria-live="polite">
+              {feedback && (
+                <p
+                  className={`use__assessment use__assessment--${feedback.assessment}`}
+                >
+                  {t(assessmentKey, il)}
+                </p>
+              )}
               {evaluation.state === "expression-missing" && (
                 <p className="use__selfcheck use__selfcheck--miss">
                   {t("use.not_used", il, {
@@ -441,6 +460,12 @@ export function LearningSession({
                       ),
                     )}
                   </p>
+                  {feedback && (
+                    <p className="use__corrected">
+                      <strong>{t("use.corrected_label", il)}</strong>{" "}
+                      {feedback.correctedSentence}
+                    </p>
+                  )}
                   {evaluation.issueTypes.length > 0 && (
                     <p className="use__issue">
                       {t("use.issue_nature", il)}{" "}
@@ -460,9 +485,23 @@ export function LearningSession({
                 <strong>{t("use.sample", il)}</strong> {content.use.sampleAnswer}
               </p>
             </div>
-            <button type="button" className="cta" onClick={finish}>
-              {t("ls.continue", il)}
-            </button>
+            <div className="use__actions">
+              {feedback?.retrySuggested && (
+                <button
+                  type="button"
+                  className="cta cta--ghost"
+                  onClick={() => {
+                    setEvaluation(null);
+                    setGrammarChecked(false);
+                  }}
+                >
+                  {t("use.retry", il)}
+                </button>
+              )}
+              <button type="button" className="cta" onClick={finish}>
+                {t("ls.continue", il)}
+              </button>
+            </div>
           </>
         )}
       </section>
