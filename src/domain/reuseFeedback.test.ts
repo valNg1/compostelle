@@ -57,6 +57,32 @@ describe("reuseFeedback — structured Reuse result", () => {
     expect(fb.retrySuggested).toBe(true);
   });
 
+  it("(edge) needs-correction with no issueType → corrected sentence but empty mainCorrections", () => {
+    // Real LanguageTool path: a match can carry a replacement but no issueType,
+    // so the corrected sentence changes while mainCorrections stays empty.
+    const ev: UseEvaluation = {
+      state: "needs-correction",
+      correction: "Prendo l'ultima corsa del tram.",
+      diff: [],
+      issueTypes: [],
+    };
+    const fb = reuseFeedback("prendo ultima corsa tram", ev);
+    expect(fb.assessment).toBe("understandable");
+    expect(fb.correctedSentence).toBe("Prendo l'ultima corsa del tram.");
+    expect(fb.mainCorrections).toEqual([]);
+    expect(fb.retrySuggested).toBe(true);
+  });
+
+  it("(edge) trims the learner sentence and never throws on blank input", () => {
+    // The UI disables submit on blank input; the pure mapping must still be
+    // total and return a well-formed contract.
+    const fb = reuseFeedback("   ", { state: "valid" });
+    expect(fb.assessment).toBe("correct");
+    expect(fb.correctedSentence).toBe("");
+    expect(fb.mainCorrections).toEqual([]);
+    expect(fb.retrySuggested).toBe(false);
+  });
+
   it("does not invent an idiomatic alternative with the current grammar engine", () => {
     // Documents the known limitation: LanguageTool cannot produce a native-like
     // reformulation, so the field stays undefined until a generative corrector
